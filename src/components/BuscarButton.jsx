@@ -1,7 +1,7 @@
 import { Button } from "@heroui/react";
 import { useBuscarButton } from "@/hooks/useBuscador.js";
 
-export default function BuscarButton({ variant }) {
+export default function BuscarButton({ variant, children }) {
   const { isDisabled, handleSearch } = useBuscarButton(variant);
 
   return (
@@ -12,7 +12,7 @@ export default function BuscarButton({ variant }) {
       onClick={handleSearch}
       isDisabled={isDisabled}
     >
-      Buscar propiedades
+      {children || 'Buscar propiedades'}
     </Button>
   );
 }

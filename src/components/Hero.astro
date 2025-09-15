@@ -6,9 +6,9 @@ import Buscador from '@/components/Buscador.jsx';
 <section class="relative h-[620px] bg-[image:var(--url-img)] bg-cover bg-center">
     <div class="absolute inset-0 bg-gradient-to-b from-[var(--gradient-color)] from-10% to-transparent 110%"></div>
     <div class="relative z-10 flex flex-col items-center justify-center h-full">
-        <h1 class="text-5xl font-bold text-white mb-10">Encuentra la casa de tus sueños</h1>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-10">Encuentra la casa de tus sueños</h1>
 
-        <div class="w-full justify-center flex items-center gap-7">
+        <div class="w-full flex flex-col items-center justify-center gap-7">
             <div class="flex flex-wrap justify-center gap-7">
                 <Buscador client:load />
             </div>
@@ -19,7 +19,7 @@ import Buscador from '@/components/Buscador.jsx';
 
 <style>
 section {
-    --gradient-color: #0965c4;
-    --url-img: url(/imgHeroBanner.png);
+    --gradient-color:#006760 ;
+    --url-img: url(/slider-1.jpg);
 }
 </style>

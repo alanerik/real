@@ -1,0 +1,99 @@
+---
+const lugares = [
+  {
+    nombre: "Pinamar",
+    descripcion: "El destino costero más elegante con playas infinitas y bosques de pinos",
+    claseGrid: "lg:col-span-2 lg:row-span-2",
+    gradiente: "from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900",
+    textColor: "text-blue-100",
+    isLarge: true
+  },
+  {
+    nombre: "Cariló",
+    descripcion: "Exclusividad entre dunas y bosques",
+    claseGrid: "",
+    gradiente: "from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800",
+    textColor: "text-emerald-100",
+    isLarge: false
+  },
+  {
+    nombre: "Valeria del Mar",
+    descripcion: "Tranquilidad y naturaleza pura",
+    claseGrid: "",
+    gradiente: "from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800",
+    textColor: "text-purple-100",
+    isLarge: false
+  },
+  {
+    nombre: "Costa Esmeralda",
+    descripcion: "Belleza salvaje y acantilados únicos",
+    claseGrid: "",
+    gradiente: "from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800",
+    textColor: "text-teal-100",
+    isLarge: false
+  },
+  {
+    nombre: "General Madariaga",
+    descripcion: "Historia y tradición del interior",
+    claseGrid: "",
+    gradiente: "from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800",
+    textColor: "text-amber-100",
+    isLarge: false
+  }
+];
+---
+
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <!-- Título de la sección -->
+  <div class="text-center mb-12">
+    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+      Explora cada lugar
+    </h2>
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+      Descubre los destinos más hermosos de la costa argentina
+    </p>
+  </div>
+
+  <!-- Bento Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[600px] lg:h-[500px]">
+    {
+      lugares.map(lugar => (
+        <div class:list={[
+          "group relative overflow-hidden rounded-[10px] bg-gradient-to-br transition-all duration-300 cursor-pointer",
+          lugar.gradiente,
+          lugar.claseGrid
+        ]}>
+          <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
+          <div class="relative h-full p-6 flex flex-col justify-end min-h-[200px]">
+            <div class="transform group-hover:translate-y-[-4px] transition-transform duration-300">
+              <h3 class:list={[
+                "font-bold text-white mb-2",
+                lugar.isLarge ? "text-2xl lg:text-3xl" : "text-xl"
+              ]}>
+                {lugar.nombre}
+              </h3>
+              <p class:list={[
+                "text-sm opacity-90",
+                lugar.textColor,
+                lugar.isLarge ? "lg:text-base" : ""
+              ]}>
+                {lugar.descripcion}
+              </p>
+            </div>
+          </div>
+          <div class:list={[
+            "absolute top-4 right-4 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors duration-300",
+            lugar.isLarge ? "w-8 h-8" : "w-6 h-6"
+          ]}>
+            <svg class:list={[
+              "text-white",
+              lugar.isLarge ? "w-4 h-4" : "w-3 h-3"
+            ]} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>

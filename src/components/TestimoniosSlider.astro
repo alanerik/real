@@ -1,0 +1,303 @@
+---
+// TestimoniosSlider.astro
+const testimonios = [
+  {
+    id: 1,
+    nombre: "María González",
+    ubicacion: "Buenos Aires",
+    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face&auto=format&q=80",
+    testimonio: "Una experiencia increíble en Pinamar. El servicio fue excepcional y las instalaciones de primera calidad. Definitivamente volveremos el próximo verano.",
+    rating: 5,
+    fecha: "Enero 2024"
+  },
+  {
+    id: 2,
+    nombre: "Carlos Rodríguez",
+    ubicacion: "Córdoba",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face&auto=format&q=80",
+    testimonio: "Cariló superó todas nuestras expectativas. La atención personalizada y la tranquilidad del lugar lo convierten en el destino perfecto para descansar.",
+    rating: 5,
+    fecha: "Febrero 2024"
+  },
+  {
+    id: 3,
+    nombre: "Ana Martínez",
+    ubicacion: "Rosario",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face&auto=format&q=80",
+    testimonio: "Costa Esmeralda es simplemente mágica. Los paisajes son únicos y la hospitalidad del lugar es extraordinaria. Una experiencia que no olvidaremos.",
+    rating: 5,
+    fecha: "Marzo 2024"
+  },
+  {
+    id: 4,
+    nombre: "Diego López",
+    ubicacion: "Mendoza",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face&auto=format&q=80",
+    testimonio: "Valeria del Mar nos brindó la paz que estábamos buscando. Perfecto para desconectar y disfrutar en familia. Altamente recomendado.",
+    rating: 5,
+    fecha: "Abril 2024"
+  },
+  {
+    id: 5,
+    nombre: "Sofía Fernández",
+    ubicacion: "La Plata",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face&auto=format&q=80",
+    testimonio: "General Madariaga nos sorprendió con su rica historia y tradiciones. Una experiencia cultural única que complementó perfectamente nuestras vacaciones en la costa.",
+    rating: 5,
+    fecha: "Mayo 2024"
+  }
+];
+
+const renderStars = (rating) => {
+  return Array.from({ length: 5 }, (_, index) => {
+    return index < rating 
+      ? '<svg class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>'
+      : '<svg class="w-4 h-4 text-gray-300 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>';
+  }).join('');
+};
+---
+
+<section class="bg-gray-50 py-16 sm:py-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header -->
+    <div class="text-center mb-16">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+        Nuestros clientes
+        <span class="block text-blue-600">dejan su opinión</span>
+      </h2>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        Miles de familias ya han vivido experiencias únicas en nuestros destinos. 
+        Descubre lo que dicen sobre nosotros.
+      </p>
+    </div>
+
+    <!-- Slider Container -->
+    <div class="relative">
+      <div 
+        id="testimonials-slider" 
+        class="overflow-hidden rounded-2xl"
+        data-total={testimonios.length}
+      >
+        <div 
+          id="slides-container" 
+          class="flex transition-transform duration-500 ease-in-out"
+          style="transform: translateX(0%)"
+        >
+          {testimonios.map((testimonio) => (
+            <div class="w-full flex-shrink-0 px-4">
+              <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 lg:p-12 mx-auto max-w-4xl">
+                
+                <!-- Quote Icon -->
+                <div class="flex justify-center mb-8">
+                  <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L4.414 9H17a1 1 0 100-2H4.414l1.879-1.879z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Testimonio -->
+                <blockquote class="text-center">
+                  <p class="text-xl lg:text-2xl text-gray-800 leading-relaxed mb-8 font-medium italic">
+                    "{testimonio.testimonio}"
+                  </p>
+                </blockquote>
+
+                <!-- Rating -->
+                <div class="flex justify-center mb-6">
+                  <div class="flex items-center space-x-1" set:html={renderStars(testimonio.rating)}>
+                  </div>
+                </div>
+
+                <!-- Cliente Info -->
+                <div class="flex items-center justify-center space-x-4">
+                  <img 
+                    src={testimonio.avatar} 
+                    alt={`Foto de ${testimonio.nombre}`}
+                    class="w-16 h-16 rounded-full object-cover ring-4 ring-blue-100"
+                  />
+                  <div class="text-center sm:text-left">
+                    <h4 class="text-lg font-semibold text-gray-900">{testimonio.nombre}</h4>
+                    <p class="text-gray-600">{testimonio.ubicacion}</p>
+                    <p class="text-sm text-gray-500">{testimonio.fecha}</p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="flex justify-center items-center space-x-4 mt-8">
+        <button 
+          id="prev-btn"
+          class="w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Testimonio anterior"
+        >
+          <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+
+        <!-- Dots Indicator -->
+        <div id="dots-container" class="flex space-x-2">
+          {testimonios.map((_, index) => (
+            <button 
+              class={`w-3 h-3 rounded-full transition-all duration-200 ${index === 0 ? 'bg-blue-600 w-8' : 'bg-gray-300 hover:bg-gray-400'}`}
+              data-slide={index}
+              aria-label={`Ir al testimonio ${index + 1}`}
+            ></button>
+          ))}
+        </div>
+
+        <button 
+          id="next-btn"
+          class="w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Siguiente testimonio"
+        >
+          <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-16 pt-12 border-t border-gray-200">
+        <div class="text-center">
+          <div class="text-4xl font-bold text-blue-600 mb-2">1,500+</div>
+          <div class="text-gray-600">Clientes satisfechos</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-blue-600 mb-2">98%</div>
+          <div class="text-gray-600">Recomendaciones</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-blue-600 mb-2">4.9</div>
+          <div class="text-gray-600">Calificación promedio</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  // Configuración del slider
+  const slider = document.getElementById('testimonials-slider');
+  const slidesContainer = document.getElementById('slides-container');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const dotsContainer = document.getElementById('dots-container');
+  
+  let currentSlide = 0;
+  const totalSlides = parseInt(slider?.dataset.total || '0');
+  
+  // Función para actualizar el slider
+  const updateSlider = () => {
+    if (!slidesContainer) return;
+    
+    const translateValue = -currentSlide * 100;
+    slidesContainer.style.transform = `translateX(${translateValue}%)`;
+    
+    // Actualizar dots
+    const dots = dotsContainer?.querySelectorAll('button');
+    dots?.forEach((dot, index) => {
+      if (index === currentSlide) {
+        dot.className = 'w-8 h-3 rounded-full bg-blue-600 transition-all duration-200';
+      } else {
+        dot.className = 'w-3 h-3 rounded-full bg-gray-300 hover:bg-gray-400 transition-all duration-200';
+      }
+    });
+    
+    // Actualizar botones
+    if (prevBtn) prevBtn.disabled = currentSlide === 0;
+    if (nextBtn) nextBtn.disabled = currentSlide === totalSlides - 1;
+  };
+  
+  // Event listeners
+  prevBtn?.addEventListener('click', () => {
+    if (currentSlide > 0) {
+      currentSlide--;
+      updateSlider();
+    }
+  });
+  
+  nextBtn?.addEventListener('click', () => {
+    if (currentSlide < totalSlides - 1) {
+      currentSlide++;
+      updateSlider();
+    }
+  });
+  
+  // Dots navigation
+  const dots = dotsContainer?.querySelectorAll('button');
+  dots?.forEach((dot, index) => {
+    dot.addEventListener('click', () => {
+      currentSlide = index;
+      updateSlider();
+    });
+  });
+  
+  // Auto-play (opcional)
+  const autoPlay = () => {
+    if (currentSlide < totalSlides - 1) {
+      currentSlide++;
+    } else {
+      currentSlide = 0;
+    }
+    updateSlider();
+  };
+  
+  // Inicializar auto-play cada 5 segundos
+  let autoPlayInterval = setInterval(autoPlay, 5000);
+  
+  // Pausar auto-play al hacer hover
+  slider?.addEventListener('mouseenter', () => {
+    clearInterval(autoPlayInterval);
+  });
+  
+  slider?.addEventListener('mouseleave', () => {
+    autoPlayInterval = setInterval(autoPlay, 5000);
+  });
+  
+  // Soporte para touch/swipe en móviles
+  let startX = 0;
+  let isDragging = false;
+  
+  slider?.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    isDragging = true;
+    clearInterval(autoPlayInterval);
+  });
+  
+  slider?.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+  });
+  
+  slider?.addEventListener('touchend', (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    
+    const endX = e.changedTouches[0].clientX;
+    const diff = startX - endX;
+    
+    if (Math.abs(diff) > 50) { // Mínimo 50px para activar swipe
+      if (diff > 0 && currentSlide < totalSlides - 1) {
+        currentSlide++;
+      } else if (diff < 0 && currentSlide > 0) {
+        currentSlide--;
+      }
+      updateSlider();
+    }
+    
+    // Reiniciar auto-play
+    autoPlayInterval = setInterval(autoPlay, 5000);
+  });
+  
+  // Inicializar el slider
+  updateSlider();
+</script>

@@ -1,0 +1,51 @@
+---
+import CardMain from './CardMain.jsx';
+import BuscarButton from './BuscarButton.jsx';
+
+const properties = [
+  {
+    image: './senderos-3-al-200.jpg',
+    title: 'Casa de Lujo en la Montaña',
+    description: 'Una hermosa casa con vistas espectaculares.',
+    price: '$500,000'
+  },
+  {
+    image: './ecuestre-al-200.jpg',
+    title: 'Apartamento Moderno en la Ciudad',
+    description: 'Perfecto para la vida urbana.',
+    price: '$300,000'
+  },
+  {
+    image: './maritimo-3-al-100.jpg',
+    title: 'Chalet Acogedor en el Bosque',
+    description: 'Escape de la ciudad y disfrute de la naturaleza.',
+    price: '$450,000'
+  },
+  {
+    image: './senderos-5-al-300.jpg',
+    title: 'Piso con Vistas al Mar',
+    description: 'Viva cerca de la playa con impresionantes vistas.',
+    price: '$600,000'
+  }
+];
+---
+
+<section class="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="container mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center mb-8">Últimas Propiedades</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {properties.map(property => (
+        <CardMain 
+          client:load
+          image={property.image} 
+          title={property.title} 
+          description={property.description} 
+          price={property.price} 
+        />
+      ))}
+    </div>
+    <div class="text-center mt-8">
+      <BuscarButton variant="header" client:load>Ver más</BuscarButton>
+    </div>
+  </div>
+</section>

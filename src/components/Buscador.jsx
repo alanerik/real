@@ -28,7 +28,7 @@ export default function Buscador() {
   const [state, actions] = useBuscador();
 
   return (
-    <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
+    <div className="flex w-full flex-wrap justify-center md:flex-nowrap gap-4">
       <Autocomplete 
         className="max-w-xs" 
         label="Selecciona una ciudad" 
