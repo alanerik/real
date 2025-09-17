@@ -8,6 +8,7 @@ city: 'costa-esmeralda'
 operation: 'venta'
 propertyType: 'terreno'
 area: 1010
+orientation: 'Norte'
 ---
 
 Construya su casa en un entorno familiar.
