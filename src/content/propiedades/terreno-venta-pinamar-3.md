@@ -1,0 +1,13 @@
+---
+title: 'Terreno en Pinamar Norte'
+description: 'Exclusivo terreno en zona norte de Pinamar.'
+image: '/senderos-3-al-200.jpg'
+price: 95000
+currency: 'USD'
+city: 'pinamar'
+operation: 'venta'
+propertyType: 'terreno'
+area: 1000
+---
+
+A pocos metros de la playa.

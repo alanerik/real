@@ -1,0 +1,89 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import CardMain from '@/components/CardMain.jsx';
+import Pagination from '@/components/Pagination.jsx';
+import { ciudades, tiposDePropiedad, tiposDePropiedadAlquiler } from '@/components/Buscador.jsx';
+
+export async function getStaticPaths() {
+  const paths = [];
+
+  // Rutas para Venta
+  for (const ciudad of ciudades) {
+    for (const tipo of tiposDePropiedad) {
+      paths.push({
+        params: {
+          operacion: 'venta',
+          ciudad: ciudad.key,
+          tipoPropiedad: tipo.key
+        }
+      });
+    }
+  }
+
+  // Rutas para Alquiler
+  for (const ciudad of ciudades) {
+    for (const tipo of tiposDePropiedadAlquiler) {
+      paths.push({
+        params: {
+          operacion: 'alquiler',
+          ciudad: ciudad.key,
+          tipoPropiedad: tipo.key
+        }
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { operacion, ciudad, tipoPropiedad } = Astro.params;
+
+const todasLasPropiedades = await getCollection('propiedades');
+
+const propiedadesFiltradas = todasLasPropiedades.filter(propiedad => {
+  return (
+    propiedad.data.operation === operacion &&
+    propiedad.data.city === ciudad &&
+    propiedad.data.propertyType === tipoPropiedad
+  );
+});
+const PAGE_SIZE = 8;
+const currentPage = parseInt(Astro.url.searchParams.get('page') || '1');
+const totalPages = Math.ceil(propiedadesFiltradas.length / PAGE_SIZE);
+
+const pagedPropiedades = propiedadesFiltradas.slice(
+  (currentPage - 1) * PAGE_SIZE,
+  currentPage * PAGE_SIZE
+);
+---
+
+<Layout title={`Resultados para ${operacion} en ${ciudad}`}>
+  <main class="container mx-auto px-4 py-8 w-[1200px]">
+    <div class="mb-4">
+      <p class="text-lg font-thin">Resultados</p>
+      <h1 class="text-2xl font-bold">
+        {propiedadesFiltradas.length} propiedades en {operacion}
+      </h1>
+    </div>
+    
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+      {pagedPropiedades.length > 0 ? (
+        pagedPropiedades.map(propiedad => (
+          <CardMain
+            client:load
+            title={propiedad.data.title}
+            description={propiedad.data.description}
+            price={`${propiedad.data.currency} ${propiedad.data.price}`}
+            image={propiedad.data.image}
+            slug={propiedad.slug}
+          />
+        ))
+      ) : (
+        <p>No se encontraron propiedades con estos criterios.</p>
+      )}
+    </div>
+    <div class="flex justify-center mt-8">
+      <Pagination client:load total={totalPages} initialPage={currentPage} />
+    </div>

@@ -1,0 +1,26 @@
+---
+import { getCollection, getEntryBySlug } from 'astro:content';
+import Layout from '@/layouts/Layout.astro';
+import FichaTecnica from '@/components/FichaTecnica.jsx';
+
+export async function getStaticPaths() {
+  const propiedades = await getCollection('propiedades');
+  return propiedades.map(propiedad => ({
+    params: { slug: propiedad.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+const propiedad = await getEntryBySlug('propiedades', slug);
+
+if (!propiedad) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'No encontrado'
+  });
+}
+---
+
+<Layout title={propiedad.data.title}>
+  <FichaTecnica client:load property={propiedad.data} />
+</Layout>
