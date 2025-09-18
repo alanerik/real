@@ -1,36 +1,135 @@
 ---
-import CardMain from './CardMain.jsx';
-import BuscarButton from './BuscarButton.jsx';
+import CardMain from '@/components/CardMain.jsx';
+import BuscarButton from '@/components/BuscarButton.jsx';
 import { getCollection } from 'astro:content';
 
 const allProperties = await getCollection('propiedades');
 const properties = allProperties.slice(0, 4);
 
-function formatPrice(price, currency) {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: currency || 'USD'
-  }).format(price);
+function formatPrice(price, currency = 'USD') {
+  if (!price || price <= 0) return 'Consultar precio';
+  
+  try {
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price);
+  } catch (error) {
+    console.warn('Error formatting price:', error);
+    return `${currency} ${price.toLocaleString()}`;
+  }
 }
+
+function generateStructuredData(properties) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Últimas Propiedades",
+    "numberOfItems": properties.length,
+    "itemListElement": properties.map((property, index) => ({
+      "@type": "RealEstateListingProperty",
+      "position": index + 1,
+      "name": property.data.title,
+      "description": property.data.description,
+      "image": property.data.image,
+      "url": `/propiedades/detalles/${property.slug}`,
+      "offers": {
+        "@type": "Offer",
+        "price": property.data.price,
+        "priceCurrency": property.data.currency || 'USD'
+      }
+    }))
+  };
+}
+
+const structuredData = generateStructuredData(properties);
 ---
 
-<section class="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-  <div class="container mx-auto px-4">
-    <h2 class="text-3xl font-bold text-center mb-8">Últimas Propiedades</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-      {properties.map(property => (
-        <CardMain 
-          client:load
-          image={property.data.image} 
-          title={property.data.title} 
-          description={property.data.description} 
-          price={formatPrice(property.data.price, property.data.currency)}
-          slug={property.slug}
-        />
-      ))}
+<section 
+  class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+  aria-labelledby="latest-properties-heading"
+>
+  <div class="container mx-auto">
+    <!-- Header Section -->
+    <div class="text-center mb-12">
+      <h2 
+        id="latest-properties-heading"
+        class="text-4xl font-bold text-gray-900  mb-4"
+      >
+        Últimas Propiedades
+      </h2>
+      <p class="text-lg text-gray-600  max-w-2xl mx-auto">
+        Descubre nuestras propiedades más recientes con las mejores ubicaciones y precios
+      </p>
     </div>
-    <div class="text-center mt-8">
-      <BuscarButton variant="header" client:load>Ver más</BuscarButton>
-    </div>
+
+    <!-- Properties Grid -->
+    {properties.length > 0 ? (
+      <>
+        <div 
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8"
+          role="list"
+          aria-label="Lista de propiedades"
+        >
+          {properties.map((property, index) => (
+            <div role="listitem" key={property.slug}>
+              <CardMain 
+                client:load
+                image={property.data.image} 
+                title={property.data.title} 
+                description={property.data.description} 
+                price={formatPrice(property.data.price, property.data.currency)}
+                slug={property.slug}
+                imageAlt={`Imagen de ${property.data.title}`}
+                priority={index < 2}
+              />
+            </div>
+          ))}
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center mt-12">
+          <BuscarButton 
+            variant="header" 
+            client:load
+            
+          >
+            Ver todas las propiedades
+          </BuscarButton>
+        </div>
+      </>
+    ) : (
+      <!-- Empty State -->
+      <div class="text-center py-12">
+        <div class="max-w-md mx-auto">
+          <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            No hay propiedades disponibles
+          </h3>
+          <p class="text-gray-500 dark:text-gray-400">
+            Estamos trabajando para agregar nuevas propiedades pronto.
+          </p>
+        </div>
+      </div>
+    )}
   </div>
+
+  <!-- Structured Data for SEO -->
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 </section>
+
+<style>
+  /* Utility para line-clamp si no está disponible */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+
+</style>

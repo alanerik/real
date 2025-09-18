@@ -1,6 +1,7 @@
 import React from 'react';
 import Alerta from './Alerta.jsx';
 import Chip from './Chip.jsx';
+import Fromulario from './Fromulario.jsx'; // Import Formulario
 import { usePropertyChips } from '../hooks/usePropertyChips.js';
 import { usePropertyGallery } from '../hooks/usePropertyGallery.js';
 import { usePropertyDetailsList } from '../hooks/usePropertyDetailsList.js';
@@ -41,53 +42,61 @@ export default function FichaTecnica({ property }) {
   const headerData = usePropertyHeaderData(property);
 
   return (
-    <div className="max-w-4xl mx-auto p-4 font-sans">
-      {/* --- Header --- */}
-      <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 mb-8">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold">{headerData.title}</h1>
-            <p className="text-gray-500 opacity-80">{headerData.city}</p>
-            <div className="flex gap-2 mt-2">
-              {chips.map((chip, index) => (
-                <Chip key={index} text={chip.text} color={chip.color} />
-              ))}
+    <div className="max-w-7xl mx-auto p-4 font-sans grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* --- Left Column --- */}
+      <div className="lg:col-span-2">
+        {/* --- Header --- */}
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 mb-8">
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold">{headerData.title}</h1>
+              <p className="text-gray-500 opacity-80">{headerData.city}</p>
+              <div className="flex gap-2 mt-2">
+                {chips.map((chip, index) => (
+                  <Chip key={index} text={chip.text} color={chip.color} />
+                ))}
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-lg font-semibold text-gray-700">{headerData.displayOperation}</p>
+              <p className="text-3xl font-bold text-green-600">{headerData.formattedPrice}</p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-lg font-semibold text-gray-700">{headerData.displayOperation}</p>
-            <p className="text-3xl font-bold text-green-600">{headerData.formattedPrice}</p>
-          </div>
+        </div>
+
+        {/* --- Gallery --- */}
+        <div className="mb-8">
+          <Gallery images={gallery} />
+        </div>
+
+        {/* --- Cards --- */}
+        <div className="space-y-8">
+          <InfoCard title="Descripción">
+            <p className="text-gray-700">{description}</p>
+          </InfoCard>
+
+          <InfoCard title="Detalles de la Propiedad">
+            <ul className="list-disc list-inside space-y-2 text-gray-700">
+              {detailsList.map((item, index) => (
+                <li key={index}>{item.label}: <strong>{item.value}</strong></li>
+              ))}
+            </ul>
+          </InfoCard>
+
+          <InfoCard title="Medidas">
+            <ul className="list-disc list-inside space-y-2 text-gray-700">
+              {measurementsList.map((item, index) => (
+                <li key={index}>{item.label}: <strong>{item.value}</strong></li>
+              ))}
+            </ul>
+            <Alerta />
+          </InfoCard>
         </div>
       </div>
 
-      {/* --- Gallery --- */}
-      <div className="mb-8">
-        <Gallery images={gallery} />
-      </div>
-
-      {/* --- Cards --- */}
-      <div className="space-y-8">
-        <InfoCard title="Descripción">
-          <p className="text-gray-700">{description}</p>
-        </InfoCard>
-
-        <InfoCard title="Detalles de la Propiedad">
-          <ul className="list-disc list-inside space-y-2 text-gray-700">
-            {detailsList.map((item, index) => (
-              <li key={index}>{item.label}: <strong>{item.value}</strong></li>
-            ))}
-          </ul>
-        </InfoCard>
-
-        <InfoCard title="Medidas">
-          <ul className="list-disc list-inside space-y-2 text-gray-700">
-            {measurementsList.map((item, index) => (
-              <li key={index}>{item.label}: <strong>{item.value}</strong></li>
-            ))}
-          </ul>
-          <Alerta />
-        </InfoCard>
+      {/* --- Right Column (Form) --- */}
+      <div className="lg:col-span-1">
+        <Fromulario />
       </div>
     </div>
   );
