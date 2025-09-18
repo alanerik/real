@@ -9,7 +9,7 @@ export async function getStaticPaths() {
     params: { slug: propiedad.slug },
   }));
 }
-
+ export const prerender = true;
 const { slug } = Astro.params;
 const propiedad = await getEntry('propiedades', slug);
 
