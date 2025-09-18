@@ -20,8 +20,7 @@ export default function App() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
   
-  // ⚠️ REEMPLAZA CON TU FORM ID DE FORMSPREE
-  const FORMSPREE_ID = "xvgbeopr";
+  const FORMSPREE_ID = import.meta.env.PUBLIC_FORMSPREE_ID;
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -31,31 +30,45 @@ export default function App() {
     try {
       const data = Object.fromEntries(new FormData(e.currentTarget));
       
-      // Enviar a Formspree
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        formData.append(key, data[key]);
+      });
+
       const response = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
+        body: formData,
+        headers: {
           'Accept': 'application/json'
-        },
-        body: JSON.stringify(data)
+        }
       });
 
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
+        if (response.status === 403) {
+          throw new Error('Acceso denegado. Verifica: 1) Tu Form ID sea correcto, 2) Tu dominio esté autorizado en Formspree, 3) Hayas confirmado tu email si es la primera vez.');
+        }
+        if (response.status === 422) {
+          const errorData = await response.json();
+          throw new Error(errorData.errors?.map(err => err.message).join(', ') || 'Datos inválidos');
+        }
+        throw new Error(`Error ${response.status}: Por favor verifica tu configuración de Formspree`);
       }
 
       const result = await response.json();
       setSubmitted(data);
       
-      // Resetear formulario después del éxito
       setTimeout(() => {
         document.querySelector('form').reset();
       }, 100);
       
     } catch (error) {
-      console.error('Error al enviar formulario:', error);
-      setError(error.message || 'Error al enviar el formulario. Intenta nuevamente.');
+      console.error('Error detallado:', error);
+      
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        setError('Error de conexión. Verifica que tu Form ID de Formspree sea correcto y que tengas conexión a internet.');
+      } else {
+        setError(error.message || 'Error al enviar el formulario. Intenta nuevamente.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +84,7 @@ export default function App() {
     <div className="w-full max-w-2xl mx-auto p-4">
       <Card>
         <CardBody>
-          <h2 className="text-2xl font-bold mb-6 text-center">Contacto</h2>
+          <h2 className="text-2xl font-bold mb-6 text-center">Formulario de Registro</h2>
           
           <Form className="space-y-4" onSubmit={onSubmit}>
             {/* Información Personal */}
@@ -200,17 +213,9 @@ export default function App() {
                   <h4 className="font-semibold mb-2 text-success">
                     ¡Formulario enviado exitosamente!
                   </h4>
-                  <p className="text-small text-default-600 mb-3">
+                  <p className="text-small text-default-600">
                     Hemos recibido tu información y te contactaremos pronto.
                   </p>
-                  <div className="text-small text-default-600">
-                    <details>
-                      <summary className="cursor-pointer">Ver datos enviados</summary>
-                      <pre className="mt-2 p-3 bg-default-100 rounded-small overflow-auto">
-                        {JSON.stringify(submitted, null, 2)}
-                      </pre>
-                    </details>
-                  </div>
                 </CardBody>
               </Card>
             )}

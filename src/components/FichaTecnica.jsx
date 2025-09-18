@@ -1,7 +1,7 @@
 import React from 'react';
 import Alerta from './Alerta.jsx';
 import Chip from './Chip.jsx';
-import Fromulario from './Fromulario.jsx'; // Import Formulario
+import Formulario from './Formulario.jsx'; // Import Formulario
 import { usePropertyChips } from '../hooks/usePropertyChips.js';
 import { usePropertyGallery } from '../hooks/usePropertyGallery.js';
 import { usePropertyDetailsList } from '../hooks/usePropertyDetailsList.js';
@@ -96,7 +96,7 @@ export default function FichaTecnica({ property }) {
 
       {/* --- Right Column (Form) --- */}
       <div className="lg:col-span-1">
-        <Fromulario />
+        <Formulario />
       </div>
     </div>
   );
