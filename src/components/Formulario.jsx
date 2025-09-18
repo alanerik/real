@@ -19,17 +19,33 @@ export default function App() {
   const [submitted, setSubmitted] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
+  const [termsAccepted, setTermsAccepted] = React.useState(false);
   
+  // Form ID desde variable de entorno (Astro.js)
   const FORMSPREE_ID = import.meta.env.PUBLIC_FORMSPREE_ID;
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setError(null);
+
+    // Validar términos y condiciones
+    if (!termsAccepted) {
+      setError('Debes aceptar los términos y condiciones para continuar.');
+      return;
+    }
+
+    // Validar que el Form ID esté configurado
+    if (!FORMSPREE_ID) {
+      setError('Configuración del formulario incompleta. Contacta al administrador.');
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
       const data = Object.fromEntries(new FormData(e.currentTarget));
       
+      // OPCIÓN 1: Usar FormData directamente (recomendado para Formspree)
       const formData = new FormData();
       Object.keys(data).forEach(key => {
         formData.append(key, data[key]);
@@ -37,16 +53,19 @@ export default function App() {
 
       const response = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
         method: 'POST',
-        body: formData,
+        body: formData, // Usar FormData en lugar de JSON
         headers: {
           'Accept': 'application/json'
+          // No incluir Content-Type, el browser lo establece automáticamente para FormData
         }
       });
 
       if (!response.ok) {
+        // Manejo específico para errores 403
         if (response.status === 403) {
           throw new Error('Acceso denegado. Verifica: 1) Tu Form ID sea correcto, 2) Tu dominio esté autorizado en Formspree, 3) Hayas confirmado tu email si es la primera vez.');
         }
+        // Si es un error de validación de Formspree, mostrar el mensaje específico
         if (response.status === 422) {
           const errorData = await response.json();
           throw new Error(errorData.errors?.map(err => err.message).join(', ') || 'Datos inválidos');
@@ -57,6 +76,7 @@ export default function App() {
       const result = await response.json();
       setSubmitted(data);
       
+      // Resetear formulario después del éxito
       setTimeout(() => {
         document.querySelector('form').reset();
       }, 100);
@@ -77,6 +97,7 @@ export default function App() {
   const resetForm = () => {
     setSubmitted(null);
     setError(null);
+    setTermsAccepted(false);
     document.querySelector('form').reset();
   };
 
@@ -164,14 +185,32 @@ export default function App() {
                 <Checkbox name="newsletter">
                   Quiero recibir noticias y actualizaciones por email
                 </Checkbox>
-                <Checkbox name="terms" className="mt-2">
+                <Checkbox 
+                  name="terms" 
+                  className="mt-2"
+                  isSelected={termsAccepted}
+                  onValueChange={setTermsAccepted}
+                  isRequired
+                  color={termsAccepted ? "success" : "default"}
+                >
                   <span className="text-small">
                     Acepto los{" "}
-                    <a href="#" className="text-primary underline">
+                    <a 
+                      href="/terminos-y-condiciones" 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary underline hover:text-primary-600"
+                    >
                       términos y condiciones
                     </a>
+                    {" "}*
                   </span>
                 </Checkbox>
+                {!termsAccepted && (
+                  <p className="text-tiny text-danger mt-1 ml-8">
+                    Campo obligatorio
+                  </p>
+                )}
               </div>
             </div>
 
@@ -201,6 +240,7 @@ export default function App() {
                 color="primary"
                 isLoading={isLoading}
                 loadingText="Enviando..."
+                isDisabled={!termsAccepted}
               >
                 {isLoading ? "Enviando..." : "Enviar Formulario"}
               </Button>
