@@ -1,33 +1,17 @@
 ---
 import CardMain from './CardMain.jsx';
 import BuscarButton from './BuscarButton.jsx';
+import { getCollection } from 'astro:content';
 
-const properties = [
-  {
-    image: './senderos-3-al-200.jpg',
-    title: 'Casa de Lujo en la Montaña',
-    description: 'Una hermosa casa con vistas espectaculares.',
-    price: '$500,000'
-  },
-  {
-    image: './ecuestre-al-200.jpg',
-    title: 'Apartamento Moderno en la Ciudad',
-    description: 'Perfecto para la vida urbana.',
-    price: '$300,000'
-  },
-  {
-    image: './maritimo-3-al-100.jpg',
-    title: 'Chalet Acogedor en el Bosque',
-    description: 'Escape de la ciudad y disfrute de la naturaleza.',
-    price: '$450,000'
-  },
-  {
-    image: './senderos-5-al-300.jpg',
-    title: 'Piso con Vistas al Mar',
-    description: 'Viva cerca de la playa con impresionantes vistas.',
-    price: '$600,000'
-  }
-];
+const allProperties = await getCollection('propiedades');
+const properties = allProperties.slice(0, 4);
+
+function formatPrice(price, currency) {
+  return new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: currency || 'USD'
+  }).format(price);
+}
 ---
 
 <section class="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,10 +21,11 @@ const properties = [
       {properties.map(property => (
         <CardMain 
           client:load
-          image={property.image} 
-          title={property.title} 
-          description={property.description} 
-          price={property.price} 
+          image={property.data.image} 
+          title={property.data.title} 
+          description={property.data.description} 
+          price={formatPrice(property.data.price, property.data.currency)}
+          slug={property.slug}
         />
       ))}
     </div>
