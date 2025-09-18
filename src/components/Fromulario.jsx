@@ -21,7 +21,7 @@ export default function App() {
   const [error, setError] = React.useState(null);
   
   // ⚠️ REEMPLAZA CON TU FORM ID DE FORMSPREE
-  const FORMSPREE_ID = "https://formspree.io/f/xvgbeopr";
+  const FORMSPREE_ID = "xvgbeopr";
 
   const onSubmit = async (e) => {
     e.preventDefault();
