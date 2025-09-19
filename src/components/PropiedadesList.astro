@@ -1,0 +1,162 @@
+---
+import { getCollection } from 'astro:content';
+import CardMain from '@/components/CardMain.jsx';
+import Pagination from '@/components/Pagination.jsx';
+
+// ===== CONFIGURACIÓN =====
+const PROPERTIES_PER_PAGE = 8;
+const DEFAULT_CURRENCY = 'USD';
+const LOCALE = 'es-AR';
+
+// ===== FUNCIONES UTILITARIAS =====
+function formatPrice(price: number | null | undefined, currency = DEFAULT_CURRENCY): string {
+  if (!price || price <= 0) return 'Consultar precio';
+  
+  try {
+    return new Intl.NumberFormat(LOCALE, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price);
+  } catch (error) {
+    console.warn(`Error formatting price: ${error}. Price: ${price}, Currency: ${currency}`);
+    return `${currency} ${price.toLocaleString(LOCALE)}`;
+  }
+}
+
+function validatePage(page: string | null, totalPages: number): number {
+  const pageNum = parseInt(page || '1', 10);
+  
+  if (isNaN(pageNum) || pageNum < 1) return 1;
+  if (pageNum > totalPages) return totalPages;
+  
+  return pageNum;
+}
+
+function getSortedProperties(properties: any[]) {
+  return properties.sort((a, b) => {
+    // Ordenar por título, pero manejar casos edge
+    const titleA = a.data?.title || '';
+    const titleB = b.data?.title || '';
+    return titleA.localeCompare(titleB, LOCALE, { numeric: true });
+  });
+}
+
+// ===== LÓGICA PRINCIPAL =====
+const allProperties = await getCollection('propiedades');
+
+if (!allProperties || allProperties.length === 0) {
+  console.warn('No properties found in collection');
+}
+
+const sortedProperties = getSortedProperties(allProperties);
+const totalPages = Math.ceil(sortedProperties.length / PROPERTIES_PER_PAGE);
+
+const currentPage = validatePage(Astro.url.searchParams.get('page'), totalPages);
+const offset = (currentPage - 1) * PROPERTIES_PER_PAGE;
+const paginatedProperties = sortedProperties.slice(offset, offset + PROPERTIES_PER_PAGE);
+
+// ===== SEO Y METADATA =====
+const pageTitle = currentPage === 1 
+  ? 'Todas Nuestras Propiedades'
+  : `Propiedades - Página ${currentPage} de ${totalPages}`;
+
+const pageDescription = currentPage === 1
+  ? 'Explora todas las propiedades disponibles en nuestro catálogo.'
+  : `Página ${currentPage} de ${totalPages} de nuestro catálogo de propiedades.`;
+---
+
+<section 
+  class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+  aria-labelledby="properties-title"
+>
+  <div class="container mx-auto">
+    <!-- Header Section -->
+    <header class="text-center mb-12">
+      <h1 id="properties-title" class="text-4xl font-bold text-gray-900 mb-4">
+        {pageTitle}
+      </h1>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        {pageDescription}
+      </p>
+      
+      {totalPages > 1 && (
+        <p class="text-sm text-gray-500 mt-2">
+          Mostrando {offset + 1} - {Math.min(offset + PROPERTIES_PER_PAGE, sortedProperties.length)} 
+          de {sortedProperties.length} propiedades
+        </p>
+      )}
+    </header>
+
+    {paginatedProperties.length > 0 ? (
+      <>
+        <!-- Properties Grid -->
+        <div 
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8"
+          role="list"
+          aria-label="Lista de propiedades"
+        >
+          {paginatedProperties.map((property, index) => {
+            const globalIndex = offset + index;
+            const isAboveFold = globalIndex < 4; // Primeras 4 propiedades
+            
+            return (
+              <div role="listitem" key={property.slug || `property-${index}`}>
+                <CardMain 
+                  client:load
+                  image={property.data?.image} 
+                  title={property.data?.title || 'Título no disponible'} 
+                  description={property.data?.description || 'Descripción no disponible'} 
+                  price={formatPrice(property.data?.price, property.data?.currency)}
+                  slug={property.slug}
+                  imageAlt={`Imagen de ${property.data?.title || 'propiedad'}`}
+                  priority={isAboveFold}
+                  loading={isAboveFold ? 'eager' : 'lazy'}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        <!-- Pagination -->
+        {totalPages > 1 && (
+          <nav class="mt-12 flex justify-center" aria-label="Navegación de páginas">
+            <Pagination 
+              client:load 
+              initialPage={currentPage} 
+              total={totalPages} 
+              basePath="/propiedades"
+            />
+          </nav>
+        )}
+      </>
+    ) : (
+      <!-- Empty State -->
+      <div class="text-center py-12" role="status">
+        <div class="max-w-md mx-auto">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">
+            No hay propiedades disponibles
+          </h3>
+          <p class="text-gray-500 mb-4">
+            {allProperties.length === 0 
+              ? 'Estamos trabajando para agregar nuevas propiedades pronto.'
+              : 'No se encontraron propiedades en esta página.'
+            }
+          </p>
+          
+          {currentPage > 1 && (
+            <a 
+              href="/propiedades" 
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Volver a la primera página
+            </a>
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+</section>
+
+
