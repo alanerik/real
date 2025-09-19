@@ -1,7 +1,7 @@
 import React from "react";
-import { Pagination as HeroPagination } from "@heroui/react";
+import { Pagination } from "@heroui/react";
 
-export default function Pagination({ total, initialPage }) {
+export default function App({ total, initialPage }) {
   const [currentPage, setCurrentPage] = React.useState(initialPage);
 
   const handleChange = (page) => {
@@ -11,7 +11,7 @@ export default function Pagination({ total, initialPage }) {
   };
 
   return (
-    <HeroPagination
+    <Pagination
       total={total}
       initialPage={initialPage}
       page={currentPage}
