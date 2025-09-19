@@ -1,10 +1,9 @@
 import React from "react";
+import { useForm, Controller } from "react-hook-form";
 import {
   Form, 
   Input, 
   Button, 
-  Select, 
-  SelectItem,
   Textarea,
   Checkbox,
   RadioGroup,
@@ -16,56 +15,68 @@ import {
 } from "@heroui/react";
 
 export default function App() {
-  const [submitted, setSubmitted] = React.useState(null);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState(null);
-  const [termsAccepted, setTermsAccepted] = React.useState(false);
-  
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitResult, setSubmitResult] = React.useState(null);
+
   // Form ID desde variable de entorno (Astro.js)
   const FORMSPREE_ID = import.meta.env.PUBLIC_FORMSPREE_ID;
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-
-    // Validar términos y condiciones
-    if (!termsAccepted) {
-      setError('Debes aceptar los términos y condiciones para continuar.');
-      return;
+  // React Hook Form setup
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors, isValid }
+  } = useForm({
+    mode: "onChange", // Validación en tiempo real
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      birthDate: null, // null para DatePicker
+      howDidYouKnow: "",
+      newsletter: false,
+      terms: false,
+      comments: ""
     }
+  });
 
-    // Validar que el Form ID esté configurado
-    if (!FORMSPREE_ID) {
-      setError('Configuración del formulario incompleta. Contacta al administrador.');
-      return;
-    }
+  // Watch para términos y condiciones
+  const termsAccepted = watch("terms");
 
-    setIsLoading(true);
+  // Función de envío
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    setSubmitResult(null);
 
     try {
-      const data = Object.fromEntries(new FormData(e.currentTarget));
-      
-      // OPCIÓN 1: Usar FormData directamente (recomendado para Formspree)
+      // Validar Form ID
+      if (!FORMSPREE_ID) {
+        throw new Error('Configuración del formulario incompleta. Contacta al administrador.');
+      }
+
+      // Preparar datos para Formspree
       const formData = new FormData();
       Object.keys(data).forEach(key => {
-        formData.append(key, data[key]);
+        if (data[key] !== null && data[key] !== undefined) {
+          formData.append(key, data[key]);
+        }
       });
 
       const response = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
         method: 'POST',
-        body: formData, // Usar FormData en lugar de JSON
+        body: formData,
         headers: {
           'Accept': 'application/json'
-          // No incluir Content-Type, el browser lo establece automáticamente para FormData
         }
       });
 
       if (!response.ok) {
-        // Manejo específico para errores 403
         if (response.status === 403) {
-          throw new Error('Acceso denegado. Verifica: 1) Tu Form ID sea correcto, 2) Tu dominio esté autorizado en Formspree, 3) Hayas confirmado tu email si es la primera vez.');
+          throw new Error('Acceso denegado. Verifica la configuración de Formspree.');
         }
-        // Si es un error de validación de Formspree, mostrar el mensaje específico
         if (response.status === 422) {
           const errorData = await response.json();
           throw new Error(errorData.errors?.map(err => err.message).join(', ') || 'Datos inválidos');
@@ -73,32 +84,23 @@ export default function App() {
         throw new Error(`Error ${response.status}: Por favor verifica tu configuración de Formspree`);
       }
 
-      const result = await response.json();
-      setSubmitted(data);
-      
-      // Resetear formulario después del éxito
-      setTimeout(() => {
-        document.querySelector('form').reset();
-      }, 100);
+      setSubmitResult({ type: 'success', message: '¡Formulario enviado exitosamente!' });
+      reset(); // Reset del formulario con React Hook Form
       
     } catch (error) {
-      console.error('Error detallado:', error);
-      
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        setError('Error de conexión. Verifica que tu Form ID de Formspree sea correcto y que tengas conexión a internet.');
-      } else {
-        setError(error.message || 'Error al enviar el formulario. Intenta nuevamente.');
-      }
+      console.error('Error al enviar formulario:', error);
+      setSubmitResult({ 
+        type: 'error', 
+        message: error.message || 'Error al enviar el formulario. Intenta nuevamente.'
+      });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const resetForm = () => {
-    setSubmitted(null);
-    setError(null);
-    setTermsAccepted(false);
-    document.querySelector('form').reset();
+  const handleReset = () => {
+    reset();
+    setSubmitResult(null);
   };
 
   return (
@@ -107,58 +109,124 @@ export default function App() {
         <CardBody>
           <h2 className="text-2xl font-bold mb-6 text-center">Formulario de Registro</h2>
           
-          <Form className="space-y-4" onSubmit={onSubmit}>
+          <Form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
             {/* Información Personal */}
             <div>
               <h3 className="text-lg font-semibold mb-3">Información Personal</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
-                  isRequired
-                  label="Nombre"
-                  labelPlacement="outside"
+                <Controller
                   name="firstName"
-                  placeholder="Ingresa tu nombre"
-                  variant="bordered"
+                  control={control}
+                  rules={{ 
+                    required: "El nombre es obligatorio",
+                    minLength: { value: 2, message: "Mínimo 2 caracteres" }
+                  }}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Nombre"
+                      labelPlacement="outside"
+                      placeholder="Ingresa tu nombre"
+                      variant="bordered"
+                      isInvalid={!!errors.firstName}
+                      errorMessage={errors.firstName?.message}
+                    />
+                  )}
                 />
                 
-                <Input
-                  isRequired
-                  label="Apellido"
-                  labelPlacement="outside"
+                <Controller
                   name="lastName"
-                  placeholder="Ingresa tu apellido"
-                  variant="bordered"
+                  control={control}
+                  rules={{ 
+                    required: "El apellido es obligatorio",
+                    minLength: { value: 2, message: "Mínimo 2 caracteres" }
+                  }}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Apellido"
+                      labelPlacement="outside"
+                      placeholder="Ingresa tu apellido"
+                      variant="bordered"
+                      isInvalid={!!errors.lastName}
+                      errorMessage={errors.lastName?.message}
+                    />
+                  )}
                 />
               </div>
 
-              <Input
-                isRequired
-                errorMessage="Por favor ingresa un email válido"
-                label="Email"
-                labelPlacement="outside"
+              <Controller
                 name="email"
-                placeholder="ejemplo@correo.com"
-                type="email"
-                variant="bordered"
-                className="mt-4"
+                control={control}
+                rules={{
+                  required: "El email es obligatorio",
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Formato de email inválido"
+                  }
+                }}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    label="Email"
+                    labelPlacement="outside"
+                    placeholder="ejemplo@correo.com"
+                    type="email"
+                    variant="bordered"
+                    className="mt-4"
+                    isInvalid={!!errors.email}
+                    errorMessage={errors.email?.message}
+                  />
+                )}
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <Input
-                  label="Teléfono"
-                  labelPlacement="outside"
+                <Controller
                   name="phone"
-                  placeholder="+54 11 1234-5678"
-                  type="tel"
-                  variant="bordered"
+                  control={control}
+                  rules={{
+                    pattern: {
+                      value: /^\+?[\d\s\-\(\)]{8,}$/,
+                      message: "Formato de teléfono inválido"
+                    }
+                  }}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Teléfono"
+                      labelPlacement="outside"
+                      placeholder="+54 11 1234-5678"
+                      type="tel"
+                      variant="bordered"
+                      isInvalid={!!errors.phone}
+                      errorMessage={errors.phone?.message}
+                    />
+                  )}
                 />
 
-                <DatePicker
-                  label="Fecha de Nacimiento"
-                  labelPlacement="outside"
+                <Controller
                   name="birthDate"
-                  variant="bordered"
+                  control={control}
+                  render={({ field: { value, onChange, ...field } }) => (
+                    <DatePicker
+                      {...field}
+                      label="Fecha de Nacimiento"
+                      labelPlacement="outside"
+                      variant="bordered"
+                      value={value || null}
+                      onChange={(date) => {
+                        // Convertir el objeto fecha a string para React Hook Form
+                        if (date) {
+                          onChange(date);
+                        } else {
+                          onChange(null);
+                        }
+                      }}
+                      isInvalid={!!errors.birthDate}
+                      errorMessage={errors.birthDate?.message}
+                    />
+                  )}
                 />
               </div>
             </div>
@@ -169,60 +237,98 @@ export default function App() {
             <div>
               <h3 className="text-lg font-semibold mb-3">Preferencias</h3>
               
-              <RadioGroup
-                label="¿Cómo conociste nuestro servicio?"
+              <Controller
                 name="howDidYouKnow"
-                orientation="vertical"
-              >
-                <Radio value="social_media">Redes Sociales</Radio>
-                <Radio value="search_engine">Buscador (Google, etc.)</Radio>
-                <Radio value="recommendation">Recomendación</Radio>
-                <Radio value="advertising">Publicidad</Radio>
-                <Radio value="other">Otro</Radio>
-              </RadioGroup>
-
-              <div className="mt-4">
-                <Checkbox name="newsletter">
-                  Quiero recibir noticias y actualizaciones por email
-                </Checkbox>
-                <Checkbox 
-                  name="terms" 
-                  className="mt-2"
-                  isSelected={termsAccepted}
-                  onValueChange={setTermsAccepted}
-                  isRequired
-                  color={termsAccepted ? "success" : "default"}
-                >
-                  <span className="text-small">
-                    Acepto los{" "}
-                    <a 
-                      href="/terminos-y-condiciones" 
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary underline hover:text-primary-600"
-                    >
-                      términos y condiciones
-                    </a>
-                    {" "}*
-                  </span>
-                </Checkbox>
-                {!termsAccepted && (
-                  <p className="text-tiny text-danger mt-1 ml-8">
-                    Campo obligatorio
-                  </p>
+                control={control}
+                render={({ field }) => (
+                  <RadioGroup
+                    {...field}
+                    label="¿Cómo conociste nuestro servicio?"
+                    orientation="vertical"
+                    isInvalid={!!errors.howDidYouKnow}
+                    errorMessage={errors.howDidYouKnow?.message}
+                  >
+                    <Radio value="social_media">Redes Sociales</Radio>
+                    <Radio value="search_engine">Buscador (Google, etc.)</Radio>
+                    <Radio value="recommendation">Recomendación</Radio>
+                    <Radio value="advertising">Publicidad</Radio>
+                    <Radio value="other">Otro</Radio>
+                  </RadioGroup>
                 )}
+              />
+
+              <div className="mt-4 space-y-2">
+                <Controller
+                  name="newsletter"
+                  control={control}
+                  render={({ field: { value, onChange, ...field } }) => (
+                    <Checkbox
+                      {...field}
+                      isSelected={value}
+                      onValueChange={onChange}
+                    >
+                      Quiero recibir noticias y actualizaciones por email
+                    </Checkbox>
+                  )}
+                />
+                
+                <Controller
+                  name="terms"
+                  control={control}
+                  rules={{ required: "Debes aceptar los términos y condiciones" }}
+                  render={({ field: { value, onChange, ...field } }) => (
+                    <div>
+                      <Checkbox
+                        {...field}
+                        isSelected={value}
+                        onValueChange={onChange}
+                        color={value ? "success" : "default"}
+                        isInvalid={!!errors.terms}
+                      >
+                        <span className="text-small">
+                          Acepto los{" "}
+                          <a 
+                            href="/terminos-y-condiciones" 
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary underline hover:text-primary-600"
+                          >
+                            términos y condiciones
+                          </a>
+                          {" "}*
+                        </span>
+                      </Checkbox>
+                      {errors.terms && (
+                        <p className="text-tiny text-danger mt-1 ml-8">
+                          {errors.terms.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
               </div>
             </div>
 
             <Divider />
 
             {/* Comentarios adicionales */}
-            <Textarea
-              label="Comentarios adicionales (opcional)"
-              labelPlacement="outside"
+            <Controller
               name="comments"
-              placeholder="¿Algo más que quieras contarnos?"
-              variant="bordered"
+              control={control}
+              rules={{
+                maxLength: { value: 500, message: "Máximo 500 caracteres" }
+              }}
+              render={({ field }) => (
+                <Textarea
+                  {...field}
+                  label="Comentarios adicionales (opcional)"
+                  labelPlacement="outside"
+                  placeholder="¿Algo más que quieras contarnos?"
+                  variant="bordered"
+                  isInvalid={!!errors.comments}
+                  errorMessage={errors.comments?.message}
+                />
+              )}
             />
 
             {/* Botones */}
@@ -230,28 +336,28 @@ export default function App() {
               <Button
                 type="button"
                 variant="flat"
-                onPress={resetForm}
-                isDisabled={isLoading}
+                onPress={handleReset}
+                isDisabled={isSubmitting}
               >
                 Limpiar
               </Button>
               <Button
                 type="submit"
                 color="primary"
-                isLoading={isLoading}
+                isLoading={isSubmitting}
                 loadingText="Enviando..."
-                isDisabled={!termsAccepted}
+                isDisabled={!termsAccepted || isSubmitting}
               >
-                {isLoading ? "Enviando..." : "Enviar Formulario"}
+                {isSubmitting ? "Enviando..." : "Enviar Formulario"}
               </Button>
             </div>
 
             {/* Resultado de éxito */}
-            {submitted && (
+            {submitResult?.type === 'success' && (
               <Card className="mt-6">
                 <CardBody>
                   <h4 className="font-semibold mb-2 text-success">
-                    ¡Formulario enviado exitosamente!
+                    {submitResult.message}
                   </h4>
                   <p className="text-small text-default-600">
                     Hemos recibido tu información y te contactaremos pronto.
@@ -261,20 +367,20 @@ export default function App() {
             )}
 
             {/* Mensaje de error */}
-            {error && (
+            {submitResult?.type === 'error' && (
               <Card className="mt-6 border-danger">
                 <CardBody>
                   <h4 className="font-semibold mb-2 text-danger">
                     Error al enviar el formulario
                   </h4>
                   <p className="text-small text-danger">
-                    {error}
+                    {submitResult.message}
                   </p>
                   <Button 
                     size="sm" 
                     color="danger" 
                     variant="flat" 
-                    onPress={() => setError(null)}
+                    onPress={() => setSubmitResult(null)}
                     className="mt-2"
                   >
                     Cerrar
