@@ -17,6 +17,7 @@ export default function Pagination({ total, initialPage }) {
       page={currentPage}
       onChange={handleChange}
       variant="faded"
+      color="success"
     />
   );
 }

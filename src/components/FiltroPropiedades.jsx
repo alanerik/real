@@ -38,6 +38,7 @@ export default function FiltroPropiedades() {
                 selectedKey={selectedSort}
                 onSelectionChange={handleSortChange}
                 className="max-w-xs"
+                color='success'
             >
                 {(item) => <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>}
             </Autocomplete>

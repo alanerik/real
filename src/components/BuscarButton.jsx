@@ -7,7 +7,7 @@ export default function BuscarButton({ variant, children }) {
   return (
     <Button
       showAnchorIcon
-      color="primary"
+      color="success"
       variant="solid"
       onClick={handleSearch}
       isDisabled={isDisabled}

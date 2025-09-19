@@ -30,6 +30,7 @@ export default function Buscador() {
   return (
     <div className="flex w-full flex-wrap justify-center md:flex-nowrap gap-4">
       <Autocomplete 
+      color="success"
         className="max-w-xs" 
         label="Selecciona una ciudad" 
         defaultItems={ciudades} 
@@ -41,6 +42,7 @@ export default function Buscador() {
       </Autocomplete>
       
       <Autocomplete
+      color="primary"
         className="max-w-xs"
         defaultItems={tiposDePropiedad}
         label="Venta propiedades"
@@ -52,6 +54,7 @@ export default function Buscador() {
       </Autocomplete>
       
       <Autocomplete
+      color="warning"
         className="max-w-xs"
         defaultItems={tiposDePropiedadAlquiler}
         label="Alquiler propiedades"
