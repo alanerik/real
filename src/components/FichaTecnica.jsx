@@ -96,7 +96,9 @@ export default function FichaTecnica({ property }) {
 
       {/* --- Right Column (Form) --- */}
       <div className="lg:col-span-1">
-        <Formulario />
+        <InfoCard title="Contacta a la inmobiliaria">
+          <Formulario />
+        </InfoCard>
       </div>
     </div>
   );

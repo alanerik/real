@@ -104,11 +104,6 @@ export default function App() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-4">
-      <Card>
-        <CardBody>
-          <h2 className="text-2xl font-bold mb-6 text-center">Contacta a la inmobiliaria</h2>
-          
           <Form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
             {/* Información Personal */}
             <div>
@@ -389,8 +384,5 @@ export default function App() {
               </Card>
             )}
           </Form>
-        </CardBody>
-      </Card>
-    </div>
   );
 }
