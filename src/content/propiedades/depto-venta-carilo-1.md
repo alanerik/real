@@ -10,6 +10,7 @@ propertyType: 'departamento'
 bathrooms: 2
 bedrooms: 2
 area: 100
+codigo: 'DVC1'
 ---
 
 Piscina, SUM y seguridad 24hs.

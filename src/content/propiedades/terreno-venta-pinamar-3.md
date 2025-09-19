@@ -8,6 +8,7 @@ city: 'pinamar'
 operation: 'venta'
 propertyType: 'terreno'
 area: 1000
+codigo: 'TVP3'
 ---
 
 A pocos metros de la playa.

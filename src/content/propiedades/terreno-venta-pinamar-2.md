@@ -8,6 +8,7 @@ city: 'pinamar'
 operation: 'venta'
 propertyType: 'terreno'
 area: 800
+codigo: 'TVP2'
 ---
 
 Excelente oportunidad de inversión.

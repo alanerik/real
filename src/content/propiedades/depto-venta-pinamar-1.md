@@ -10,6 +10,7 @@ propertyType: 'departamento'
 bathrooms: 1
 bedrooms: 1
 area: 60
+codigo: 'DVP1'
 ---
 
 Excelente ubicación, cerca de todo.

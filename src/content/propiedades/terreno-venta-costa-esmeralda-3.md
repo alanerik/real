@@ -8,6 +8,7 @@ city: 'costa-esmeralda'
 operation: 'venta'
 propertyType: 'terreno'
 area: 1050
+codigo: 'TVCE3'
 ---
 
 Excelente terreno para construir.

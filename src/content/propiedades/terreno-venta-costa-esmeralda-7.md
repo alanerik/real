@@ -8,6 +8,7 @@ city: 'costa-esmeralda'
 operation: 'venta'
 propertyType: 'terreno'
 area: 1100
+codigo: 'TVCE7'
 ---
 
 Un lugar para desconectar.

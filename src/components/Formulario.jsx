@@ -107,7 +107,7 @@ export default function App() {
     <div className="w-full max-w-2xl mx-auto p-4">
       <Card>
         <CardBody>
-          <h2 className="text-2xl font-bold mb-6 text-center">Formulario de Registro</h2>
+          <h2 className="text-2xl font-bold mb-6 text-center">Contacta a la inmobiliaria</h2>
           
           <Form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
             {/* Información Personal */}

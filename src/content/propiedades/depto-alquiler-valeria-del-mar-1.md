@@ -10,6 +10,7 @@ propertyType: 'departamento'
 bathrooms: 1
 bedrooms: 2
 area: 70
+codigo: 'DAVdM1'
 ---
 
 Disfruta de la playa en Valeria.

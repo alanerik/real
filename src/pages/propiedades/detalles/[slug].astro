@@ -2,6 +2,7 @@
 import { getCollection, getEntry } from 'astro:content';
 import Layout from '@/layouts/Layout.astro';
 import FichaTecnica from '@/components/FichaTecnica.jsx';
+import Breadcrumbs from '@/components/Breadcrumbs.jsx';
 
 export async function getStaticPaths() {
   const propiedades = await getCollection('propiedades');
@@ -22,5 +23,6 @@ if (!propiedad) {
 ---
 
 <Layout title={propiedad.data.title}>
+  <Breadcrumbs client:load pathname={Astro.url.pathname} codigo={propiedad.data.codigo} title={propiedad.data.title} />
   <FichaTecnica client:load property={propiedad.data} />
 </Layout>

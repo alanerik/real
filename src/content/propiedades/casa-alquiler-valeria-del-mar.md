@@ -10,6 +10,7 @@ propertyType: 'casa'
 bathrooms: 2
 bedrooms: 3
 area: 150
+codigo: 'CAVdM'
 ---
 
 Descripción de la casa y sus comodidades...

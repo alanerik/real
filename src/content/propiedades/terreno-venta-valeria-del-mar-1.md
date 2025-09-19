@@ -8,6 +8,7 @@ city: 'valeria-del-mar'
 operation: 'venta'
 propertyType: 'terreno'
 area: 900
+codigo: 'TVVdM1'
 ---
 
 Ideal para construir la casa de tus sueños.

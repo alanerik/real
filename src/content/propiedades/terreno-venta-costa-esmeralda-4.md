@@ -8,6 +8,7 @@ city: 'costa-esmeralda'
 operation: 'venta'
 propertyType: 'terreno'
 area: 950
+codigo: 'TVCE4'
 ---
 
 Ideal para los amantes de la naturaleza.

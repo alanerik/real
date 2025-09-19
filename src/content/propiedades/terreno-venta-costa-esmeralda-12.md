@@ -9,6 +9,7 @@ operation: 'venta'
 propertyType: 'terreno'
 area: 1010
 orientation: 'Norte'
+codigo: 'TVCE12'
 ---
 
 Construya su casa en un entorno familiar.

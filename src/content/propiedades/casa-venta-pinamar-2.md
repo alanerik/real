@@ -10,6 +10,7 @@ propertyType: 'casa'
 bathrooms: 3
 bedrooms: 4
 area: 240
+codigo: 'CVP2'
 ---
 
 Ubicación tranquila y residencial.

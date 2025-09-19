@@ -10,6 +10,7 @@ propertyType: 'departamento'
 bathrooms: 2
 bedrooms: 2
 area: 90
+codigo: 'DAC'
 ---
 
 Descripción detallada del departamento...

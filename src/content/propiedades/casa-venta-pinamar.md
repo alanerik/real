@@ -10,6 +10,7 @@ propertyType: 'casa'
 bathrooms: 3
 bedrooms: 4
 area: 200
+codigo: 'CVP1'
 ---
 
 Texto descriptivo de la propiedad...

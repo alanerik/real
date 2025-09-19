@@ -50,7 +50,7 @@ export default function FichaTecnica({ property }) {
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-3xl font-bold">{headerData.title}</h1>
-              <p className="text-gray-500 opacity-80">{headerData.city}</p>
+              <p className="text-gray-500 opacity-80">{headerData.city} {headerData.codigo && `- Código: ${headerData.codigo}`}</p>
               <div className="flex gap-2 mt-2">
                 {chips.map((chip, index) => (
                   <Chip key={index} text={chip.text} color={chip.color} />

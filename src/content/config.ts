@@ -15,6 +15,7 @@ const propiedadesCollection = defineCollection({
     bathrooms: z.number().optional(),
     area: z.number().optional(),
     orientation: z.string().optional(),
+    codigo: z.string().optional(),
   }),
 });
 

@@ -8,6 +8,7 @@ city: 'general-madariaga'
 operation: 'venta'
 propertyType: 'terreno'
 area: 2000
+codigo: 'TVGM1'
 ---
 
 Ideal para emprendimiento.

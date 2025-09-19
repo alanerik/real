@@ -10,6 +10,7 @@ propertyType: 'departamento'
 bathrooms: 2
 bedrooms: 2
 area: 80
+codigo: 'DVVdM1'
 ---
 
 A metros del centro comercial.

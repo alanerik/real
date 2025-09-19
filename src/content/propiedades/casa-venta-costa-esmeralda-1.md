@@ -10,6 +10,7 @@ propertyType: 'casa'
 bathrooms: 3
 bedrooms: 4
 area: 280
+codigo: 'CVCE1'
 ---
 
 Una vista increíble en un lugar único.

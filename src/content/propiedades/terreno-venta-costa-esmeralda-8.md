@@ -8,6 +8,7 @@ city: 'costa-esmeralda'
 operation: 'venta'
 propertyType: 'terreno'
 area: 1020
+codigo: 'TVCE8'
 ---
 
 Con vista a la cancha de golf.

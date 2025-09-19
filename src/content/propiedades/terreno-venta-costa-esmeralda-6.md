@@ -8,6 +8,7 @@ city: 'costa-esmeralda'
 operation: 'venta'
 propertyType: 'terreno'
 area: 980
+codigo: 'TVCE6'
 ---
 
 La mejor ubicación para disfrutar del verano.

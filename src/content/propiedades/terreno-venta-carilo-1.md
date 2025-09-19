@@ -8,6 +8,7 @@ city: 'carilo'
 operation: 'venta'
 propertyType: 'terreno'
 area: 1200
+codigo: 'TVC1'
 ---
 
 Entorno natural y privado.

@@ -10,6 +10,7 @@ propertyType: 'departamento'
 bathrooms: 2
 bedrooms: 3
 area: 120
+codigo: 'DACE1'
 ---
 
 Vacaciones de lujo frente al mar.

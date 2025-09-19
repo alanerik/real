@@ -10,6 +10,7 @@ propertyType: 'casa'
 bathrooms: 2
 bedrooms: 3
 area: 160
+codigo: 'CAVdM2'
 ---
 
 A solo 3 cuadras de la playa.

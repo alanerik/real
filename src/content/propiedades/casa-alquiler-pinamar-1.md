@@ -10,6 +10,7 @@ propertyType: 'casa'
 bathrooms: 3
 bedrooms: 4
 area: 220
+codigo: 'CAP1'
 ---
 
 Disfruta de tus vacaciones en Pinamar.

@@ -10,6 +10,7 @@ propertyType: 'departamento'
 bathrooms: 1
 bedrooms: 1
 area: 55
+codigo: 'DAP1'
 ---
 
 La mejor vista de Pinamar.

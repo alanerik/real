@@ -8,6 +8,7 @@ city: 'costa-esmeralda'
 operation: 'venta'
 propertyType: 'terreno'
 area: 1150
+codigo: 'TVCE11'
 ---
 
 Naturaleza y tranquilidad.

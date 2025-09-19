@@ -8,6 +8,7 @@ city: 'costa-esmeralda'
 operation: 'venta'
 propertyType: 'terreno'
 area: 960
+codigo: 'TVCE10'
 ---
 
 Para disfrutar del mar y la playa.

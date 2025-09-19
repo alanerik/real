@@ -5,7 +5,7 @@ export function usePropertyHeaderData(property) {
     return {};
   }
 
-  const { title, city, price, currency, operation } = property;
+  const { title, city, price, currency, operation, codigo } = property;
 
   const formattedPrice = `${currency} ${price.toLocaleString()}`;
   const displayOperation = `Precio de ${operation}`;
@@ -15,5 +15,6 @@ export function usePropertyHeaderData(property) {
     city,
     formattedPrice,
     displayOperation,
+    codigo,
   };
 }

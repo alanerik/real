@@ -8,6 +8,7 @@ city: 'costa-esmeralda'
 operation: 'venta'
 propertyType: 'terreno'
 area: 990
+codigo: 'TVCE9'
 ---
 
 Cerca del acceso principal.
