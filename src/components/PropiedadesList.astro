@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import CardMain from '@/components/CardMain.jsx';
 import Pagination from '@/components/Pagination.jsx';
 import Acordion from '@/components/Acordion.jsx';
+import FiltroPropiedades from '@/components/FiltroPropiedades.jsx';
 
 // ===== CONFIGURACIÓN =====
 const PROPERTIES_PER_PAGE = 8;
@@ -35,13 +36,26 @@ function validatePage(page: string | null, totalPages: number): number {
   return pageNum;
 }
 
-function getSortedProperties(properties: any[]) {
-  return properties.sort((a, b) => {
-    // Ordenar por título, pero manejar casos edge
-    const titleA = a.data?.title || '';
-    const titleB = b.data?.title || '';
-    return titleA.localeCompare(titleB, LOCALE, { numeric: true });
-  });
+function getSortedProperties(properties: any[], sortKey: string | null) {
+  switch (sortKey) {
+    case 'price_asc':
+      return properties.sort((a, b) => (a.data?.price || Infinity) - (b.data?.price || Infinity));
+    case 'price_desc':
+      return properties.sort((a, b) => (b.data?.price || 0) - (a.data?.price || 0));
+    case 'date_desc':
+      // @ts-ignore
+      return properties.sort((a, b) => new Date(b.data?.publishDate).getTime() - new Date(a.data?.publishDate).getTime());
+    case 'date_asc':
+      // @ts-ignore
+      return properties.sort((a, b) => new Date(a.data?.publishDate).getTime() - new Date(b.data?.publishDate).getTime());
+    case 'title_asc':
+    default:
+      return properties.sort((a, b) => {
+        const titleA = a.data?.title || '';
+        const titleB = b.data?.title || '';
+        return titleA.localeCompare(titleB, LOCALE, { numeric: true });
+      });
+  }
 }
 
 // ===== LÓGICA PRINCIPAL =====
@@ -51,7 +65,9 @@ if (!allProperties || allProperties.length === 0) {
   console.warn('No properties found in collection');
 }
 
-const sortedProperties = getSortedProperties(allProperties);
+const sortKey = Astro.url.searchParams.get('sort');
+const sortedProperties = getSortedProperties(allProperties, sortKey);
+
 const totalPages = Math.ceil(sortedProperties.length / PROPERTIES_PER_PAGE);
 
 const currentPage = validatePage(Astro.url.searchParams.get('page'), totalPages);
@@ -90,6 +106,10 @@ const pageDescription = currentPage === 1
       )}
     </header>
 
+    <div class="flex justify-end mb-8">
+        <FiltroPropiedades client:load />
+    </div>
+
     {paginatedProperties.length > 0 ? (
       <>
         <!-- Properties Grid -->
@@ -124,7 +144,7 @@ const pageDescription = currentPage === 1
         {totalPages > 1 && (
           <nav class="mt-12 flex justify-center" aria-label="Navegación de páginas">
             <Pagination 
-              client:load 
+             client:load 
               initialPage={currentPage} 
               total={totalPages} 
               basePath="/propiedades"
@@ -161,5 +181,3 @@ const pageDescription = currentPage === 1
 </section>
 
 <Acordion client:load />
-
-
