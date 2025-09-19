@@ -28,7 +28,7 @@ export default function App() {
     <section class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="container mx-auto">
         <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Preguntas Frecuentes</h2>
-        <Accordion selectionMode="multiple">
+        <Accordion selectionMode="multiple" variant="bordered">
           {faqs.map((faq) => (
             <AccordionItem key={faq.key} aria-label={faq.title} title={faq.title}>
               {faq.content}
