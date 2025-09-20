@@ -1,5 +1,6 @@
 import React from 'react';
 import { Breadcrumbs, BreadcrumbItem } from '@heroui/react';
+import { navigate } from "astro:transitions/client";
 
 const BreadcrumbsComponent = ({ pathname, codigo, title }) => {
   // Exclude 'detalles' and filter out empty segments
@@ -11,11 +12,33 @@ const BreadcrumbsComponent = ({ pathname, codigo, title }) => {
     return s.charAt(0).toUpperCase() + s.slice(1)
   }
 
+  // Handle SPA navigation
+  const handleNavigation = (href) => {
+    if (typeof navigate === 'function') {
+      navigate(href);
+    } else {
+      // Fallback para casos donde navigate no esté disponible
+      window.location.href = href;
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 pt-4">
       <Breadcrumbs>
-        <BreadcrumbItem href="/">Inicio</BreadcrumbItem>
-        <BreadcrumbItem href="/propiedades">Propiedades</BreadcrumbItem>
+        <BreadcrumbItem 
+          className="cursor-pointer"
+          onClick={() => handleNavigation('/')}
+        >
+          Inicio
+        </BreadcrumbItem>
+        
+        <BreadcrumbItem 
+          className="cursor-pointer"
+          onClick={() => handleNavigation('/propiedades')}
+        >
+          Propiedades
+        </BreadcrumbItem>
+        
         {pathSegments.map((segment, index) => {
           const href = `/propiedades/${pathSegments.slice(0, index + 1).join('/')}`;
           const isLast = index === pathSegments.length - 1;
@@ -27,13 +50,30 @@ const BreadcrumbsComponent = ({ pathname, codigo, title }) => {
           const decodedSegment = decodeURIComponent(segment);
 
           return (
-            <BreadcrumbItem key={href} href={href}>
+            <BreadcrumbItem 
+              key={href} 
+              className="cursor-pointer"
+              onClick={() => handleNavigation(href)}
+            >
               {capitalize(decodedSegment.replace(/-/g, ' '))}
             </BreadcrumbItem>
           );
         })}
-        {title && <BreadcrumbItem href={pathname}>{title}</BreadcrumbItem>}
-        {codigo && <BreadcrumbItem isCurrent={true}>{`Código: ${codigo}`}</BreadcrumbItem>}
+        
+        {title && (
+          <BreadcrumbItem 
+            className="cursor-pointer"
+            onClick={() => handleNavigation(pathname)}
+          >
+            {title}
+          </BreadcrumbItem>
+        )}
+        
+        {codigo && (
+          <BreadcrumbItem isCurrent={true}>
+            {`Código: ${codigo}`}
+          </BreadcrumbItem>
+        )}
       </Breadcrumbs>
     </div>
   );
