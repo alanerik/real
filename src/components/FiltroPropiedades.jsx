@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Autocomplete, AutocompleteItem } from "@heroui/react";
+import { navigate } from "astro:transitions/client";
 
 const sortOptions = [
     { key: 'title_asc', label: 'Por defecto' },
@@ -25,7 +26,12 @@ export default function FiltroPropiedades() {
             setSelectedSort(key);
             const url = new URL(window.location.href);
             url.searchParams.set('sort', key);
-            window.location.href = url.toString();
+            
+            // Resetear a la primera página cuando se cambia el filtro
+            url.searchParams.set('page', '1');
+            
+            // Usar navigate() para navegación SPA
+            navigate(url.pathname + url.search);
         }
     };
 

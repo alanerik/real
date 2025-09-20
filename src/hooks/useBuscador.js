@@ -1,5 +1,6 @@
 // hooks/useBuscador.js
 import { useState, useEffect } from 'react';
+import { navigate } from "astro:transitions/client";
 import { getBuscadorStore } from '@/utils/buscadorStore.js';
 
 export function useBuscador() {
@@ -49,7 +50,13 @@ export function useBuscador() {
     
     search: () => {
       try {
-        return store.search();
+        // El store solo valida y retorna la URL
+        const searchUrl = store.search();
+        if (searchUrl) {
+          navigate(searchUrl);
+          return true;
+        }
+        return false;
       } catch (error) {
         console.error('Error en búsqueda:', error);
         return false;
@@ -77,13 +84,19 @@ export function useBuscarButton(variant) {
     handleSearch: () => {
       if (!state.isValid) {
         if (isHeader) {
-          window.location.href = '/propiedades';
+          // Usar navigate en lugar de window.location.href
+          navigate('/propiedades');
         } else {
           alert("Por favor completa la selección de ciudad y tipo de propiedad");
         }
         return;
       }
-      store.search();
+      
+      // Usar navigate en lugar de store.search()
+      const searchUrl = store.search();
+      if (searchUrl) {
+        navigate(searchUrl);
+      }
     }
   };
 }

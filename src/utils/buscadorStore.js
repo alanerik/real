@@ -85,18 +85,12 @@ class BuscadorStore {
     return `/propiedades/${operacion}/${this.state.ciudadSeleccionada}/${tipoPropiedad}`;
   }
 
-  // Realizar búsqueda
+  // Validar búsqueda (sin navegación)
   search() {
     if (!this.state.isValid) {
       throw new Error("Selección inválida para realizar búsqueda");
     }
-
-    const url = this.buildSearchUrl();
-    if (url) {
-      window.location.href = url;
-      return true;
-    }
-    return false;
+    return this.buildSearchUrl();
   }
 }
 

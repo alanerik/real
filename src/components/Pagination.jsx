@@ -1,17 +1,24 @@
 import React from "react";
 import { Pagination } from "@heroui/react";
+import { navigate } from "astro:transitions/client";
 
-export default function App({ total, initialPage }) {
+export default function App({ total, initialPage, basePath = "/propiedades" }) {
   const [currentPage, setCurrentPage] = React.useState(initialPage);
 
   const handleChange = (page) => {
+    // Usar navigate() para navegación SPA
     const url = new URL(window.location.href);
     url.searchParams.set('page', page);
-    window.location.href = url.toString();
+    
+    // Navegación usando View Transitions API de Astro
+    navigate(url.pathname + url.search);
+    
+    // Actualizar estado local
+    setCurrentPage(page);
   };
 
   return (
-    <Pagination
+    <Pagination 
       total={total}
       initialPage={initialPage}
       page={currentPage}
