@@ -11,6 +11,10 @@ bathrooms: 2
 bedrooms: 2
 area: 100
 codigo: 'DVC1'
+features:
+  - 'Wi-Fi'
+  - 'Parrilla'
+---
 ---
 
 Piscina, SUM y seguridad 24hs.

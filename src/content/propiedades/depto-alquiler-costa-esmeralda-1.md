@@ -11,6 +11,11 @@ bathrooms: 2
 bedrooms: 3
 area: 120
 codigo: 'DACE1'
+features:
+  - 'Wi-Fi'
+  - 'Parrilla'
+  - 'Aire Acondicionado'
+---
 ---
 
 Vacaciones de lujo frente al mar.

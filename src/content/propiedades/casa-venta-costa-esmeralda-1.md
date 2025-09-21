@@ -11,6 +11,11 @@ bathrooms: 3
 bedrooms: 4
 area: 280
 codigo: 'CVCE1'
+features:
+  - 'Wi-Fi'
+  - 'Parrilla'
+  - 'Aire Acondicionado'
+---
 ---
 
 Una vista increíble en un lugar único.

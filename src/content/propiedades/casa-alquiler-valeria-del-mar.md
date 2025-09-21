@@ -11,6 +11,13 @@ bathrooms: 2
 bedrooms: 3
 area: 150
 codigo: 'CAVdM'
+features:
+  - 'Wi-Fi'
+  - 'Parrilla'
+  - 'Aire Acondicionado'
+  - 'Calefacción'
+  - 'Dormitorio en Suite'
+---
 ---
 
 Descripción de la casa y sus comodidades...

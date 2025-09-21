@@ -11,6 +11,10 @@ bathrooms: 2
 bedrooms: 2
 area: 90
 codigo: 'DAC'
+features:
+  - 'Wi-Fi'
+  - 'Parrilla'
+---
 ---
 
 Descripción detallada del departamento...

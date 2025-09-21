@@ -11,6 +11,10 @@ bathrooms: 4
 bedrooms: 5
 area: 350
 codigo: 'CVC1'
+features:
+  - 'Wi-Fi'
+  - 'Parrilla'
+---
 ---
 
 Diseño y confort en un solo lugar.

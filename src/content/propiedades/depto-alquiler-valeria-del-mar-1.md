@@ -11,6 +11,13 @@ bathrooms: 1
 bedrooms: 2
 area: 70
 codigo: 'DAVdM1'
+features:
+  - 'Wi-Fi'
+  - 'Parrilla'
+  - 'Aire Acondicionado'
+  - 'Calefacción'
+  - 'Dormitorio en Suite'
+---
 ---
 
 Disfruta de la playa en Valeria.

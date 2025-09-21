@@ -2,6 +2,7 @@ import React from 'react';
 import Alerta from './Alerta.jsx';
 import Chip from './Chip.jsx';
 import Formulario from './Formulario.jsx'; // Import Formulario
+import TabsComponent from './Tabs.jsx';
 import { usePropertyChips } from '../hooks/usePropertyChips.js';
 import { usePropertyGallery } from '../hooks/usePropertyGallery.js';
 import { usePropertyDetailsList } from '../hooks/usePropertyDetailsList.js';
@@ -30,16 +31,34 @@ const InfoCard = ({ title, children }) => (
   </div>
 );
 
+const featureIcons = {
+  'Aire Acondicionado': '❄️',
+  'Piscina': '🏊',
+  'Wi-Fi': '📶',
+  'Parrilla': '🍖',
+  'Estacionamiento': '🚗',
+  'Calefacción': '🔥',
+  'Gimnasio': '🏋️',
+  'Jardín': '🌳',
+  'Agua Caliente': '💧',
+  'Dormitorio en Suite': '🛁'
+};
+
 // --- Main Component ---
 
 export default function FichaTecnica({ property }) {
-  const { description } = property;
+  const { description, features } = property;
   
   const chips = usePropertyChips(property);
   const gallery = usePropertyGallery(property);
   const detailsList = usePropertyDetailsList(property);
   const measurementsList = usePropertyMeasurementsList(property);
   const headerData = usePropertyHeaderData(property);
+
+  const propertyFeatures = features?.map(name => ({
+    name,
+    icon: featureIcons[name] || '✔️' // Default icon
+  }));
 
   return (
     <div className="max-w-7xl mx-auto p-4 font-sans grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -71,6 +90,12 @@ export default function FichaTecnica({ property }) {
 
         {/* --- Cards --- */}
         <div className="space-y-8">
+          {propertyFeatures && propertyFeatures.length > 0 && (
+            <InfoCard title="">
+              <TabsComponent features={propertyFeatures} />
+            </InfoCard>
+          )}
+
           <InfoCard title="Descripción">
             <p className="text-gray-700">{description}</p>
           </InfoCard>

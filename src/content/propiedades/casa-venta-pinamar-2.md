@@ -11,6 +11,12 @@ bathrooms: 3
 bedrooms: 4
 area: 240
 codigo: 'CVP2'
+features:
+  - 'Wi-Fi'
+  - 'Parrilla'
+  - 'Piscina'
+  - 'Jardín'
+---
 ---
 
 Ubicación tranquila y residencial.

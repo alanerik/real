@@ -11,6 +11,11 @@ bathrooms: 3
 bedrooms: 4
 area: 220
 codigo: 'CAP1'
+features:
+  - 'Wi-Fi'
+  - 'Parrilla'
+  - 'Aire Acondicionado'
+---
 ---
 
 Disfruta de tus vacaciones en Pinamar.

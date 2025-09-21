@@ -16,6 +16,7 @@ const propiedadesCollection = defineCollection({
     area: z.number().optional(),
     orientation: z.string().optional(),
     codigo: z.string().optional(),
+    features: z.array(z.string()).optional(),
   }),
 });
 

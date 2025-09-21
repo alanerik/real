@@ -11,6 +11,12 @@ bathrooms: 1
 bedrooms: 1
 area: 55
 codigo: 'DAP1'
+features:
+  - 'Wi-Fi'
+  - 'Parrilla'
+  - 'Piscina'
+  - 'Jardín'
+---
 ---
 
 La mejor vista de Pinamar.

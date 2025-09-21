@@ -11,6 +11,13 @@ bathrooms: 3
 bedrooms: 4
 area: 200
 codigo: 'CVP1'
+features:
+  - 'Wi-Fi'
+  - 'Parrilla'
+  - 'Aire Acondicionado'
+  - 'Calefacción'
+  - 'Dormitorio en Suite'
+---
 ---
 
 Texto descriptivo de la propiedad...

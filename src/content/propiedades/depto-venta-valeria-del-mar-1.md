@@ -11,6 +11,12 @@ bathrooms: 2
 bedrooms: 2
 area: 80
 codigo: 'DVVdM1'
+features:
+  - 'Wi-Fi'
+  - 'Parrilla'
+  - 'Piscina'
+  - 'Jardín'
+---
 ---
 
 A metros del centro comercial.

@@ -11,6 +11,14 @@ bathrooms: 5
 bedrooms: 5
 area: 400
 codigo: 'CAC1'
+features:
+  - 'Aire Acondicionado'
+  - 'Piscina'
+  - 'Wi-Fi'
+  - 'Parrilla'
+  - 'Jardín'
+  - 'Agua Caliente'
+  - 'Dormitorio en Suite'
 ---
 
 Lujo y naturaleza para unas vacaciones inolvidables.

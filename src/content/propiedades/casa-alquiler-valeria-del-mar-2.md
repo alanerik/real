@@ -11,6 +11,12 @@ bathrooms: 2
 bedrooms: 3
 area: 160
 codigo: 'CAVdM2'
+features:
+  - 'Wi-Fi'
+  - 'Parrilla'
+  - 'Piscina'
+  - 'Jardín'
+---
 ---
 
 A solo 3 cuadras de la playa.

@@ -11,6 +11,11 @@ bathrooms: 1
 bedrooms: 1
 area: 60
 codigo: 'DVP1'
+features:
+  - 'Wi-Fi'
+  - 'Parrilla'
+  - 'Aire Acondicionado'
+---
 ---
 
 Excelente ubicación, cerca de todo.
