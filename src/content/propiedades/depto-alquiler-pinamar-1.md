@@ -1,7 +1,7 @@
 ---
 title: 'Departamento en alquiler en Pinamar'
 description: 'Departamento de 2 ambientes frente al mar.'
-image: '/slider-1.jpg'
+image: '/slider-1.webp'
 price: 1300
 currency: 'USD'
 city: 'pinamar'

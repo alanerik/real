@@ -1,7 +1,7 @@
 ---
 title: 'Casa en Costa Esmeralda'
 description: 'Casa a estrenar con vista al mar.'
-image: '/imgHeroBanner.png'
+image: '/imgHeroBanner.webp'
 price: 380000
 currency: 'USD'
 city: 'costa-esmeralda'

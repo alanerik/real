@@ -1,7 +1,7 @@
 ---
 title: 'Departamento en venta en Carilo'
 description: 'Exclusivo departamento de 3 ambientes con amenities.'
-image: '/slider-1.jpg'
+image: '/slider-1.webp'
 price: 280000
 currency: 'USD'
 city: 'carilo'

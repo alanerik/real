@@ -1,7 +1,7 @@
 ---
 title: 'Terreno en Costa Esmeralda - Cerca del mar'
 description: 'A pocos pasos de la playa, ubicación inmejorable.'
-image: '/maritimo-3-al-100.jpg'
+image: '/maritimo-3-al-100.webp'
 price: 90000
 currency: 'USD'
 city: 'costa-esmeralda'

@@ -1,7 +1,7 @@
 ---
 title: 'Casa de estilo en Carilo'
 description: 'Lujosa casa con piscina en el bosque.'
-image: '/imgHeroBanner.png'
+image: '/imgHeroBanner.webp'
 price: 450000
 currency: 'USD'
 city: 'carilo'

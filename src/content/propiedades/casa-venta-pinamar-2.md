@@ -1,7 +1,7 @@
 ---
 title: 'Casa en venta en Pinamar Sur'
 description: 'Clásica casa de Pinamar con gran parque.'
-image: '/imgHeroBanner.png'
+image: '/imgHeroBanner.webp'
 price: 290000
 currency: 'USD'
 city: 'pinamar'

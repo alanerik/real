@@ -1,7 +1,7 @@
 ---
 title: 'Casa en alquiler en Pinamar'
 description: 'Moderna casa para 8 personas con todas las comodidades.'
-image: '/maritimo-3-al-100.jpg'
+image: '/maritimo-3-al-100.webp'
 price: 2500
 currency: 'USD'
 city: 'pinamar'

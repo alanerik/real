@@ -37,7 +37,7 @@ function generateStructuredData(properties) {
       "position": index + 1,
       "name": property.data?.title || 'Propiedad sin título',
       "description": property.data?.description || 'Sin descripción',
-      "image": property.data?.image || '/images/placeholder-property.jpg',
+      "image": property.data?.image || '/images/placeholder-property.webp',
       "url": `/propiedades/detalles/${property.slug}`,
       "offers": {
         "@type": "Offer",
@@ -105,7 +105,7 @@ const sectionDescription = 'Descubre nuestras propiedades más recientes con las
               <div role="listitem" key={property.slug}>
                 <CardMain 
                   client:idle
-                  image={property.data?.image || '/images/placeholder-property.jpg'} 
+                  image={property.data?.image || '/images/placeholder-property.webp'} 
                   title={property.data?.title || 'Título no disponible'} 
                   description={property.data?.description || 'Descripción no disponible'} 
                   price={formatPrice(property.data?.price, property.data?.currency)}

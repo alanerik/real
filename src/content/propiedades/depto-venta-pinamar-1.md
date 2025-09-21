@@ -1,7 +1,7 @@
 ---
 title: 'Departamento en venta en Pinamar'
 description: 'Moderno departamento de 2 ambientes en el centro.'
-image: '/slider-1.jpg'
+image: '/slider-1.webp'
 price: 150000
 currency: 'USD'
 city: 'pinamar'

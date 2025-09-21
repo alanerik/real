@@ -1,7 +1,7 @@
 ---
 title: 'Casa en Valeria del Mar, ideal familias'
 description: 'Casa con amplio jardín y parrilla.'
-image: '/maritimo-3-al-100.jpg'
+image: '/maritimo-3-al-100.webp'
 price: 1800
 currency: 'USD'
 city: 'valeria-del-mar'

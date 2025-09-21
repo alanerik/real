@@ -45,7 +45,7 @@ const CardMain = memo(function CardMain({
               className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
               loading={priority ? "eager" : "lazy"}
               removeWrapper
-              fallbackSrc="/images/placeholder-property.jpg"
+              fallbackSrc="/images/placeholder-property.webp"
               onLoad={() => setImageLoaded(true)}
             />
           </Skeleton>

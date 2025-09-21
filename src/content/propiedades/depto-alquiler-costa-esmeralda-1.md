@@ -1,7 +1,7 @@
 ---
 title: 'Departamento en alquiler en Costa Esmeralda'
 description: 'Departamento con vista al mar para 6 personas.'
-image: '/slider-1.jpg'
+image: '/slider-1.webp'
 price: 2000
 currency: 'USD'
 city: 'costa-esmeralda'

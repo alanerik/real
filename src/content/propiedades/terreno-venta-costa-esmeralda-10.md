@@ -1,7 +1,7 @@
 ---
 title: 'Terreno en Costa Esmeralda - Marítimo II'
 description: 'A metros del parador y la playa.'
-image: '/maritimo-3-al-100.jpg'
+image: '/maritimo-3-al-100.webp'
 price: 95000
 currency: 'USD'
 city: 'costa-esmeralda'
