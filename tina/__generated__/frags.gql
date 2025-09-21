@@ -1,0 +1,16 @@
+fragment PropiedadesParts on Propiedades {
+  __typename
+  title
+  description
+  image
+  price
+  currency
+  city
+  operation
+  propertyType
+  bathrooms
+  bedrooms
+  area
+  codigo
+  body
+}
