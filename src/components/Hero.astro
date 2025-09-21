@@ -1,9 +1,13 @@
 ---
 import BuscarButton from '@/components/BuscarButton.jsx';
 import Buscador from '@/components/Buscador.jsx';
+import { Image } from 'astro:assets'; // Import Image component
+import sliderImage from '/public/slider-1.webp'; // Import the image directly
+
 ---
 
-<section class="relative h-[620px] bg-[image:var(--url-img)] bg-cover bg-center">
+<section class="relative h-[620px] bg-cover bg-center">
+    <Image src={sliderImage} loading={"eager"} fetchpriority={"high"} alt="Hero Background" class="absolute inset-0 w-full h-full object-cover -z-10" />
     <div class="absolute inset-0 bg-gradient-to-b from-[var(--gradient-color)] from-10% to-transparent 110%"></div>
     <div class="relative z-10 flex flex-col items-center justify-center h-full">
         
@@ -20,6 +24,6 @@ import Buscador from '@/components/Buscador.jsx';
 <style>
 section {
     --gradient-color:#006760 ;
-    --url-img: url(/slider-1.webp);
+    /* --url-img: url(/slider-1.webp); Removed */
 }
 </style>
