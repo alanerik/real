@@ -1,24 +1,28 @@
 ---
 import CardMain from '@/components/CardMain.jsx';
 import BuscarButton from '@/components/BuscarButton.jsx';
+import CardSkeleton from '@/components/CardSkeleton.jsx';
 import { getCollection } from 'astro:content';
 
-const allProperties = await getCollection('propiedades');
-const properties = allProperties.slice(0, 4);
+// ===== CONFIGURACIÓN =====
+const LATEST_PROPERTIES_COUNT = 4;
+const LOCALE = 'es-AR';
+const DEFAULT_CURRENCY = 'USD';
 
-function formatPrice(price, currency = 'USD') {
+// ===== FUNCIONES UTILITARIAS =====
+function formatPrice(price, currency = DEFAULT_CURRENCY) {
   if (!price || price <= 0) return 'Consultar precio';
   
   try {
-    return new Intl.NumberFormat('es-AR', {
+    return new Intl.NumberFormat(LOCALE, {
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(price);
   } catch (error) {
-    console.warn('Error formatting price:', error);
-    return `${currency} ${price.toLocaleString()}`;
+    console.warn(`Error formatting price: ${error}. Price: ${price}, Currency: ${currency}`);
+    return `${currency} ${price.toLocaleString(LOCALE)}`;
   }
 }
 
@@ -31,20 +35,36 @@ function generateStructuredData(properties) {
     "itemListElement": properties.map((property, index) => ({
       "@type": "RealEstateListingProperty",
       "position": index + 1,
-      "name": property.data.title,
-      "description": property.data.description,
-      "image": property.data.image,
+      "name": property.data?.title || 'Propiedad sin título',
+      "description": property.data?.description || 'Sin descripción',
+      "image": property.data?.image || '/images/placeholder-property.jpg',
       "url": `/propiedades/detalles/${property.slug}`,
       "offers": {
         "@type": "Offer",
-        "price": property.data.price,
-        "priceCurrency": property.data.currency || 'USD'
+        "price": property.data?.price || 0,
+        "priceCurrency": property.data?.currency || DEFAULT_CURRENCY
       }
     }))
   };
 }
 
-const structuredData = generateStructuredData(properties);
+// ===== LÓGICA PRINCIPAL =====
+let properties = [];
+let hasError = false;
+
+try {
+  const allProperties = await getCollection('propiedades');
+  properties = allProperties?.slice(0, LATEST_PROPERTIES_COUNT) || [];
+} catch (error) {
+  console.error('Error loading properties:', error);
+  hasError = true;
+}
+
+const structuredData = properties.length > 0 ? generateStructuredData(properties) : null;
+
+// ===== SEO Y METADATA =====
+const sectionTitle = 'Últimas Propiedades';
+const sectionDescription = 'Descubre nuestras propiedades más recientes con las mejores ubicaciones y precios';
 ---
 
 <section 
@@ -53,83 +73,114 @@ const structuredData = generateStructuredData(properties);
 >
   <div class="container mx-auto">
     <!-- Header Section -->
-    <div class="text-center mb-12">
+    <header class="text-center mb-12">
       <h2 
         id="latest-properties-heading"
-        class="text-4xl font-bold text-gray-900  mb-4"
+        class="text-4xl font-bold text-gray-900 mb-4"
       >
-        Últimas Propiedades
+        {sectionTitle}
       </h2>
-      <p class="text-lg text-gray-600  max-w-2xl mx-auto">
-        Descubre nuestras propiedades más recientes con las mejores ubicaciones y precios
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        {sectionDescription}
       </p>
-    </div>
+    </header>
 
     <!-- Properties Grid -->
-    {properties.length > 0 ? (
+    {!hasError && properties.length > 0 ? (
       <>
         <div 
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8"
           role="list"
-          aria-label="Lista de propiedades"
+          aria-label="Lista de propiedades recientes"
         >
-          {properties.map((property, index) => (
-            <div role="listitem" key={property.slug}>
-              <CardMain 
-                client:load
-                image={property.data.image} 
-                title={property.data.title} 
-                description={property.data.description} 
-                price={formatPrice(property.data.price, property.data.currency)}
-                slug={property.slug}
-                imageAlt={`Imagen de ${property.data.title}`}
-                priority={index < 2}
-              />
-            </div>
-          ))}
+          {properties.map((property, index) => {
+            if (!property?.slug) {
+              console.warn(`Property at index ${index} is missing slug`);
+              return null;
+            }
+
+            const isAboveFold = index < 2;
+            
+            return (
+              <div role="listitem" key={property.slug}>
+                <CardMain 
+                  client:idle
+                  image={property.data?.image || '/images/placeholder-property.jpg'} 
+                  title={property.data?.title || 'Título no disponible'} 
+                  description={property.data?.description || 'Descripción no disponible'} 
+                  price={formatPrice(property.data?.price, property.data?.currency)}
+                  slug={property.slug}
+                  imageAlt={`Imagen de ${property.data?.title || 'propiedad'}`}
+                  priority={isAboveFold}
+                />
+              </div>
+            );
+          })}
         </div>
 
         <!-- Call to Action -->
-        <div class="text-center mt-12">
+        <footer class="text-center mt-12">
           <BuscarButton 
             variant="header" 
-            client:load
-            
+            client:idle
           >
             Ver todas las propiedades
           </BuscarButton>
-        </div>
+        </footer>
       </>
     ) : (
-      <!-- Empty State -->
-      <div class="text-center py-12">
-        <div class="max-w-md mx-auto">
-          <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-          </svg>
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            No hay propiedades disponibles
-          </h3>
-          <p class="text-gray-500 dark:text-gray-400">
-            Estamos trabajando para agregar nuevas propiedades pronto.
-          </p>
+      <!-- Error State -->
+      {hasError ? (
+        <div class="text-center py-12" role="alert">
+          <div class="max-w-md mx-auto">
+            <svg class="mx-auto h-12 w-12 text-red-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.98-.833-2.75 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">
+              Error al cargar propiedades
+            </h3>
+            <p class="text-gray-500 mb-4">
+              Hubo un problema técnico. Intenta recargar la página.
+            </p>
+            <button 
+              onclick="window.location.reload()" 
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              Recargar página
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <!-- Empty State -->
+        <div class="text-center py-12" role="status">
+          <div class="max-w-md mx-auto">
+            <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">
+              No hay propiedades disponibles
+            </h3>
+            <p class="text-gray-500">
+              Estamos trabajando para agregar nuevas propiedades pronto.
+            </p>
+          </div>
+        </div>
+      )}
     )}
   </div>
 
   <!-- Structured Data for SEO -->
-  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  {structuredData && (
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  )}
 </section>
 
 <style>
-  /* Utility para line-clamp si no está disponible */
+  /* Solo utilidades que realmente necesitamos */
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-
-
 </style>
