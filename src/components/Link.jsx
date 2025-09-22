@@ -10,7 +10,7 @@ export default function LinkComponent({ href = "#", children, color = "success",
       href={href}
       variant="solid"
       isBlock
-    
+    className=" mb-3 mr-1"
       {...props}
     >
       {children}
