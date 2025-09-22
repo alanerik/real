@@ -78,6 +78,10 @@ export async function getStaticPaths() {
 const { operacion, ciudad, tipoPropiedad } = Astro.params;
 const { totalPropiedades, ciudadNombre, tipoNombre } = Astro.props;
 
+// NUEVO: Obtener filtro de ambientes de la URL
+const url = new URL(Astro.request.url);
+const ambientesFilter = url.searchParams.get('ambientes');
+
 // Validación de parámetros críticos
 if (!operacion || !ciudad || !tipoPropiedad) {
   return Astro.redirect('/404');
@@ -91,12 +95,31 @@ if (!operacionesValidas.includes(operacion)) {
 
 // Obtener propiedades filtradas
 const todasLasPropiedades = await getCollection('propiedades');
+
+// ACTUALIZADO: Aplicar TODOS los filtros, incluyendo ambientes
 const propiedadesFiltradas = todasLasPropiedades.filter(propiedad => {
-  return (
-    propiedad.data.operation === operacion &&
-    propiedad.data.city === ciudad &&
-    propiedad.data.propertyType === tipoPropiedad
-  );
+  const { data } = propiedad;
+  
+  // Filtros básicos
+  const matchesOperation = data.operation === operacion;
+  const matchesCity = data.city === ciudad;
+  const matchesType = data.propertyType === tipoPropiedad;
+  
+  // NUEVO: Filtro por ambientes
+  let matchesAmbientes = true;
+  
+  if (ambientesFilter) {
+    if (ambientesFilter === '5+') {
+      // Para "5+ ambientes"
+      matchesAmbientes = (data.ambientes || 0) >= 5;
+    } else {
+      // Para números exactos
+      matchesAmbientes = data.ambientes === parseInt(ambientesFilter);
+    }
+
+  }
+  
+  return matchesOperation && matchesCity && matchesType && matchesAmbientes;
 });
 
 // Calcular paginación
@@ -106,9 +129,9 @@ const currentPage = Math.max(DEFAULT_PAGE, Math.min(rawCurrentPage || DEFAULT_PA
 
 // Redireccionar si la página es inválida y hay propiedades
 if (totalPages > 0 && rawCurrentPage !== currentPage) {
-  const url = new URL(Astro.request.url);
-  url.searchParams.set('page', currentPage.toString());
-  return Astro.redirect(url.pathname + url.search);
+  const redirectUrl = new URL(Astro.request.url);
+  redirectUrl.searchParams.set('page', currentPage.toString());
+  return Astro.redirect(redirectUrl.pathname + redirectUrl.search);
 }
 
 // Obtener propiedades paginadas
@@ -116,16 +139,40 @@ const startIndex = (currentPage - 1) * PAGE_SIZE;
 const endIndex = startIndex + PAGE_SIZE;
 const pagedPropiedades = propiedadesFiltradas.slice(startIndex, endIndex);
 
-// Generar metadata dinámica
-const pageTitle = totalPages > 1 
-  ? `${operacion.charAt(0).toUpperCase() + operacion.slice(1)} de ${tipoNombre} en ${ciudadNombre} - Página ${currentPage} de ${totalPages}`
-  : `${operacion.charAt(0).toUpperCase() + operacion.slice(1)} de ${tipoNombre} en ${ciudadNombre}`;
+// ACTUALIZADO: Generar metadata dinámica incluyendo filtro de ambientes
+let pageTitle = `${operacion.charAt(0).toUpperCase() + operacion.slice(1)} de ${tipoNombre} en ${ciudadNombre}`;
+let metaDescription = `Encuentra ${propiedadesFiltradas.length} propiedades en ${operacion} de ${tipoNombre} en ${ciudadNombre}`;
 
-const metaDescription = `Encuentra ${propiedadesFiltradas.length} propiedades en ${operacion} de ${tipoNombre} en ${ciudadNombre}. ${totalPages > 1 ? `Página ${currentPage} de ${totalPages}.` : ''}`;
+// Agregar info de ambientes al título si hay filtro
+if (ambientesFilter) {
+  const ambientesText = ambientesFilter === '5+' ? '5 o más ambientes' : `${ambientesFilter} ambiente${ambientesFilter === '1' ? '' : 's'}`;
+  pageTitle += ` con ${ambientesText}`;
+  metaDescription += ` con ${ambientesText}`;
+}
 
-// Generar URLs canónicas y de navegación
-const baseUrl = `/${operacion}/${ciudad}/${tipoPropiedad}`;
-const canonicalUrl = totalPages > 1 ? `${baseUrl}?page=${currentPage}` : baseUrl;
+// Agregar info de paginación
+if (totalPages > 1) {
+  pageTitle += ` - Página ${currentPage} de ${totalPages}`;
+  metaDescription += `. Página ${currentPage} de ${totalPages}.`;
+}
+
+// ACTUALIZADO: Generar URLs canónicas manteniendo el filtro de ambientes
+const baseUrl = `/propiedades/${operacion}/${ciudad}/${tipoPropiedad}`;
+let canonicalUrl = baseUrl;
+
+// Construir URL con parámetros
+const params = new URLSearchParams();
+if (ambientesFilter) {
+  params.append('ambientes', ambientesFilter);
+}
+if (totalPages > 1) {
+  params.append('page', currentPage.toString());
+}
+
+if (params.toString()) {
+  canonicalUrl += `?${params.toString()}`;
+}
+
 ---
 
 <Layout 
@@ -150,13 +197,24 @@ const canonicalUrl = totalPages > 1 ? `${baseUrl}?page=${currentPage}` : baseUrl
     <header class="bg-white p-6 rounded-lg shadow-md border border-gray-200 mb-8">
       <div class="flex justify-between items-start">
         <div>
+            <!-- ACTUALIZADO: Mostrar filtro activo de ambientes -->
             <p class="text-lg font-thin text-gray-600">
+                {ambientesFilter && (
+                  <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-sm mr-2">
+                    {ambientesFilter === '5+' ? '5+ ambientes' : `${ambientesFilter} ambiente${ambientesFilter === '1' ? '' : 's'}`}
+                  </span>
+                )}
                 Resultados {totalPages > 1 ? `(Página ${currentPage} de ${totalPages})` : ''}
             </p>
             <h1 class="text-3xl font-bold text-gray-900">
                 {propiedadesFiltradas.length} 
                 {propiedadesFiltradas.length === 1 ? 'propiedad' : 'propiedades'} 
                 de {tipoNombre} en {operacion} en {ciudadNombre}
+                {ambientesFilter && (
+                  <span class="text-2xl text-gray-600">
+                    {ambientesFilter === '5+' ? ' con 5+ ambientes' : ` con ${ambientesFilter} ambiente${ambientesFilter === '1' ? '' : 's'}`}
+                  </span>
+                )}
             </h1>
         </div>
         <div class="text-right">
@@ -190,17 +248,22 @@ const canonicalUrl = totalPages > 1 ? `${baseUrl}?page=${currentPage}` : baseUrl
               No se encontraron propiedades
             </h2>
             <p class="text-gray-600 mb-6">
-              No hay propiedades disponibles de {tipoNombre} en {operacion} en {ciudadNombre}.
+              No hay propiedades disponibles de {tipoNombre} en {operacion} en {ciudadNombre}
+              {ambientesFilter && (
+                <span>
+                  {' '}con {ambientesFilter === '5+' ? '5 o más ambientes' : `${ambientesFilter} ambiente${ambientesFilter === '1' ? '' : 's'}`}
+                </span>
+              )}.
             </p>
             <div class="space-x-4">
               <a 
-                href={`/${operacion}/${ciudad}`}
+                href={`/propiedades/${operacion}/${ciudad}/${tipoPropiedad}`}
                 class="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Ver todas en {ciudadNombre}
               </a>
               <a 
-                href={`/${operacion}`}
+                href={`/propiedades/${operacion}`}
                 class="inline-block px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Explorar {operacion}
@@ -227,10 +290,16 @@ const canonicalUrl = totalPages > 1 ? `${baseUrl}?page=${currentPage}` : baseUrl
     {totalPages > 1 && (
       <div class="hidden">
         {currentPage > 1 && (
-          <link rel="prev" href={`${baseUrl}?page=${currentPage - 1}`} />
+          <link rel="prev" href={`${baseUrl}?${new URLSearchParams({
+            ...(ambientesFilter && { ambientes: ambientesFilter }),
+            page: (currentPage - 1).toString()
+          }).toString()}`} />
         )}
         {currentPage < totalPages && (
-          <link rel="next" href={`${baseUrl}?page=${currentPage + 1}`} />
+          <link rel="next" href={`${baseUrl}?${new URLSearchParams({
+            ...(ambientesFilter && { ambientes: ambientesFilter }),
+            page: (currentPage + 1).toString()
+          }).toString()}`} />
         )}
       </div>
     )}

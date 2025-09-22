@@ -8,6 +8,7 @@ export function useBuscador() {
     ciudadSeleccionada: "",
     tipoVenta: "",
     tipoAlquiler: "",
+    ambientes: "", // NUEVO CAMPO
     isValid: false
   });
   
@@ -43,6 +44,11 @@ export function useBuscador() {
         tipoVenta: tipo ? "" : state.tipoVenta 
       });
     },
+
+    // NUEVA ACCIÓN para ambientes
+    setAmbientes: (ambientes) => {
+      store.setState({ ambientes });
+    },
     
     reset: () => {
       store.reset();
@@ -65,6 +71,11 @@ export function useBuscador() {
     
     getSearchUrl: () => {
       return store.buildSearchUrl();
+    },
+
+    // NUEVA: Obtener filtros activos
+    getActiveFilters: () => {
+      return store.getActiveFilters();
     }
   };
 
@@ -98,5 +109,17 @@ export function useBuscarButton(variant) {
         navigate(searchUrl);
       }
     }
+  };
+}
+
+// NUEVO: Hook para mostrar filtros activos (badges, etc.)
+export function useActiveFilters() {
+  const [state] = useBuscador();
+  const store = getBuscadorStore();
+  
+  return {
+    filters: store.getActiveFilters(),
+    hasFilters: store.getActiveFilters().length > 0,
+    count: store.getActiveFilters().length
   };
 }

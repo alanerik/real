@@ -7,6 +7,7 @@ class BuscadorStore {
       ciudadSeleccionada: "",
       tipoVenta: "",
       tipoAlquiler: "",
+      ambientes: "", // NUEVO CAMPO
       isValid: false
     };
   }
@@ -71,7 +72,8 @@ class BuscadorStore {
     this.setState({
       ciudadSeleccionada: "",
       tipoVenta: "",
-      tipoAlquiler: ""
+      tipoAlquiler: "",
+      ambientes: "" // RESETEAR AMBIENTES TAMBIÉN
     });
   }
 
@@ -82,7 +84,16 @@ class BuscadorStore {
     const operacion = this.state.tipoVenta ? "venta" : "alquiler";
     const tipoPropiedad = this.state.tipoVenta || this.state.tipoAlquiler;
     
-    return `/propiedades/${operacion}/${this.state.ciudadSeleccionada}/${tipoPropiedad}`;
+    let url = `/propiedades/${operacion}/${this.state.ciudadSeleccionada}/${tipoPropiedad}`;
+    
+    // Agregar ambientes como query param si está seleccionado
+    if (this.state.ambientes) {
+      const params = new URLSearchParams();
+      params.append('ambientes', this.state.ambientes);
+      url += `?${params.toString()}`;
+    }
+    
+    return url;
   }
 
   // Validar búsqueda (sin navegación)
@@ -91,6 +102,31 @@ class BuscadorStore {
       throw new Error("Selección inválida para realizar búsqueda");
     }
     return this.buildSearchUrl();
+  }
+
+  // NUEVO: Método para obtener filtros activos (útil para mostrar badges)
+  getActiveFilters() {
+    const filters = [];
+    
+    if (this.state.ciudadSeleccionada) {
+      filters.push({ type: 'ciudad', value: this.state.ciudadSeleccionada });
+    }
+    
+    if (this.state.tipoVenta) {
+      filters.push({ type: 'operacion', value: 'venta' });
+      filters.push({ type: 'tipo', value: this.state.tipoVenta });
+    }
+    
+    if (this.state.tipoAlquiler) {
+      filters.push({ type: 'operacion', value: 'alquiler' });
+      filters.push({ type: 'tipo', value: this.state.tipoAlquiler });
+    }
+    
+    if (this.state.ambientes) {
+      filters.push({ type: 'ambientes', value: this.state.ambientes });
+    }
+    
+    return filters;
   }
 }
 
@@ -103,10 +139,17 @@ export function getBuscadorStore() {
     return {
       subscribe: () => () => {},
       setState: () => {},
-      getState: () => ({ ciudadSeleccionada: "", tipoVenta: "", tipoAlquiler: "", isValid: false }),
+      getState: () => ({ 
+        ciudadSeleccionada: "", 
+        tipoVenta: "", 
+        tipoAlquiler: "", 
+        ambientes: "", 
+        isValid: false 
+      }),
       reset: () => {},
       buildSearchUrl: () => null,
-      search: () => false
+      search: () => false,
+      getActiveFilters: () => []
     };
   }
 

@@ -9,6 +9,7 @@ operation: 'venta'
 propertyType: 'casa'
 bathrooms: 4
 bedrooms: 5
+ambientes: 6 
 area: 350
 codigo: 'CVC1'
 features:

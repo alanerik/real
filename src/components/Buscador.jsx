@@ -24,46 +24,127 @@ export const tiposDePropiedadAlquiler = [
   { label: "Campo", key: "campo" },
 ];
 
-export default function Buscador() {
+export const numeroAmbientes = [
+  { label: "1 ambiente", key: "1" },
+  { label: "2 ambientes", key: "2" },
+  { label: "3 ambientes", key: "3" },
+  { label: "4 ambientes", key: "4" },
+  { label: "5+ ambientes", key: "5+" },
+];
+
+export default function Buscador({ 
+  variant = "full", 
+  showCiudad = true, 
+  showTipoVenta = true, 
+  showTipoAlquiler = true, 
+  showAmbientes = false,
+  layout = "horizontal",
+  className = ""
+}) {
   const [state, actions] = useBuscador();
 
+  // Diferentes layouts
+  const layoutClasses = {
+    horizontal: "flex w-full flex-wrap justify-center md:flex-nowrap gap-4",
+    vertical: "flex flex-col gap-4 w-full max-w-sm",
+    grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full"
+  };
+
+  // Variantes de componente
+  const isCompact = variant === "compact";
+  const isInline = variant === "inline";
+
   return (
-    <div className="flex w-full flex-wrap justify-center md:flex-nowrap gap-4">
-      <Autocomplete 
-      color="success"
-        className="max-w-xs" 
-        label="Selecciona una ciudad" 
-        defaultItems={ciudades} 
-        placeholder="Busca por ciudad"
-        onSelectionChange={actions.setCiudad}
-        selectedKey={state.ciudadSeleccionada}
-      >
-        {(item) => <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>}
-      </Autocomplete>
+    <div className={`${layoutClasses[layout]} ${className}`}>
+      {showCiudad && (
+        <Autocomplete 
+          color="success"
+          className={isCompact ? "max-w-xs" : "max-w-xs"} 
+          label={isCompact ? "Ciudad" : "Selecciona una ciudad"}
+          size={isCompact ? "sm" : "md"}
+          defaultItems={ciudades} 
+          placeholder="Busca por ciudad"
+          onSelectionChange={actions.setCiudad}
+          selectedKey={state.ciudadSeleccionada}
+        >
+          {(item) => <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>}
+        </Autocomplete>
+      )}
       
-      <Autocomplete
-      color="primary"
-        className="max-w-xs"
-        defaultItems={tiposDePropiedad}
-        label="Venta propiedades"
-        placeholder="Busca por tipo"
-        onSelectionChange={actions.setTipoVenta}
-        selectedKey={state.tipoVenta}
-      >
-        {(item) => <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>}
-      </Autocomplete>
+      {showTipoVenta && (
+        <Autocomplete
+          color="primary"
+          className={isCompact ? "max-w-xs" : "max-w-xs"}
+          size={isCompact ? "sm" : "md"}
+          defaultItems={tiposDePropiedad}
+          label={isCompact ? "Venta" : "Venta propiedades"}
+          placeholder="Busca por tipo"
+          onSelectionChange={actions.setTipoVenta}
+          selectedKey={state.tipoVenta}
+        >
+          {(item) => <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>}
+        </Autocomplete>
+      )}
       
-      <Autocomplete
-      color="warning"
-        className="max-w-xs"
-        defaultItems={tiposDePropiedadAlquiler}
-        label="Alquiler propiedades"
-        placeholder="Busca por tipo"
-        onSelectionChange={actions.setTipoAlquiler}
-        selectedKey={state.tipoAlquiler}
-      >
-        {(item) => <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>}
-      </Autocomplete>
+      {showTipoAlquiler && (
+        <Autocomplete
+          color="warning"
+          className={isCompact ? "max-w-xs" : "max-w-xs"}
+          size={isCompact ? "sm" : "md"}
+          defaultItems={tiposDePropiedadAlquiler}
+          label={isCompact ? "Alquiler" : "Alquiler propiedades"}
+          placeholder="Busca por tipo"
+          onSelectionChange={actions.setTipoAlquiler}
+          selectedKey={state.tipoAlquiler}
+        >
+          {(item) => <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>}
+        </Autocomplete>
+      )}
+
+      {showAmbientes && (
+        <Autocomplete
+          color="secondary"
+          className={isCompact ? "max-w-xs" : "max-w-xs"}
+          size={isCompact ? "sm" : "md"}
+          defaultItems={numeroAmbientes}
+          label={isCompact ? "Ambientes" : "Número de ambientes"}
+          placeholder="Selecciona ambientes"
+          onSelectionChange={actions.setAmbientes}
+          selectedKey={state.ambientes}
+        >
+          {(item) => <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>}
+        </Autocomplete>
+      )}
     </div>
+  );
+}
+
+// Componentes específicos para casos comunes
+export function BuscadorCompacto({ className = "" }) {
+  return (
+    <Buscador 
+      variant="compact" 
+      layout="horizontal" 
+      className={className}
+    />
+  );
+}
+
+export function BuscadorSidebar({ className = "" }) {
+  return (
+    <Buscador 
+      variant="compact" 
+      layout="vertical" 
+      className={className}
+    />
+  );
+}
+
+export function BuscadorSinAmbientes({ className = "" }) {
+  return (
+    <Buscador 
+      showAmbientes={false}
+      className={className}
+    />
   );
 }

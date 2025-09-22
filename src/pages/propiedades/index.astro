@@ -1,8 +1,24 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import PropiedadesList from '@/components/PropiedadesList.astro';
+import Buscador from '@/components/Buscador.jsx';
+import BuscarButton from '@/components/BuscarButton';
 ---
 
 <Layout title="Todas las Propiedades">
+  <Buscador 
+    showCiudad={true} 
+    showTipoVenta={true} 
+    showTipoAlquiler={true} 
+    showAmbientes={true} 
+    layout="horizontal" 
+    className="mt-6 mb-6"
+    client:load
+/>
+<div class="flex items-center mx-auto justify-center ">
+  <BuscarButton client:load/>
+</div>
+
+  
   <PropiedadesList />
 </Layout>

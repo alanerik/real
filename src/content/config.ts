@@ -13,6 +13,8 @@ const propiedadesCollection = defineCollection({
     propertyType: z.string(),
     bedrooms: z.number().optional(),
     bathrooms: z.number().optional(),
+    // NUEVO: Campo ambientes (calculado o directo)
+    ambientes: z.number().optional(),
     area: z.number().optional(),
     orientation: z.string().optional(),
     codigo: z.string().optional(),
