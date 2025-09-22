@@ -11,24 +11,23 @@ const FOOTER_CONFIG = {
     tagline: "Tu partner inmobiliario de confianza en la Costa Atlántica Argentina. Encontrá la propiedad de tus sueños.",
     location: "Pinamar, Buenos Aires",
     email: "info@realestate.com",
-    newsletterText: "Recibí las mejores ofertas"
+    newsletterText: "Recibí las mejores ofertas y novedades inmobiliarias"
   },
 
   // Redes sociales
   socialMedia: [
-    
     {
       name: "Instagram",
       url: "/",
-      },
+    },
     {
       name: "YouTube",
       url: "/",
-      },
+    },
     {
       name: "LinkedIn",
       url: "/",
-     }
+    }
   ],
 
   // Servicios
@@ -65,6 +64,7 @@ const STYLES = {
   contactIcon: "w-4 h-4",
   divider: "mt-12 pt-8 border-t border-gray-200",
   copyright: "text-sm text-black",
+  newsletterSection: "space-y-4 p-4 bg-gray-50 rounded-lg border",
 };
 ---
 
@@ -83,8 +83,6 @@ const STYLES = {
         <p class={STYLES.tagline}>
           {FOOTER_CONFIG.brand.tagline}
         </p>
-        
-       
       </div>
 
       <!-- Servicios -->
@@ -140,34 +138,33 @@ const STYLES = {
           </div>
         </div>
 
-        <!-- Newsletter -->
-        <div class="space-y-3">
-          <p class="text-sm text-gray-600">{FOOTER_CONFIG.brand.newsletterText}</p>
-          <div class="flex space-x-2">
-            <NoticiasInput client:idle />
-          </div>
+        <!-- Newsletter Section -->
+        <div class={STYLES.newsletterSection}>
+          <h5 class="text-sm font-semibold text-black mb-2">Newsletter</h5>
+          <p class="text-xs text-gray-600 mb-3">
+            {FOOTER_CONFIG.brand.newsletterText}
+          </p>
+          <NoticiasInput client:idle />
         </div>
       </div>
     </div>
 
     <!-- Divider -->
     <div class={STYLES.divider}>
-      <div class="flex flex-col md:flex-row justify-between items-center  space-y-4 md:space-y-0">
+      <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
         <p class={STYLES.copyright}>
           {FOOTER_CONFIG.copyright}
         </p>
       
        <!-- Social Media -->
-        <div class={STYLES.socialContainer}>
+        <div class="flex space-x-4">
           {FOOTER_CONFIG.socialMedia.map(social => (
-            
-            <LinkComponent isExternal  href={social.url} color="primary" client:idle>
+            <LinkComponent isExternal href={social.url} color="primary" client:idle>
               {social.name}
             </LinkComponent>
-            
           ))}
         </div>
-        </div>
+      </div>
     </div>
   </div>
 </footer>
