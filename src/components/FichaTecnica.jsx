@@ -68,7 +68,7 @@ export default function FichaTecnica({ property }) {
         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 mb-8">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold">{headerData.title}</h1>
+              <h1 className="text-2xl font-bold">{headerData.title}</h1>
               <p className="text-gray-500 opacity-80">{headerData.city} {headerData.codigo && `- Código: ${headerData.codigo}`}</p>
               <div className="flex gap-2 mt-2">
                 {chips.map((chip, index) => (
@@ -78,7 +78,7 @@ export default function FichaTecnica({ property }) {
             </div>
             <div className="text-right">
               <p className="text-lg font-semibold text-gray-700">{headerData.displayOperation}</p>
-              <p className="text-3xl font-bold text-green-600">{headerData.formattedPrice}</p>
+              <p className="text-2xl font-bold text-green-600">{headerData.formattedPrice}</p>
             </div>
           </div>
         </div>
