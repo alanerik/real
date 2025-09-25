@@ -1,13 +1,13 @@
 import React from 'react';
-import Alerta from './Alerta.jsx';
-import Chip from './Chip.jsx';
-import Formulario from './Formulario.jsx'; // Import Formulario
-import TabsComponent from './Tabs.jsx';
-import { usePropertyChips } from '../hooks/usePropertyChips.js';
-import { usePropertyGallery } from '../hooks/usePropertyGallery.js';
-import { usePropertyDetailsList } from '../hooks/usePropertyDetailsList.js';
-import { usePropertyMeasurementsList } from '../hooks/usePropertyMeasurementsList.js';
-import { usePropertyHeaderData } from '../hooks/usePropertyHeaderData.js';
+import Alerta from '../Alerta.jsx';
+import Chip from '../Chip.jsx';
+import Formulario from './FormularioFichaTecnica.jsx'; // Import Formulario
+import TabsComponent from './TabsFichaTecnica.jsx';
+import { usePropertyChips } from '../../hooks/usePropertyChips.js';
+import { usePropertyGallery } from '../../hooks/usePropertyGallery.js';
+import { usePropertyDetailsList } from '../../hooks/usePropertyDetailsList.js';
+import { usePropertyMeasurementsList } from '../../hooks/usePropertyMeasurementsList.js';
+import { usePropertyHeaderData } from '../../hooks/usePropertyHeaderData.js';
 
 // --- Sub-components for better structure ---
 

@@ -1,11 +1,13 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import PropiedadesList from '@/components/PropiedadesList.astro';
+import ListadoPropiedades from '@/components/ListadoPropiedades/ListadoPropiedades.astro';
 import Buscador from '@/components/Buscador.jsx';
 import BuscarButton from '@/components/BuscarButton';
+import Breadcrumbs from '@/components/Breadcrumbs.jsx';
 ---
 
 <Layout title="Todas las Propiedades">
+  <Breadcrumbs pathname={Astro.url.pathname} client:load />
   <Buscador 
     showCiudad={true} 
     showTipoVenta={true} 
@@ -20,5 +22,5 @@ import BuscarButton from '@/components/BuscarButton';
 </div>
 
   
-  <PropiedadesList />
+  <ListadoPropiedades />
 </Layout>

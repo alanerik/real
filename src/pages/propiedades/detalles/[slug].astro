@@ -1,7 +1,8 @@
 ---
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import { getPropiedadPorSlug } from '@/utils/propiedades.js';
 import Layout from '@/layouts/Layout.astro';
-import FichaTecnica from '@/components/FichaTecnica.jsx';
+import FichaTecnica from '@/components/FichaTecnica/FichaTecnica.jsx';
 import Breadcrumbs from '@/components/Breadcrumbs.jsx';
 
 export async function getStaticPaths() {
@@ -12,7 +13,7 @@ export async function getStaticPaths() {
 }
  export const prerender = true;
 const { slug } = Astro.params;
-const propiedad = await getEntry('propiedades', slug);
+const propiedad = await getPropiedadPorSlug(slug);
 
 if (!propiedad) {
   return new Response(null, {

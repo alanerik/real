@@ -1,65 +1,16 @@
 ---
-import { getCollection } from 'astro:content';
-import CardMain from '@/components/CardMain.jsx';
-import Pagination from '@/components/Pagination.jsx';
-import Acordion from '@/components/Acordion.jsx';
-import FiltroPropiedades from '@/components/FiltroPropiedades.jsx';
+import { getTodasLasPropiedades } from '@/utils/propiedades.js';
+import { formatPrice, validatePage, getSortedProperties } from '@/utils/helpers.js';
+import CardMain from '@/components/Tarjetas/TarjetasPropiedades.jsx';
+import Pagination from '@/components/ListadoPropiedades/PaginacionListadoPropiedades.jsx';
+import Acordion from '@/components/PreguntasFrecuentes.jsx';
+import FiltroPropiedades from '@/components/ListadoPropiedades/FiltroListadoPropiedades.jsx';
 
 // ===== CONFIGURACIÓN =====
 const PROPERTIES_PER_PAGE = 8;
-const DEFAULT_CURRENCY = 'USD';
-const LOCALE = 'es-AR';
-
-// ===== FUNCIONES UTILITARIAS =====
-function formatPrice(price: number | null | undefined, currency = DEFAULT_CURRENCY): string {
-  if (!price || price <= 0) return 'Consultar precio';
-  
-  try {
-    return new Intl.NumberFormat(LOCALE, {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-  } catch (error) {
-    console.warn(`Error formatting price: ${error}. Price: ${price}, Currency: ${currency}`);
-    return `${currency} ${price.toLocaleString(LOCALE)}`;
-  }
-}
-
-function validatePage(page: string | null, totalPages: number): number {
-  const pageNum = parseInt(page || '1', 10);
-  
-  if (isNaN(pageNum) || pageNum < 1) return 1;
-  if (pageNum > totalPages) return totalPages;
-  
-  return pageNum;
-}
-
-function getSortedProperties(properties: any[], sortKey: string | null) {
-  switch (sortKey) {
-    case 'price_asc':
-      return properties.sort((a, b) => (a.data?.price || Infinity) - (b.data?.price || Infinity));
-    case 'price_desc':
-      return properties.sort((a, b) => (b.data?.price || 0) - (a.data?.price || 0));
-    case 'date_desc':
-      // @ts-ignore
-      return properties.sort((a, b) => new Date(b.data?.publishDate).getTime() - new Date(a.data?.publishDate).getTime());
-    case 'date_asc':
-      // @ts-ignore
-      return properties.sort((a, b) => new Date(a.data?.publishDate).getTime() - new Date(b.data?.publishDate).getTime());
-    case 'title_asc':
-    default:
-      return properties.sort((a, b) => {
-        const titleA = a.data?.title || '';
-        const titleB = b.data?.title || '';
-        return titleA.localeCompare(titleB, LOCALE, { numeric: true });
-      });
-  }
-}
 
 // ===== LÓGICA PRINCIPAL =====
-const allProperties = await getCollection('propiedades');
+const allProperties = await getTodasLasPropiedades();
 
 if (!allProperties || allProperties.length === 0) {
   console.warn('No properties found in collection');

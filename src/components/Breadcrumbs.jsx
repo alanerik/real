@@ -4,7 +4,7 @@ import { navigate } from "astro:transitions/client";
 
 const BreadcrumbsComponent = ({ pathname, codigo, title }) => {
   // Exclude 'detalles' and filter out empty segments
-  const pathSegments = pathname.split('/').filter(segment => segment && segment !== 'detalles' && segment !== 'propiedades');
+  const pathSegments = pathname.split('/').filter(segment => segment && segment !== 'detalles' && segment !== 'propiedades' && segment !== 'venta' && segment !== 'alquiler');
 
   // Capitalize the first letter of a string
   const capitalize = (s) => {
