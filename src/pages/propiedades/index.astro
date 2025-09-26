@@ -1,26 +1,156 @@
 ---
+// index.astro - Refactorizado
 import Layout from '@/layouts/Layout.astro';
 import ListadoPropiedades from '@/components/ListadoPropiedades/ListadoPropiedades.astro';
 import Buscador from '@/components/Buscador.jsx';
 import BuscarButton from '@/components/BuscarButton';
 import Breadcrumbs from '@/components/Breadcrumbs.jsx';
+import { getCollection } from 'astro:content';
+
+// Importar utils para metadata y estadísticas
+import { 
+  getPropertyStats,
+  generateMetadata,
+  generateStructuredData
+} from '@/utils/index.js';
+
+// Obtener todas las propiedades para generar estadísticas
+const allProperties = await getCollection('propiedades');
+const propertyStats = getPropertyStats(allProperties);
+
+// Metadata específica para la página de todas las propiedades
+const metadata = {
+  title: `Todas las Propiedades - ${propertyStats.total} propiedades disponibles`,
+  description: `Explora nuestro catálogo completo con ${propertyStats.total} propiedades en venta y alquiler. Encuentra tu propiedad ideal.`,
+  keywords: 'propiedades, inmobiliaria, venta, alquiler, casas, departamentos, terrenos'
+};
+
+// Schema.org para la página de listado general
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": metadata.title,
+  "description": metadata.description,
+  "numberOfItems": propertyStats.total,
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": propertyStats.total,
+    "description": "Catálogo completo de propiedades"
+  },
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Inicio",
+        "item": "/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Propiedades"
+      }
+    ]
+  }
+};
 ---
 
-<Layout title="Todas las Propiedades">
-  <Breadcrumbs pathname={Astro.url.pathname} client:load />
-  <Buscador 
-    showCiudad={true} 
-    showTipoVenta={true} 
-    showTipoAlquiler={true} 
-    showAmbientes={true} 
-    layout="horizontal" 
-    className="mt-6 mb-6"
-    client:load
-/>
-<div class="flex items-center mx-auto justify-center ">
-  <BuscarButton client:load/>
-</div>
+<Layout 
+  title={metadata.title}
+  description={metadata.description}
+  keywords={metadata.keywords}
+>
+  <!-- Schema.org -->
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
+  <Breadcrumbs pathname={Astro.url.pathname} client:load />
   
+  <!-- Header con estadísticas -->
+  <div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">
+        Todas las Propiedades
+      </h1>
+      <p class="text-lg text-gray-600 mb-2">
+        Descubre {propertyStats.total} propiedades disponibles
+      </p>
+      
+      <!-- Estadísticas rápidas -->
+      {propertyStats.total > 0 && (
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto mt-6">
+          {Object.entries(propertyStats.byOperation).map(([operation, count]) => (
+            <div class="bg-white rounded-lg shadow p-4">
+              <div class="text-2xl font-bold text-blue-600">{count}</div>
+              <div class="text-sm text-gray-600 capitalize">
+                {operation === 'venta' ? 'En Venta' : 'En Alquiler'}
+              </div>
+            </div>
+          ))}
+          
+          {propertyStats.averagePrice > 0 && (
+            <div class="bg-white rounded-lg shadow p-4">
+              <div class="text-lg font-bold text-green-600">
+                ${propertyStats.averagePrice.toLocaleString()}
+              </div>
+              <div class="text-sm text-gray-600">Precio Promedio</div>
+            </div>
+          )}
+          
+          <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-2xl font-bold text-purple-600">
+              {Object.keys(propertyStats.byCity).length}
+            </div>
+            <div class="text-sm text-gray-600">Ciudades</div>
+          </div>
+        </div>
+      )}
+    </div>
+    
+    <!-- Buscador -->
+    <div class="max-w-4xl mx-auto">
+      <Buscador 
+        showCiudad={true} 
+        showTipoVenta={true} 
+        showTipoAlquiler={true} 
+        showAmbientes={true} 
+        layout="horizontal" 
+        className="mb-6"
+        client:load
+      />
+      
+      <div class="flex items-center justify-center">
+        <BuscarButton client:load/>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listado de propiedades -->
   <ListadoPropiedades />
 </Layout>
+
+<style>
+  /* Mejora visual para las estadísticas */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+  
+  /* Animación sutil para las tarjetas de stats */
+  .bg-white {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  
+  .bg-white:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

@@ -1,29 +1,227 @@
 ---
-import { getCollection } from 'astro:content';
-import { getPropiedadPorSlug } from '@/utils/propiedades.js';
+// [slug].astro - Refactorizado
+import { getCollection, getEntry } from 'astro:content';
 import Layout from '@/layouts/Layout.astro';
 import FichaTecnica from '@/components/FichaTecnica/FichaTecnica.jsx';
 import Breadcrumbs from '@/components/Breadcrumbs.jsx';
+
+// Importar utils
+import { 
+  getPropertySummary,
+  getPropertyDisplayPrice,
+  getPropertyFeatures,
+  formatDate
+} from '@/utils/index.js';
 
 export async function getStaticPaths() {
   const propiedades = await getCollection('propiedades');
   return propiedades.map(propiedad => ({
     params: { slug: propiedad.slug },
+    props: { propertyData: propiedad.data } // Pasar datos para optimización
   }));
 }
- export const prerender = true;
+
+export const prerender = true;
+
 const { slug } = Astro.params;
-const propiedad = await getPropiedadPorSlug(slug);
+const { propertyData } = Astro.props;
+
+// Obtener la propiedad
+const propiedad = await getEntry('propiedades', slug);
 
 if (!propiedad) {
   return new Response(null, {
     status: 404,
-    statusText: 'No encontrado'
+    statusText: 'Propiedad no encontrada'
   });
 }
+
+// Usar utils para procesar datos de la propiedad
+const propertySummary = getPropertySummary(propiedad);
+const displayPrice = getPropertyDisplayPrice(propiedad);
+const propertyFeatures = getPropertyFeatures(propiedad);
+
+// Metadata optimizada usando utils
+const metadata = {
+  title: `${propiedad.data.title} - ${displayPrice}`,
+  description: propiedad.data.description || `${propiedad.data.propertyType} en ${propiedad.data.operation} en ${propiedad.data.city}. ${displayPrice}`,
+  keywords: [
+    propiedad.data.operation,
+    propiedad.data.propertyType,
+    propiedad.data.city,
+    propiedad.data.ambientes && `${propiedad.data.ambientes} ambientes`,
+    'inmobiliaria',
+    'propiedad'
+  ].filter(Boolean).join(', ')
+};
+
+// Schema.org para propiedades individuales
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "RealEstateListing",
+  "name": propiedad.data.title,
+  "description": propiedad.data.description,
+  "url": Astro.url.href,
+  "image": propiedad.data.image ? [propiedad.data.image] : [],
+  
+  // Precio
+  ...(propiedad.data.price && {
+    "offers": {
+      "@type": "Offer",
+      "price": propiedad.data.price,
+      "priceCurrency": propiedad.data.currency || "USD",
+      "availability": "https://schema.org/InStock",
+      "validFrom": propiedad.data.publishDate || new Date().toISOString()
+    }
+  }),
+  
+  // Ubicación
+  ...(propiedad.data.city && {
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": propiedad.data.city
+    }
+  }),
+  
+  // Características
+  "numberOfRooms": propiedad.data.ambientes,
+  "numberOfBedrooms": propiedad.data.dormitorios,
+  "numberOfBathroomsTotal": propiedad.data.banos,
+  
+  // Área
+  ...(propiedad.data.superficie && {
+    "floorSize": {
+      "@type": "QuantitativeValue",
+      "value": propiedad.data.superficie,
+      "unitCode": "MTK"
+    }
+  }),
+  
+  // Fecha de publicación
+  "datePosted": propiedad.data.publishDate || propiedad.data.createdAt,
+  
+  // Breadcrumbs
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Inicio",
+        "item": "/"
+      },
+      {
+        "@type": "ListItem", 
+        "position": 2,
+        "name": "Propiedades",
+        "item": "/propiedades"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": propiedad.data.title
+      }
+    ]
+  }
+};
+
+// Open Graph data
+const openGraphData = {
+  title: metadata.title,
+  description: metadata.description,
+  type: 'website',
+  image: propiedad.data.image,
+  url: Astro.url.href
+};
 ---
 
-<Layout title={propiedad.data.title}>
-  <Breadcrumbs client:load pathname={Astro.url.pathname} codigo={propiedad.data.codigo} title={propiedad.data.title} />
-  <FichaTecnica client:load property={propiedad.data} />
+<Layout 
+  title={metadata.title}
+  description={metadata.description}
+  keywords={metadata.keywords}
+  openGraph={openGraphData}
+>
+  <!-- Schema.org -->
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  
+  <!-- Open Graph meta tags -->
+  <meta property="og:title" content={openGraphData.title} />
+  <meta property="og:description" content={openGraphData.description} />
+  <meta property="og:type" content={openGraphData.type} />
+  <meta property="og:url" content={openGraphData.url} />
+  {openGraphData.image && <meta property="og:image" content={openGraphData.image} />}
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={openGraphData.title} />
+  <meta name="twitter:description" content={openGraphData.description} />
+  {openGraphData.image && <meta name="twitter:image" content={openGraphData.image} />}
+
+  <Breadcrumbs 
+    client:load 
+    pathname={Astro.url.pathname} 
+    codigo={propiedad.data.codigo} 
+    title={propiedad.data.title}
+  />
+  
+  <!-- Información adicional para debugging en desarrollo -->
+  {import.meta.env.DEV && (
+    <div class="fixed bottom-4 right-4 bg-gray-800 text-white p-3 rounded-lg text-xs max-w-xs z-50">
+      <div><strong>Slug:</strong> {slug}</div>
+      <div><strong>Precio:</strong> {displayPrice}</div>
+      <div><strong>Características:</strong> {propertyFeatures.length}</div>
+      {propiedad.data.publishDate && (
+        <div><strong>Publicado:</strong> {formatDate(propiedad.data.publishDate)}</div>
+      )}
+    </div>
+  )}
+  
+  <FichaTecnica 
+    client:load 
+    property={propiedad.data}
+    summary={propertySummary}
+    features={propertyFeatures}
+  />
 </Layout>
+
+<style>
+  /* Estilos específicos para la página de detalles */
+  
+  /* Optimización de carga de imágenes */
+  img {
+    loading: lazy;
+    decoding: async;
+  }
+  
+  /* Mejora de accesibilidad para lectores de pantalla */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  
+  /* Animaciones reducidas para usuarios que las prefieren */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  
+  /* Debugging info solo visible en desarrollo */
+  @media (max-width: 640px) {
+    .fixed.bottom-4.right-4 {
+      bottom: 1rem;
+      right: 1rem;
+      max-width: 200px;
+      font-size: 0.75rem;
+    }
+  }
+</style>

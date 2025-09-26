@@ -1,39 +1,89 @@
 ---
-import { getTodasLasPropiedades } from '@/utils/propiedades.js';
-import { formatPrice, validatePage, getSortedProperties } from '@/utils/helpers.js';
+// ListadoPropiedades.astro - Refactorizado
+import { getCollection } from 'astro:content';
 import CardMain from '@/components/Tarjetas/TarjetasPropiedades.jsx';
 import Pagination from '@/components/ListadoPropiedades/PaginacionListadoPropiedades.jsx';
 import Acordion from '@/components/PreguntasFrecuentes.jsx';
 import FiltroPropiedades from '@/components/ListadoPropiedades/FiltroListadoPropiedades.jsx';
 
+// Importar utils
+import {
+  getSortedProperties,
+  calculatePagination,
+  validateSortKey,
+  parseUrlFilters,
+  formatPrice,
+  generatePaginationInfo,
+  PAGE_SIZE
+} from '@/utils/index.js';
+
 // ===== CONFIGURACIÓN =====
-const PROPERTIES_PER_PAGE = 8;
+const PROPERTIES_PER_PAGE = PAGE_SIZE; // Usar constante centralizada
 
 // ===== LÓGICA PRINCIPAL =====
-const allProperties = await getTodasLasPropiedades();
+const allProperties = await getCollection('propiedades');
 
 if (!allProperties || allProperties.length === 0) {
   console.warn('No properties found in collection');
 }
 
-const sortKey = Astro.url.searchParams.get('sort');
+// Parsear parámetros de URL usando utils
+const urlParams = parseUrlFilters(Astro.request.url);
+const sortKey = validateSortKey(urlParams.sort || 'title_asc');
+
+// Ordenar propiedades usando utils
 const sortedProperties = getSortedProperties(allProperties, sortKey);
 
-const totalPages = Math.ceil(sortedProperties.length / PROPERTIES_PER_PAGE);
+// Calcular paginación usando utils
+const pagination = calculatePagination(
+  sortedProperties, 
+  PROPERTIES_PER_PAGE, 
+  urlParams.page || 1
+);
 
-const currentPage = validatePage(Astro.url.searchParams.get('page'), totalPages);
-const offset = (currentPage - 1) * PROPERTIES_PER_PAGE;
-const paginatedProperties = sortedProperties.slice(offset, offset + PROPERTIES_PER_PAGE);
+// Generar información de paginación
+const paginationInfo = generatePaginationInfo(pagination);
 
 // ===== SEO Y METADATA =====
-const pageTitle = currentPage === 1 
-  ? 'Todas Nuestras Propiedades'
-  : `Propiedades - Página ${currentPage} de ${totalPages}`;
+const pageTitle = pagination.currentPage === 1 
+  ? `Todas Nuestras Propiedades - ${sortedProperties.length} disponibles`
+  : `Propiedades - Página ${pagination.currentPage} de ${pagination.totalPages}`;
 
-const pageDescription = currentPage === 1
-  ? 'Explora todas las propiedades disponibles en nuestro catálogo.'
-  : `Página ${currentPage} de ${totalPages} de nuestro catálogo de propiedades.`;
+const pageDescription = pagination.currentPage === 1
+  ? `Explora todas las ${sortedProperties.length} propiedades disponibles en nuestro catálogo. Encuentra tu propiedad ideal.`
+  : `Página ${pagination.currentPage} de ${pagination.totalPages} de nuestro catálogo de propiedades.`;
+
+// Schema.org para SEO
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": pageTitle,
+  "description": pageDescription,
+  "numberOfItems": sortedProperties.length,
+  "url": Astro.url.href,
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": pagination.items.length,
+    "itemListElement": pagination.items.slice(0, 10).map((property, index) => ({
+      "@type": "ListItem",
+      "position": pagination.startIndex + index + 1,
+      "item": {
+        "@type": "RealEstateListing",
+        "name": property.data.title,
+        "url": `/propiedades/${property.slug}`,
+        "price": property.data.price ? {
+          "@type": "PriceSpecification", 
+          "value": property.data.price,
+          "priceCurrency": property.data.currency || "USD"
+        } : undefined
+      }
+    }))
+  }
+};
 ---
+
+<!-- Schema.org -->
+<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
 <section 
   class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
@@ -45,23 +95,56 @@ const pageDescription = currentPage === 1
       <h1 id="properties-title" class="text-4xl font-bold text-gray-900 mb-4">
         {pageTitle}
       </h1>
-      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-4">
         {pageDescription}
       </p>
       
-      {totalPages > 1 && (
-        <p class="text-sm text-gray-500 mt-2">
-          Mostrando {offset + 1} - {Math.min(offset + PROPERTIES_PER_PAGE, sortedProperties.length)} 
-          de {sortedProperties.length} propiedades
-        </p>
+      <!-- Información de resultados más clara -->
+      {pagination.totalItems > 0 && (
+        <div class="text-sm text-gray-500 space-y-1">
+          <p>{paginationInfo.showing}</p>
+          {pagination.totalPages > 1 && (
+            <p class="text-xs">({paginationInfo.pages})</p>
+          )}
+        </div>
+      )}
+      
+      <!-- Indicador de ordenamiento actual -->
+      {sortKey !== 'title_asc' && (
+        <div class="mt-2 text-xs text-blue-600 bg-blue-50 inline-block px-3 py-1 rounded-full">
+          Ordenado por: {(() => {
+            const sortLabels = {
+              'price_asc': 'Precio: menor a mayor',
+              'price_desc': 'Precio: mayor a menor', 
+              'date_desc': 'Más recientes',
+              'date_asc': 'Más antiguos',
+              'title_desc': 'Título Z-A',
+              'ambientes_asc': 'Ambientes: menor a mayor',
+              'ambientes_desc': 'Ambientes: mayor a menor'
+            };
+            return sortLabels[sortKey] || 'Personalizado';
+          })()}
+        </div>
       )}
     </header>
 
-    <div class="flex justify-end mb-8">
+    <!-- Filtros -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+      <!-- Estadísticas rápidas -->
+      <div class="text-sm text-gray-500">
+        Total de propiedades: <span class="font-medium text-gray-900">{allProperties.length}</span>
+        {allProperties.length !== sortedProperties.length && (
+          <span> • Mostrando: <span class="font-medium text-gray-900">{sortedProperties.length}</span></span>
+        )}
+      </div>
+      
+      <!-- Componente de filtros -->
+      <div class="w-full sm:w-auto">
         <FiltroPropiedades client:load />
+      </div>
     </div>
 
-    {paginatedProperties.length > 0 ? (
+    {pagination.items.length > 0 ? (
       <>
         <!-- Properties Grid -->
         <div 
@@ -69,8 +152,8 @@ const pageDescription = currentPage === 1
           role="list"
           aria-label="Lista de propiedades"
         >
-          {paginatedProperties.map((property, index) => {
-            const globalIndex = offset + index;
+          {pagination.items.map((property, index) => {
+            const globalIndex = pagination.startIndex + index;
             const isAboveFold = globalIndex < 4; // Primeras 4 propiedades
             
             return (
@@ -92,43 +175,141 @@ const pageDescription = currentPage === 1
         </div>
 
         <!-- Pagination -->
-        {totalPages > 1 && (
+        {pagination.totalPages > 1 && (
           <nav class="mt-12 flex justify-center" aria-label="Navegación de páginas">
             <Pagination 
-             client:load 
-              initialPage={currentPage} 
-              total={totalPages} 
+              client:load 
+              initialPage={pagination.currentPage} 
+              total={pagination.totalPages} 
               basePath="/propiedades"
             />
           </nav>
         )}
+        
+        <!-- Links de navegación para SEO -->
+        {pagination.totalPages > 1 && (
+          <div class="hidden">
+            {pagination.hasPrev && (
+              <link rel="prev" href={`/propiedades?page=${pagination.currentPage - 1}${sortKey !== 'title_asc' ? `&sort=${sortKey}` : ''}`} />
+            )}
+            {pagination.hasNext && (
+              <link rel="next" href={`/propiedades?page=${pagination.currentPage + 1}${sortKey !== 'title_asc' ? `&sort=${sortKey}` : ''}`} />
+            )}
+          </div>
+        )}
       </>
     ) : (
-      <!-- Empty State -->
+      <!-- Empty State mejorado -->
       <div class="text-center py-12" role="status">
         <div class="max-w-md mx-auto">
+          <!-- Ícono de estado vacío -->
+          <div class="mx-auto w-24 h-24 mb-6 text-gray-300">
+            <svg fill="currentColor" viewBox="0 0 24 24" class="w-full h-full">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+            </svg>
+          </div>
+          
           <h3 class="text-lg font-medium text-gray-900 mb-2">
             No hay propiedades disponibles
           </h3>
-          <p class="text-gray-500 mb-4">
+          <p class="text-gray-500 mb-6">
             {allProperties.length === 0 
               ? 'Estamos trabajando para agregar nuevas propiedades pronto.'
+              : sortedProperties.length === 0
+              ? 'No se encontraron propiedades que coincidan con los criterios de búsqueda.'
               : 'No se encontraron propiedades en esta página.'
             }
           </p>
           
-          {currentPage > 1 && (
-            <a 
-              href="/propiedades" 
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Volver a la primera página
-            </a>
-          )}
+          <div class="space-y-2">
+            {pagination.currentPage > 1 && (
+              <a 
+                href="/propiedades" 
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              >
+                Volver a la primera página
+              </a>
+            )}
+            
+            {sortKey !== 'title_asc' && (
+              <div class="text-center">
+                <a 
+                  href="/propiedades" 
+                  class="text-sm text-gray-500 hover:text-gray-700 underline"
+                >
+                  Ver todas las propiedades sin filtros
+                </a>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )}
   </div>
 </section>
 
+<!-- Preguntas Frecuentes -->
 <Acordion client:load />
+
+<style>
+  /* Mejoras de performance y UX */
+  .container {
+    contain: layout style;
+  }
+  
+  /* Loading state para las tarjetas */
+  [role="listitem"] {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Hover effects para mejor UX */
+  .grid [role="listitem"]:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  /* Estados de carga */
+  .loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+  }
+  
+  @keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  
+  /* Responsive improvements */
+  @media (max-width: 640px) {
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .text-4xl {
+      font-size: 2rem;
+    }
+  }
+  
+  /* Accessibility improvements */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  
+  /* Focus states */
+  a:focus,
+  button:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+</style>

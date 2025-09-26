@@ -1,141 +1,105 @@
 ---
+// [tipoPropiedad].astro - Refactorizado
 import Layout from '@/layouts/Layout.astro';
-import { getCollection } from 'astro:content'; // For getStaticPaths
-import { getPropiedadesFiltradas } from '@/utils/propiedades.js';
+import { getCollection } from 'astro:content';
 import CardMain from '@/components/Tarjetas/TarjetasPropiedades.jsx';
 import Pagination from '@/components/ListadoPropiedades/PaginacionListadoPropiedades.jsx';
 import Breadcrumbs from '@/components/Breadcrumbs.jsx';
 import { ciudades, tiposDePropiedad, tiposDePropiedadAlquiler } from '@/components/Buscador.jsx';
 
-// Configuración
-const PAGE_SIZE = 8;
-const DEFAULT_PAGE = 1;
+// Importar utils
+import { 
+  generatePropertyPaths,
+  validatePropertyParams,
+  parseUrlFilters,
+  filterProperties,
+  calculatePagination,
+  generateMetadata,
+  buildPropertyUrl,
+  generateStructuredData,
+  PAGE_SIZE
+} from '@/utils/index.js';
 
 export async function getStaticPaths() {
-  const paths = [];
-  const todasLasPropiedades = await getCollection('propiedades');
-
-  // Rutas para Venta
-  for (const ciudad of ciudades) {
-    for (const tipo of tiposDePropiedad) {
-      const propiedadesFiltradas = todasLasPropiedades.filter(propiedad =>
-        propiedad.data.operation === 'venta' &&
-        propiedad.data.city === ciudad.key &&
-        propiedad.data.propertyType === tipo.key
-      );
-      paths.push({
-        params: { operacion: 'venta', ciudad: ciudad.key, tipoPropiedad: tipo.key },
-        props: { totalPropiedades: propiedadesFiltradas.length, ciudadNombre: ciudad.label, tipoNombre: tipo.label }
-      });
-    }
-  }
-
-  // Rutas para Alquiler
-  for (const ciudad of ciudades) {
-    for (const tipo of tiposDePropiedadAlquiler) {
-      const propiedadesFiltradas = todasLasPropiedades.filter(propiedad =>
-        propiedad.data.operation === 'alquiler' &&
-        propiedad.data.city === ciudad.key &&
-        propiedad.data.propertyType === tipo.key
-      );
-      paths.push({
-        params: { operacion: 'alquiler', ciudad: ciudad.key, tipoPropiedad: tipo.key },
-        props: { totalPropiedades: propiedadesFiltradas.length, ciudadNombre: ciudad.label, tipoNombre: tipo.label }
-      });
-    }
-  }
-
+  const allProperties = await getCollection('propiedades');
+  const { paths } = await generatePropertyPaths(
+    ciudades, 
+    tiposDePropiedad, 
+    tiposDePropiedadAlquiler, 
+    allProperties
+  );
   return paths;
 }
 
-// Validar parámetros
-const { operacion, ciudad, tipoPropiedad } = Astro.params;
-const { totalPropiedades, ciudadNombre, tipoNombre } = Astro.props;
-
-const url = new URL(Astro.request.url);
-const ambientesFilter = url.searchParams.get('ambientes');
-
-// Validación
-if (!operacion || !ciudad || !tipoPropiedad || !['venta', 'alquiler'].includes(operacion)) {
+// Validación de parámetros usando utils
+const validation = validatePropertyParams(Astro.params);
+if (!validation.isValid) {
+  console.error('Invalid parameters:', validation.error);
   return Astro.redirect('/404');
 }
 
-// Obtener propiedades filtradas usando el nuevo util
-const propiedadesFiltradas = await getPropiedadesFiltradas({
-  operacion,
-  ciudad,
-  tipoPropiedad,
-  ambientes: ambientesFilter
+const { operacion, ciudad, tipoPropiedad } = Astro.params;
+const { ciudadNombre, tipoNombre } = Astro.props;
+
+// Parsear filtros de URL usando utils
+const urlFilters = parseUrlFilters(Astro.request.url);
+
+// Obtener y filtrar propiedades usando utils
+const allProperties = await getCollection('propiedades');
+const filteredProperties = filterProperties(allProperties, {
+  operation: operacion,
+  city: ciudad,
+  propertyType: tipoPropiedad,
+  ambientes: urlFilters.ambientes
 });
 
-// Calcular paginación
-const totalPages = Math.ceil(propiedadesFiltradas.length / PAGE_SIZE);
-const rawCurrentPage = parseInt(Astro.url.searchParams.get('page') || DEFAULT_PAGE.toString());
-const currentPage = Math.max(DEFAULT_PAGE, Math.min(rawCurrentPage || DEFAULT_PAGE, totalPages || DEFAULT_PAGE));
+// Calcular paginación usando utils
+const pagination = calculatePagination(filteredProperties, PAGE_SIZE, urlFilters.page || 1);
 
-// Redireccionar si la página es inválida
-if (totalPages > 0 && rawCurrentPage !== currentPage) {
-  const redirectUrl = new URL(Astro.request.url);
-  redirectUrl.searchParams.set('page', currentPage.toString());
-  return Astro.redirect(redirectUrl.pathname + redirectUrl.search);
+// Redirección si página inválida
+if (pagination.totalPages > 0 && urlFilters.page && urlFilters.page !== pagination.currentPage) {
+  const redirectUrl = buildPropertyUrl(operacion, ciudad, tipoPropiedad, {
+    ambientes: urlFilters.ambientes,
+    page: pagination.currentPage
+  });
+  return Astro.redirect(redirectUrl);
 }
 
-// Obtener propiedades paginadas
-const startIndex = (currentPage - 1) * PAGE_SIZE;
-const endIndex = startIndex + PAGE_SIZE;
-const pagedPropiedades = propiedadesFiltradas.slice(startIndex, endIndex);
+// Generar metadata usando utils
+const metadata = generateMetadata(operacion, ciudadNombre, tipoNombre, urlFilters, pagination);
 
-// Generar metadata
-let pageTitle = `${operacion.charAt(0).toUpperCase() + operacion.slice(1)} de ${tipoNombre} en ${ciudadNombre}`;
-let metaDescription = `Encuentra ${propiedadesFiltradas.length} propiedades en ${operacion} de ${tipoNombre} en ${ciudadNombre}`;
+// URL canónica usando utils
+const canonicalParams = {
+  ...(urlFilters.ambientes && { ambientes: urlFilters.ambientes }),
+  ...(pagination.totalPages > 1 && { page: pagination.currentPage })
+};
+const canonicalUrl = buildPropertyUrl(operacion, ciudad, tipoPropiedad, canonicalParams);
 
-if (ambientesFilter) {
-  const ambientesText = ambientesFilter === '5+' ? '5 o más ambientes' : `${ambientesFilter} ambiente${ambientesFilter === '1' ? '' : 's'}`;
-  pageTitle += ` con ${ambientesText}`;
-  metaDescription += ` con ${ambientesText}`;
-}
-
-if (totalPages > 1) {
-  pageTitle += ` - Página ${currentPage} de ${totalPages}`;
-  metaDescription += `. Página ${currentPage} de ${totalPages}.`;
-}
-
-// Generar URL canónica
-const baseUrl = `/propiedades/${operacion}/${ciudad}/${tipoPropiedad}`;
-let canonicalUrl = baseUrl;
-const params = new URLSearchParams();
-if (ambientesFilter) {
-  params.append('ambientes', ambientesFilter);
-}
-if (totalPages > 1) {
-  params.append('page', currentPage.toString());
-}
-if (params.toString()) {
-  canonicalUrl += `?${params.toString()}`;
-}
+// Schema.org usando utils
+const structuredData = generateStructuredData(pagination.items, metadata);
 ---
-<Layout
-  title={pageTitle}
-  description={metaDescription}
+
+<Layout 
+  title={metadata.title}
+  description={metadata.description}
   canonical={canonicalUrl}
 >
-  <!-- Schema.org para SEO -->
-  <script type="application/ld+json" set:html={JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": pageTitle,
-    "description": metaDescription,
-    "numberOfItems": propiedadesFiltradas.length,
-    "url": Astro.url.href
-  })} />
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
   <Breadcrumbs client:load pathname={Astro.url.pathname} />
-  <main class=" mx-auto max-w-7xl pb-8 p-4">
+  
+  <main class="mx-auto max-w-7xl pb-8 p-4">
+    <!-- Información de resultados -->
+    {pagination.totalItems > 0 && (
+      <div class="mb-6 text-sm text-gray-600">
+        {pagination.paginationInfo?.showing}
+      </div>
+    )}
 
     <!-- Grid de propiedades -->
-    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6  mx-auto" aria-label="Lista de propiedades">
-      {pagedPropiedades.length > 0 ? (
-        pagedPropiedades.map((propiedad, index) => (
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto" aria-label="Lista de propiedades">
+      {pagination.items.length > 0 ? (
+        pagination.items.map((propiedad, index) => (
           <CardMain
             client:load
             title={propiedad.data.title}
@@ -149,38 +113,49 @@ if (params.toString()) {
       ) : (
         <div class="col-span-full text-center py-16">
           <div class="max-w-md mx-auto">
-            {/* Placeholder for empty state */}
+            <h2 class="text-xl font-semibold text-gray-900 mb-2">
+              No se encontraron propiedades
+            </h2>
+            <p class="text-gray-600 mb-4">
+              No hay propiedades que coincidan con los criterios de búsqueda.
+            </p>
+            <a 
+              href={`/propiedades/${operacion}/${ciudad}`}
+              class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            >
+              Ver todas las propiedades en {ciudadNombre}
+            </a>
           </div>
         </div>
       )}
     </section>
 
     <!-- Paginación -->
-    {totalPages > 1 && (
+    {pagination.totalPages > 1 && (
       <nav class="flex justify-center mt-12" aria-label="Navegación de páginas">
-        <Pagination
-          client:load
-          total={totalPages}
-          initialPage={currentPage}
-          aria-label={`Página ${currentPage} de ${totalPages}`}
+        <Pagination 
+          client:load 
+          total={pagination.totalPages} 
+          initialPage={pagination.currentPage}
+          aria-label={`Página ${pagination.currentPage} de ${pagination.totalPages}`}
         />
       </nav>
     )}
 
     <!-- Enlaces de paginación para SEO -->
-    {totalPages > 1 && (
+    {pagination.totalPages > 1 && (
       <div class="hidden">
-        {currentPage > 1 && (
-          <link rel="prev" href={`${baseUrl}?${new URLSearchParams({
-            ...(ambientesFilter && { ambientes: ambientesFilter }),
-            page: (currentPage - 1).toString()
-          }).toString()}`} />
+        {pagination.hasPrev && (
+          <link rel="prev" href={buildPropertyUrl(operacion, ciudad, tipoPropiedad, {
+            ...(urlFilters.ambientes && { ambientes: urlFilters.ambientes }),
+            page: pagination.currentPage - 1
+          })} />
         )}
-        {currentPage < totalPages && (
-          <link rel="next" href={`${baseUrl}?${new URLSearchParams({
-            ...(ambientesFilter && { ambientes: ambientesFilter }),
-            page: (currentPage + 1).toString()
-          }).toString()}`} />
+        {pagination.hasNext && (
+          <link rel="next" href={buildPropertyUrl(operacion, ciudad, tipoPropiedad, {
+            ...(urlFilters.ambientes && { ambientes: urlFilters.ambientes }),
+            page: pagination.currentPage + 1
+          })} />
         )}
       </div>
     )}
@@ -192,7 +167,7 @@ if (params.toString()) {
   .container {
     contain: layout style;
   }
-
+  
   /* Mejora de accesibilidad */
   @media (prefers-reduced-motion: reduce) {
     * {
