@@ -96,7 +96,7 @@ export default function SharePropertyButton({ property, currentUrl }) {
   );
 
   return (
-    <Dropdown placement="bottom-end">
+    <Dropdown backdrop="blur" placement="bottom-end">
       <DropdownTrigger>
         <Button
           color="primary"
