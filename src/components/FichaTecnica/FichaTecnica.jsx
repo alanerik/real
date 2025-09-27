@@ -1,8 +1,10 @@
 import React from 'react';
+import { Card, CardHeader, CardBody, Chip as HeroChip, Divider, Image } from '@heroui/react';
 import Alerta from '../Alerta.jsx';
 import Chip from '../Chip.jsx';
-import Formulario from './FormularioFichaTecnica.jsx'; // Import Formulario
+import Formulario from './FormularioFichaTecnica.jsx';
 import TabsComponent from './TabsFichaTecnica.jsx';
+import SharePropertyButton from './CompartirFichaTecnica.jsx';
 import { usePropertyChips } from '../../hooks/usePropertyChips.js';
 import { usePropertyGallery } from '../../hooks/usePropertyGallery.js';
 import { usePropertyDetailsList } from '../../hooks/usePropertyDetailsList.js';
@@ -14,21 +16,37 @@ import { usePropertyHeaderData } from '../../hooks/usePropertyHeaderData.js';
 const Gallery = ({ images }) => (
   <div className="grid grid-cols-2 gap-2">
     <div className="col-span-2">
-      <img src={images[0]} alt="Main property view" className="w-full h-auto object-cover rounded-lg" />
+      <Image
+        src={images[0]}
+        alt="Main property view"
+        className="w-full h-auto object-cover rounded-lg"
+        loading="lazy"
+      />
     </div>
     {images.slice(1, 4).map((image, index) => (
       <div key={index}>
-        <img src={image} alt={`Property view ${index + 2}`} className="w-full h-auto object-cover rounded-lg" />
+        <Image
+          src={image}
+          alt={`Property view ${index + 2}`}
+          className="w-full h-auto object-cover rounded-lg"
+          loading="lazy"
+        />
       </div>
     ))}
   </div>
 );
 
 const InfoCard = ({ title, children }) => (
-  <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-    <h3 className="text-xl font-semibold mb-4">{title}</h3>
-    {children}
-  </div>
+  <Card className="w-full">
+    {title && (
+      <CardHeader className="pb-2">
+        <h3 className="text-xl font-semibold">{title}</h3>
+      </CardHeader>
+    )}
+    <CardBody className={title ? "pt-0" : ""}>
+      {children}
+    </CardBody>
+  </Card>
 );
 
 const featureIcons = {
@@ -41,7 +59,7 @@ const featureIcons = {
   'Gimnasio': '🏋️',
   'Jardín': '🌳',
   'Agua Caliente': '💧',
-  'Dormitorio en Suite': '🛁'
+  'Dormitorio en Suite': '🛏'
 };
 
 // --- Main Component ---
@@ -64,56 +82,85 @@ export default function FichaTecnica({ property }) {
     <div className="max-w-7xl mx-auto p-4 font-sans grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* --- Left Column --- */}
       <div className="lg:col-span-2">
-        {/* --- Header --- */}
-        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 mb-8">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-2xl font-bold">{headerData.title}</h1>
-              <p className="text-gray-500 opacity-80">{headerData.city} {headerData.codigo && `- Código: ${headerData.codigo}`}</p>
-              <div className="flex gap-2 mt-2">
-                {chips.map((chip, index) => (
-                  <Chip key={index} text={chip.text} color={chip.color} />
-                ))}
+        {/* --- Header Card --- */}
+        <Card className="mb-8">
+          <CardBody className="p-6">
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <h1 className="text-2xl font-bold mb-2">{headerData.title}</h1>
+                <p className="text-default-500 mb-3">
+                  {headerData.city} {headerData.codigo && `- Código: ${headerData.codigo}`}
+                </p>
+                <div className="flex gap-2 flex-wrap">
+                  {chips.map((chip, index) => (
+                    <HeroChip 
+                      key={index} 
+                      size="sm"
+                      variant="flat"
+                      color={chip.color === 'blue' ? 'primary' : chip.color === 'green' ? 'success' : 'default'}
+                    >
+                      {chip.text}
+                    </HeroChip>
+                  ))}
+                </div>
+              </div>
+              <div className="text-right ml-4">
+                <p className="text-lg font-semibold text-default-700 mb-1">
+                  {headerData.displayOperation}
+                </p>
+                <p className="text-2xl font-bold text-success mb-3">
+                  {headerData.formattedPrice}
+                </p>
+                <SharePropertyButton property={property} />
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-lg font-semibold text-gray-700">{headerData.displayOperation}</p>
-              <p className="text-2xl font-bold text-green-600">{headerData.formattedPrice}</p>
-            </div>
-          </div>
-        </div>
+          </CardBody>
+        </Card>
 
-        {/* --- Gallery --- */}
-        <div className="mb-8">
-          <Gallery images={gallery} />
-        </div>
+        {/* --- Gallery Card --- */}
+        <Card className="mb-8">
+          <CardBody className="p-0">
+            <Gallery images={gallery} />
+          </CardBody>
+        </Card>
 
-        {/* --- Cards --- */}
-        <div className="space-y-8">
+        {/* --- Feature Cards --- */}
+        <div className="space-y-6">
           {propertyFeatures && propertyFeatures.length > 0 && (
-            <InfoCard title="">
+            <InfoCard>
               <TabsComponent features={propertyFeatures} />
             </InfoCard>
           )}
 
           <InfoCard title="Descripción">
-            <p className="text-gray-700">{description}</p>
+            <p className="text-default-700 leading-relaxed">{description}</p>
           </InfoCard>
 
           <InfoCard title="Detalles de la Propiedad">
-            <ul className="list-disc list-inside space-y-2 text-gray-700">
+            <div className="space-y-3">
               {detailsList.map((item, index) => (
-                <li key={index}>{item.label}: <strong>{item.value}</strong></li>
+                <div key={index} className="flex justify-between items-center">
+                  <span className="text-default-600">{item.label}:</span>
+                  <HeroChip size="sm" variant="flat" color="default">
+                    {item.value}
+                  </HeroChip>
+                </div>
               ))}
-            </ul>
+            </div>
           </InfoCard>
 
           <InfoCard title="Medidas">
-            <ul className="list-disc list-inside space-y-2 text-gray-700">
+            <div className="space-y-3">
               {measurementsList.map((item, index) => (
-                <li key={index}>{item.label}: <strong>{item.value}</strong></li>
+                <div key={index} className="flex justify-between items-center">
+                  <span className="text-default-600">{item.label}:</span>
+                  <HeroChip size="sm" variant="flat" color="primary">
+                    {item.value}
+                  </HeroChip>
+                </div>
               ))}
-            </ul>
+            </div>
+            <Divider className="my-4" />
             <Alerta />
           </InfoCard>
         </div>
