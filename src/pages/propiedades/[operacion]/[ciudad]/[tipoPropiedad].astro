@@ -6,6 +6,9 @@ import CardMain from '@/components/Tarjetas/TarjetasPropiedades.jsx';
 import Pagination from '@/components/ListadoPropiedades/PaginacionListadoPropiedades.jsx';
 import Breadcrumbs from '@/components/Breadcrumbs.jsx';
 import { ciudades, tiposDePropiedad, tiposDePropiedadAlquiler } from '@/components/Buscador.jsx';
+import { Button } from '@heroui/react';
+
+
 
 // Importar utils
 import { 
@@ -119,12 +122,9 @@ const structuredData = generateStructuredData(pagination.items, metadata);
             <p class="text-gray-600 mb-4">
               No hay propiedades que coincidan con los criterios de búsqueda.
             </p>
-            <a 
-              href={`/propiedades/${operacion}/${ciudad}`}
-              class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-            >
+                        <Button client:load color='primary'  as="a" href={`/propiedades`}>
               Ver todas las propiedades en {ciudadNombre}
-            </a>
+            </Button>
           </div>
         </div>
       )}
