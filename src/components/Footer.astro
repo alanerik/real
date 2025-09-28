@@ -2,6 +2,7 @@
 // Footer.astro
 import NoticiasInput from './FormularioFooter.jsx';
 import LinkComponent from '@/components/Link.jsx';
+import { Divider } from '@heroui/react';
 
 // 📊 CONFIGURACIÓN DEL FOOTER - Toda la info centralizada
 const FOOTER_CONFIG = {
@@ -62,7 +63,6 @@ const STYLES = {
   tagline: "text-gray-600 text-sm leading-relaxed",
   contactInfo: "flex items-center space-x-3 text-sm text-gray-600",
   contactIcon: "w-4 h-4",
-  divider: "mt-12 pt-8 border-t border-gray-200",
   copyright: "text-sm text-black",
   newsletterSection: "space-y-4 p-4 bg-gray-50 rounded-lg border",
 };
@@ -150,14 +150,15 @@ const STYLES = {
     </div>
 
     <!-- Divider -->
-    <div class={STYLES.divider}>
-      <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-        <p class={STYLES.copyright}>
+    <div>
+      <Divider className="my-12 " />
+      <div class="flex flex-col-reverse md:flex-row justify-between items-center gap-4 md:space-y-0">
+        <p class={STYLES.copyright} >
           {FOOTER_CONFIG.copyright}
         </p>
       
        <!-- Social Media -->
-        <div class="flex space-x-4">
+        <div class="flex space-x-4 ">
           {FOOTER_CONFIG.socialMedia.map(social => (
             <LinkComponent isExternal href={social.url} color="primary" client:idle>
               {social.name}

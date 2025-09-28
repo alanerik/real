@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card, CardHeader, CardBody, Chip as HeroChip, Divider, Image } from '@heroui/react';
 import Alerta from '../Alerta.jsx';
-import Chip from '../Chip.jsx';
 import Formulario from './FormularioFichaTecnica.jsx';
 import TabsComponent from './TabsFichaTecnica.jsx';
 import SharePropertyButton from './CompartirFichaTecnica.jsx';
@@ -88,9 +87,7 @@ export default function FichaTecnica({ property }) {
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <h1 className="text-2xl font-bold mb-2">{headerData.title}</h1>
-                <p className="text-default-500 mb-3">
-                  {headerData.city} {headerData.codigo && `- Código: ${headerData.codigo}`}
-                </p>
+                
                 <div className="flex gap-2 flex-wrap">
                   {chips.map((chip, index) => (
                     <HeroChip 
