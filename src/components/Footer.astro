@@ -2,7 +2,7 @@
 // Footer.astro
 import NoticiasInput from './FormularioFooter.jsx';
 import LinkComponent from '@/components/Link.jsx';
-import { Divider } from '@heroui/react';
+import { Divider, Card } from '@heroui/react';
 
 // 📊 CONFIGURACIÓN DEL FOOTER - Toda la info centralizada
 const FOOTER_CONFIG = {
@@ -64,7 +64,6 @@ const STYLES = {
   contactInfo: "flex items-center space-x-3 text-sm text-gray-600",
   contactIcon: "w-4 h-4",
   copyright: "text-sm text-black",
-  newsletterSection: "space-y-4 p-4 bg-gray-50 rounded-lg border",
 };
 ---
 
@@ -139,13 +138,13 @@ const STYLES = {
         </div>
 
         <!-- Newsletter Section -->
-        <div class={STYLES.newsletterSection}>
+        <Card className='space-y-4 p-4'>
           <h5 class="text-sm font-semibold text-black mb-2">Newsletter</h5>
           <p class="text-xs text-gray-600 mb-3">
             {FOOTER_CONFIG.brand.newsletterText}
           </p>
           <NoticiasInput client:idle />
-        </div>
+        </Card>
       </div>
     </div>
 
