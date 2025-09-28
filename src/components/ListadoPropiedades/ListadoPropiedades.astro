@@ -5,6 +5,7 @@ import CardMain from '@/components/Tarjetas/TarjetasPropiedades.jsx';
 import Pagination from '@/components/ListadoPropiedades/PaginacionListadoPropiedades.jsx';
 import Acordion from '@/components/PreguntasFrecuentes.jsx';
 import FiltroPropiedades from '@/components/ListadoPropiedades/FiltroListadoPropiedades.jsx';
+import { Chip } from '@heroui/react';
 
 // Importar utils
 import {
@@ -111,7 +112,7 @@ const structuredData = {
       
       <!-- Indicador de ordenamiento actual -->
       {sortKey !== 'title_asc' && (
-        <div class="mt-2 text-xs text-blue-600 bg-blue-50 inline-block px-3 py-1 rounded-full">
+        <Chip className='mt-4' color="primary" size="sm">
           Ordenado por: {(() => {
             const sortLabels = {
               'price_asc': 'Precio: menor a mayor',
@@ -124,7 +125,7 @@ const structuredData = {
             };
             return sortLabels[sortKey] || 'Personalizado';
           })()}
-        </div>
+       </Chip>
       )}
     </header>
 
