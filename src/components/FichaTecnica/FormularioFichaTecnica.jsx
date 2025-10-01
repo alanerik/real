@@ -209,6 +209,8 @@ export default function App() {
                       label="Fecha de Nacimiento"
                       labelPlacement="outside"
                       variant="bordered"
+                      showMonthAndYearPickers
+                      aria-label="Date (Show Month and Year Picker)"
                       value={value || null}
                       onChange={(date) => {
                         // Convertir el objeto fecha a string para React Hook Form
