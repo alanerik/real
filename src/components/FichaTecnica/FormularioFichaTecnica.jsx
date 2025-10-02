@@ -123,7 +123,7 @@ export default function App() {
                       label="Nombre"
                       labelPlacement="outside"
                       placeholder="Ingresa tu nombre"
-                      variant="bordered"
+                      variant="flat"
                       isInvalid={!!errors.firstName}
                       errorMessage={errors.firstName?.message}
                     />
@@ -143,7 +143,7 @@ export default function App() {
                       label="Apellido"
                       labelPlacement="outside"
                       placeholder="Ingresa tu apellido"
-                      variant="bordered"
+                      variant="flat"
                       isInvalid={!!errors.lastName}
                       errorMessage={errors.lastName?.message}
                     />
@@ -168,7 +168,7 @@ export default function App() {
                     labelPlacement="outside"
                     placeholder="ejemplo@correo.com"
                     type="email"
-                    variant="bordered"
+                    variant="flat"
                     className="mt-4"
                     isInvalid={!!errors.email}
                     errorMessage={errors.email?.message}
@@ -193,7 +193,7 @@ export default function App() {
                       labelPlacement="outside"
                       placeholder="+54 11 1234-5678"
                       type="tel"
-                      variant="bordered"
+                      variant="flat"
                       isInvalid={!!errors.phone}
                       errorMessage={errors.phone?.message}
                     />
@@ -208,7 +208,7 @@ export default function App() {
                       {...field}
                       label="Fecha de Nacimiento"
                       labelPlacement="outside"
-                      variant="bordered"
+                      variant="flat"
                       showMonthAndYearPickers
                       aria-label="Date (Show Month and Year Picker)"
                       value={value || null}
@@ -321,7 +321,7 @@ export default function App() {
                   label="Comentarios adicionales (opcional)"
                   labelPlacement="outside"
                   placeholder="¿Algo más que quieras contarnos?"
-                  variant="bordered"
+                  variant="flat"
                   isInvalid={!!errors.comments}
                   errorMessage={errors.comments?.message}
                 />
