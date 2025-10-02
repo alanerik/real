@@ -85,14 +85,14 @@ export default function NoticiasInput() {
       <Form className="w-full max-w-xs" onSubmit={onSubmit}>
        
           <Input
-            isRequired
-            name="email"
+           
+            required
             type="email"
              label="Email"
-        labelPlacement="outside"
-            placeholder="ejemplo@correo.com"
+        
+           
             errorMessage="Por favor ingresa un email válido"
-            className="flex-1"
+            
             isDisabled={isSubmitting}
           />
           

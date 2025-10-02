@@ -121,8 +121,8 @@ export default function App() {
                     <Input
                       {...field}
                       label="Nombre"
-                      labelPlacement="outside"
-                      placeholder="Ingresa tu nombre"
+                      
+                     
                       variant="flat"
                       isInvalid={!!errors.firstName}
                       errorMessage={errors.firstName?.message}
@@ -141,8 +141,7 @@ export default function App() {
                     <Input
                       {...field}
                       label="Apellido"
-                      labelPlacement="outside"
-                      placeholder="Ingresa tu apellido"
+                      
                       variant="flat"
                       isInvalid={!!errors.lastName}
                       errorMessage={errors.lastName?.message}
@@ -165,8 +164,7 @@ export default function App() {
                   <Input
                     {...field}
                     label="Email"
-                    labelPlacement="outside"
-                    placeholder="ejemplo@correo.com"
+                   
                     type="email"
                     variant="flat"
                     className="mt-4"
@@ -190,8 +188,7 @@ export default function App() {
                     <Input
                       {...field}
                       label="Teléfono"
-                      labelPlacement="outside"
-                      placeholder="+54 11 1234-5678"
+                     
                       type="tel"
                       variant="flat"
                       isInvalid={!!errors.phone}
@@ -207,7 +204,7 @@ export default function App() {
                     <DatePicker
                       {...field}
                       label="Fecha de Nacimiento"
-                      labelPlacement="outside"
+                    
                       variant="flat"
                       showMonthAndYearPickers
                       aria-label="Date (Show Month and Year Picker)"
@@ -319,8 +316,7 @@ export default function App() {
                 <Textarea
                   {...field}
                   label="Comentarios adicionales (opcional)"
-                  labelPlacement="outside"
-                  placeholder="¿Algo más que quieras contarnos?"
+                  
                   variant="flat"
                   isInvalid={!!errors.comments}
                   errorMessage={errors.comments?.message}
