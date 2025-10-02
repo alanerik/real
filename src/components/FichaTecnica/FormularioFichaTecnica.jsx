@@ -104,7 +104,7 @@ export default function App() {
   };
 
   return (
-          <Form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+          <Form className="space-y-4 overflow-hidden" onSubmit={handleSubmit(onSubmit)}>
             {/* Información Personal */}
             <div>
               <h3 className="text-lg font-semibold mb-3">Información Personal</h3>
