@@ -63,7 +63,7 @@ export default function Buscador({
           label={isCompact ? "Ciudad" : "Selecciona una ciudad"}
           size={isCompact ? "sm" : "md"}
           defaultItems={ciudades} 
-          placeholder="Busca por ciudad"
+         
           onSelectionChange={actions.setCiudad}
           selectedKey={state.ciudadSeleccionada}
         >
@@ -78,7 +78,7 @@ export default function Buscador({
           size={isCompact ? "sm" : "md"}
           defaultItems={tiposDePropiedad}
           label={isCompact ? "Venta" : "Venta propiedades"}
-          placeholder="Busca por tipo"
+         
           onSelectionChange={actions.setTipoVenta}
           selectedKey={state.tipoVenta}
         >
@@ -93,7 +93,7 @@ export default function Buscador({
           size={isCompact ? "sm" : "md"}
           defaultItems={tiposDePropiedadAlquiler}
           label={isCompact ? "Alquiler" : "Alquiler propiedades"}
-          placeholder="Busca por tipo"
+     
           onSelectionChange={actions.setTipoAlquiler}
           selectedKey={state.tipoAlquiler}
         >
@@ -108,7 +108,7 @@ export default function Buscador({
           size={isCompact ? "sm" : "md"}
           defaultItems={numeroAmbientes}
           label={isCompact ? "Ambientes" : "Número de ambientes"}
-          placeholder="Selecciona ambientes"
+          
           onSelectionChange={actions.setAmbientes}
           selectedKey={state.ambientes}
         >
