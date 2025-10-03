@@ -104,12 +104,12 @@ export default function App() {
   };
 
   return (
-          <Form className="space-y-4 overflow-hidden" onSubmit={handleSubmit(onSubmit)}>
+          <Form className="space-y-4 overflow-hidden flex items-center" onSubmit={handleSubmit(onSubmit)}>
             {/* Información Personal */}
-            <div>
+            <div className="w-full">
               <h3 className="text-lg font-semibold mb-3">Información Personal</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                 <Controller
                   name="firstName"
                   control={control}

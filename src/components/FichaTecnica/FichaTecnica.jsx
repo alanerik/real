@@ -91,7 +91,7 @@ export default function FichaTecnica({ property }) {
         </Card>
   {/* --- Header Card --- */}
         <Card className="mb-8">
-          <CardBody className="p-6">
+          <CardBody className="p-3">
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <h1 className="text-base font-normal mb-2">{headerData.title}</h1>
