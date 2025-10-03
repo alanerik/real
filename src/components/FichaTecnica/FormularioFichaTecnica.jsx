@@ -104,7 +104,7 @@ export default function App() {
   };
 
   return (
-          <Form className="space-y-4 overflow-hidden flex items-center" onSubmit={handleSubmit(onSubmit)}>
+          <Form className="space-y-4 overflow-hidden flex flex-col items-start" onSubmit={handleSubmit(onSubmit)}>
             {/* Información Personal */}
             <div className="w-full">
               <h3 className="text-lg font-semibold mb-3">Información Personal</h3>
@@ -325,7 +325,7 @@ export default function App() {
             />
 
             {/* Botones */}
-            <div className="flex gap-3 justify-end pt-4">
+            <div className="flex gap-3 justify-start pt-4">
               <Button
                 type="button"
                 variant="flat"
