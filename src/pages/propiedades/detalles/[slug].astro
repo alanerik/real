@@ -4,6 +4,7 @@ import { getCollection, getEntry } from 'astro:content';
 import Layout from '@/layouts/Layout.astro';
 import FichaTecnica from '@/components/FichaTecnica/FichaTecnica.jsx';
 import Breadcrumbs from '@/components/Breadcrumbs.jsx';
+import PropiedadesSimilares from '@/components/PropiedadesSimilares.astro';
 
 // Importar utils
 import { 
@@ -181,6 +182,12 @@ const openGraphData = {
     property={propiedad.data}
     summary={propertySummary}
     features={propertyFeatures}
+  />
+
+  <PropiedadesSimilares
+    propertyType={propiedad.data.propertyType}
+    city={propiedad.data.city}
+    currentSlug={slug}
   />
 </Layout>
 
