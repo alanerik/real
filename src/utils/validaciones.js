@@ -66,6 +66,6 @@ export function validatePrice(price) {
 }
 
 export function validateCurrency(currency) {
-  const validCurrencies = ['USD', 'ARS', 'EUR'];
-  return validCurrencies.includes(currency) ? currency : 'USD';
+  const validCurrencies = ['U$S', 'ARS', 'EUR'];
+  return validCurrencies.includes(currency) ? currency : 'U$S';
 }

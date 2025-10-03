@@ -3,7 +3,7 @@ title: 'Casa en alquiler en Carilo'
 description: 'Espectacular casa en el bosque de Carilo para 10 personas.'
 image: '/maritimo-3-al-100.webp'
 price: 3500
-currency: 'USD'
+currency: 'U$S'
 city: 'carilo'
 operation: 'alquiler'
 propertyType: 'casa'

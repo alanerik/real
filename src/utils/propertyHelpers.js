@@ -43,7 +43,7 @@ export function getPropertySummary(property) {
     rooms: ambientes || 0,
     displayPrice: getPropertyDisplayPrice(property),
     numericPrice: Number(price) || 0,
-    currency: currency || 'USD',
+    currency: currency || 'U$S',
     description: description || '',
     image: image || null,
     publishDate: publishDate || null,

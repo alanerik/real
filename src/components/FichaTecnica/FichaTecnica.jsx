@@ -94,7 +94,7 @@ export default function FichaTecnica({ property }) {
           <CardBody className="p-6">
             <div className="flex justify-between items-start">
               <div className="flex-1">
-                <h1 className="text-2xl font-bold mb-2">{headerData.title}</h1>
+                <h1 className="text-base font-normal mb-2">{headerData.title}</h1>
                 
                 <div className="flex gap-2 flex-wrap">
                   {chips.map((chip, index) => (
@@ -110,10 +110,10 @@ export default function FichaTecnica({ property }) {
                 </div>
               </div>
               <div className="text-right ml-4">
-                <p className="text-lg font-semibold text-default-700 mb-1">
+                <p className="text-base font-normal text-default-700 mb-1">
                   {headerData.displayOperation}
                 </p>
-                <p className="text-2xl font-bold text-success mb-3">
+                <p className="text-xl font-semibold mb-3">
                   {headerData.formattedPrice}
                 </p>
                 <SharePropertyButton property={property} />

@@ -1,5 +1,5 @@
 // utils/constants.js
-export const DEFAULT_CURRENCY = 'USD';
+export const DEFAULT_CURRENCY = 'U$S';
 export const LOCALE = 'es-AR';
 export const FALLBACK_PRICE_TEXT = 'Consultar precio';
 export const PAGE_SIZE = 8;
@@ -7,7 +7,7 @@ export const DEFAULT_PAGE = 1;
 
 // Mapeo de monedas comunes en Argentina
 export const CURRENCY_SYMBOLS = {
-  'USD': 'US$',
+  'U$S': 'US$',
   'ARS': '$',
   'EUR': '€'
 };

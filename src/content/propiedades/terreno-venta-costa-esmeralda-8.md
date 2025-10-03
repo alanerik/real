@@ -3,7 +3,7 @@ title: 'Terreno en Costa Esmeralda - Golf II'
 description: 'Para los amantes del golf, ubicación ideal.'
 image: '/senderos-5-al-300.webp'
 price: 82000
-currency: 'USD'
+currency: 'U$S'
 city: 'costa-esmeralda'
 operation: 'venta'
 propertyType: 'terreno'
