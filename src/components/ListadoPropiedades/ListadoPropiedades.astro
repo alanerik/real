@@ -54,10 +54,9 @@ const uniqueTipos = allTipos.filter((tipo, index, self) =>
   ))
 );
 
-// ===== SEO Y METADATA =====
-const pageTitle = pagination.currentPage === 1 
-  ? 'Todas Nuestras Propiedades'
-  : `Propiedades - Página ${pagination.currentPage} de ${pagination.totalPages}`;
+
+
+const pageTitle = 'Todas Nuestras Propiedades';
 
 const pageDescription = pagination.currentPage === 1
   ? 'Explora todas las propiedades disponibles en nuestro catálogo. Encuentra tu propiedad ideal.'
@@ -102,7 +101,7 @@ const structuredData = {
   <div class="container mx-auto">
     <!-- Header Section -->
     <header class="text-center mb-12">
-      <h1 id="properties-title" class="text-4xl font-bold text-gray-900 mb-4">
+      <h1 id="properties-title" class="sr-only">
         {pageTitle}
       </h1>
       <div class="flex justify-center flex-wrap gap-2 mb-4">
