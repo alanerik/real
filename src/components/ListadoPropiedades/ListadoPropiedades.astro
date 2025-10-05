@@ -6,6 +6,7 @@ import Pagination from '@/components/ListadoPropiedades/PaginacionListadoPropied
 import Acordion from '@/components/PreguntasFrecuentes.jsx';
 import FiltroPropiedades from '@/components/ListadoPropiedades/FiltroListadoPropiedades.jsx';
 import { Chip } from '@heroui/react';
+import { tiposDePropiedad, tiposDePropiedadAlquiler } from '@/components/Buscador.jsx';
 
 // Importar utils
 import {
@@ -45,13 +46,21 @@ const pagination = calculatePagination(
 // Generar información de paginación
 const paginationInfo = generatePaginationInfo(pagination);
 
+// Obtener tipos de propiedad únicos para los chips
+const allTipos = [...tiposDePropiedad, ...tiposDePropiedadAlquiler];
+const uniqueTipos = allTipos.filter((tipo, index, self) =>
+  index === self.findIndex((t) => (
+    t.key === tipo.key
+  ))
+);
+
 // ===== SEO Y METADATA =====
 const pageTitle = pagination.currentPage === 1 
-  ? `Todas Nuestras Propiedades - ${sortedProperties.length} disponibles`
+  ? 'Todas Nuestras Propiedades'
   : `Propiedades - Página ${pagination.currentPage} de ${pagination.totalPages}`;
 
 const pageDescription = pagination.currentPage === 1
-  ? `Explora todas las ${sortedProperties.length} propiedades disponibles en nuestro catálogo. Encuentra tu propiedad ideal.`
+  ? 'Explora todas las propiedades disponibles en nuestro catálogo. Encuentra tu propiedad ideal.'
   : `Página ${pagination.currentPage} de ${pagination.totalPages} de nuestro catálogo de propiedades.`;
 
 // Schema.org para SEO
@@ -96,9 +105,11 @@ const structuredData = {
       <h1 id="properties-title" class="text-4xl font-bold text-gray-900 mb-4">
         {pageTitle}
       </h1>
-      <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-4">
-        {pageDescription}
-      </p>
+      <div class="flex justify-center flex-wrap gap-2 mb-4">
+        {uniqueTipos.map(tipo => (
+            <Chip color="primary">{tipo.label}</Chip>
+        ))}
+      </div>
       
       <!-- Información de resultados más clara -->
       {pagination.totalItems > 0 && (
@@ -133,9 +144,8 @@ const structuredData = {
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
       <!-- Estadísticas rápidas -->
       <div class="text-sm text-gray-500">
-        Total de propiedades: <span class="font-medium text-gray-900">{allProperties.length}</span>
         {allProperties.length !== sortedProperties.length && (
-          <span> • Mostrando: <span class="font-medium text-gray-900">{sortedProperties.length}</span></span>
+          <span>Mostrando: <span class="font-medium text-gray-900">{sortedProperties.length}</span> de {allProperties.length}</span>
         )}
       </div>
       
