@@ -20,10 +20,11 @@ export default function App({ total, initialPage, basePath = "/propiedades" }) {
   return (
     <Pagination 
       total={total}
+      showControls
       initialPage={initialPage}
       page={currentPage}
       onChange={handleChange}
-      variant="faded"
+      variant="flat"
       color="success"
     />
   );
