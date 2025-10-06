@@ -7,10 +7,12 @@ export const DEFAULT_PAGE = 1;
 
 // Mapeo de monedas comunes en Argentina
 export const CURRENCY_SYMBOLS = {
-  'U$S': 'US$',
+  'USD': 'US',
   'ARS': '$',
   'EUR': '€'
 };
+
+
 
 // Operaciones válidas
 export const VALID_OPERATIONS = ['venta', 'alquiler'];
