@@ -43,27 +43,29 @@ export default function Buscador({
 }) {
   const [state, actions] = useBuscador();
 
-  // Diferentes layouts
+  // Diferentes layouts con padding en móvil
   const layoutClasses = {
-    horizontal: "flex w-full flex-wrap justify-center md:flex-nowrap gap-4",
-    vertical: "flex flex-col gap-4 w-full max-w-sm",
-    grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full"
+    horizontal: "flex w-full flex-wrap justify-center md:flex-nowrap gap-4 px-3 md:px-0",
+    vertical: "flex flex-col gap-4 w-full max-w-sm px-3 md:px-0",
+    grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full px-3 md:px-0"
   };
 
   // Variantes de componente
   const isCompact = variant === "compact";
-  const isInline = variant === "inline";
+  
+  // 🔥 CAMBIO: Tamaños más grandes para los Autocomplete
+  const inputSize = isCompact ? "md" : "lg";
+  const maxWidthClass = isCompact ? "max-w-md" : "max-w-lg";
 
   return (
     <div className={`${layoutClasses[layout]} ${className}`}>
       {showCiudad && (
         <Autocomplete 
           color="success"
-          className={isCompact ? "max-w-xs" : "max-w-xs"} 
+          className={maxWidthClass}
           label={isCompact ? "Ciudad" : "Selecciona una ciudad"}
-          size={isCompact ? "sm" : "md"}
+          size={inputSize}
           defaultItems={ciudades} 
-         
           onSelectionChange={actions.setCiudad}
           selectedKey={state.ciudadSeleccionada}
         >
@@ -74,11 +76,10 @@ export default function Buscador({
       {showTipoVenta && (
         <Autocomplete
           color="primary"
-          className={isCompact ? "max-w-xs" : "max-w-xs"}
-          size={isCompact ? "sm" : "md"}
+          className={maxWidthClass}
+          size={inputSize}
           defaultItems={tiposDePropiedad}
           label={isCompact ? "Venta" : "Venta propiedades"}
-         
           onSelectionChange={actions.setTipoVenta}
           selectedKey={state.tipoVenta}
         >
@@ -89,11 +90,10 @@ export default function Buscador({
       {showTipoAlquiler && (
         <Autocomplete
           color="warning"
-          className={isCompact ? "max-w-xs" : "max-w-xs"}
-          size={isCompact ? "sm" : "md"}
+          className={maxWidthClass}
+          size={inputSize}
           defaultItems={tiposDePropiedadAlquiler}
           label={isCompact ? "Alquiler" : "Alquiler propiedades"}
-     
           onSelectionChange={actions.setTipoAlquiler}
           selectedKey={state.tipoAlquiler}
         >
@@ -104,11 +104,10 @@ export default function Buscador({
       {showAmbientes && (
         <Autocomplete
           color="secondary"
-          className={isCompact ? "max-w-xs" : "max-w-xs"}
-          size={isCompact ? "sm" : "md"}
+          className={maxWidthClass}
+          size={inputSize}
           defaultItems={numeroAmbientes}
           label={isCompact ? "Ambientes" : "Número de ambientes"}
-          
           onSelectionChange={actions.setAmbientes}
           selectedKey={state.ambientes}
         >
