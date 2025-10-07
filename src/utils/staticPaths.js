@@ -1,7 +1,7 @@
 // utils/staticPaths.js
 import { filterProperties } from './propertyFilters.js';
 
-export async function generatePropertyPaths(ciudades, tiposDePropiedad, tiposDePropiedadAlquiler, allProperties) {
+export async function generatePropertyPaths(CIUDADES, TIPOS_PROPIEDAD_VENTA, TIPOS_PROPIEDAD_ALQUILER, allProperties) {
   const paths = [];
   const propertiesCache = new Map();
   
@@ -38,10 +38,10 @@ export async function generatePropertyPaths(ciudades, tiposDePropiedad, tiposDeP
   };
   
   // Generar rutas para venta
-  generatePathsForOperation('venta', ciudades, tiposDePropiedad);
+  generatePathsForOperation('venta', CIUDADES, TIPOS_PROPIEDAD_VENTA);
   
   // Generar rutas para alquiler
-  generatePathsForOperation('alquiler', ciudades, tiposDePropiedadAlquiler);
+  generatePathsForOperation('alquiler', CIUDADES, TIPOS_PROPIEDAD_ALQUILER);
   
   return { paths, propertiesCache };
 }

@@ -6,7 +6,7 @@ import { getCollection } from 'astro:content';
 import CardMain from '@/components/Tarjetas/TarjetasPropiedades.jsx';
 import Pagination from '@/components/ListadoPropiedades/PaginacionListadoPropiedades.jsx';
 import Breadcrumbs from '@/components/Breadcrumbs.jsx';
-import { ciudades, tiposDePropiedad, tiposDePropiedadAlquiler } from '@/components/Buscador.jsx';
+import { CIUDADES, TIPOS_PROPIEDAD_VENTA, TIPOS_PROPIEDAD_ALQUILER } from '@/components/Buscador.jsx';
 import { Button } from '@heroui/react';
 
 
@@ -27,9 +27,9 @@ import {
 export async function getStaticPaths() {
   const allProperties = await getCollection('propiedades');
   const { paths } = await generatePropertyPaths(
-    ciudades, 
-    tiposDePropiedad, 
-    tiposDePropiedadAlquiler, 
+    CIUDADES, 
+    TIPOS_PROPIEDAD_VENTA, 
+    TIPOS_PROPIEDAD_ALQUILER, 
     allProperties
   );
   return paths;

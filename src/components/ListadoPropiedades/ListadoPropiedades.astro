@@ -6,7 +6,7 @@ import Pagination from '@/components/ListadoPropiedades/PaginacionListadoPropied
 import Acordion from '@/components/PreguntasFrecuentes.jsx';
 import FiltroPropiedades from '@/components/ListadoPropiedades/FiltroListadoPropiedades.jsx';
 import { Chip } from '@heroui/react';
-import { tiposDePropiedad, tiposDePropiedadAlquiler } from '@/components/Buscador.jsx';
+import { TIPOS_PROPIEDAD_VENTA, TIPOS_PROPIEDAD_ALQUILER } from '@/components/Buscador.jsx';
 
 // Importar utils
 import {
@@ -47,7 +47,7 @@ const pagination = calculatePagination(
 const paginationInfo = generatePaginationInfo(pagination);
 
 // Obtener tipos de propiedad únicos para los chips
-const allTipos = [...tiposDePropiedad, ...tiposDePropiedadAlquiler];
+const allTipos = [...TIPOS_PROPIEDAD_VENTA, ...TIPOS_PROPIEDAD_ALQUILER];
 const uniqueTipos = allTipos.filter((tipo, index, self) =>
   index === self.findIndex((t) => (
     t.key === tipo.key
