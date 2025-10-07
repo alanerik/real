@@ -3,7 +3,7 @@ title: 'Departamento en alquiler en Valeria del Mar'
 description: 'Departamento para 4 personas a 100 metros del mar.'
 image: '/slider-1.webp'
 price: 1000
-currency: 'U$S'
+currency: 'USD'
 city: 'valeria-del-mar'
 operation: 'alquiler'
 propertyType: 'departamento'

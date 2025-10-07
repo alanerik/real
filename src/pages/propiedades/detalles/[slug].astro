@@ -70,7 +70,7 @@ const structuredData = {
     "offers": {
       "@type": "Offer",
       "price": propiedad.data.price,
-      "priceCurrency": propiedad.data.currency || "U$S",
+      "priceCurrency": propiedad.data.currency || "USD",
       "availability": "https://schema.org/InStock",
       "validFrom": propiedad.data.publishDate || new Date().toISOString()
     }

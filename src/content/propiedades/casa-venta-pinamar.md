@@ -3,7 +3,7 @@ title: 'Casa en venta en Pinamar'
 description: 'Hermosa casa en el bosque de Pinamar.'
 image: '/imgHeroBanner.webp'
 price: 250000
-currency: 'U$S'
+currency: 'USD'
 city: 'pinamar'
 operation: 'venta'
 propertyType: 'casa'

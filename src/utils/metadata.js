@@ -89,7 +89,7 @@ export function generateStructuredData(properties, metadata) {
           "price": property.data.price ? {
             "@type": "PriceSpecification",
             "value": property.data.price,
-            "priceCurrency": property.data.currency || "U$S"
+            "priceCurrency": property.data.currency || "USD"
           } : undefined
         }
       }))

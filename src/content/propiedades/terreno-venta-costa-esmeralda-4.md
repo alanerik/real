@@ -3,7 +3,7 @@ title: 'Terreno en Costa Esmeralda - Barrio Ecuestre'
 description: 'Terreno en una zona tranquila y natural.'
 image: '/ecuestre-al-200.webp'
 price: 65000
-currency: 'U$S'
+currency: 'USD'
 city: 'costa-esmeralda'
 operation: 'venta'
 propertyType: 'terreno'

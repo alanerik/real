@@ -1,5 +1,5 @@
 // utils/constants.js
-export const DEFAULT_CURRENCY = 'U$S';
+export const DEFAULT_CURRENCY = 'USD';
 export const LOCALE = 'es-AR';
 export const FALLBACK_PRICE_TEXT = 'Consultar precio';
 export const PAGE_SIZE = 8;

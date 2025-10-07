@@ -3,7 +3,7 @@ title: 'Terreno en Costa Esmeralda - Oportunidad'
 description: 'Invierta en un terreno en la costa.'
 image: '/senderos-3-al-200.webp'
 price: 70000
-currency: 'U$S'
+currency: 'USD'
 city: 'costa-esmeralda'
 operation: 'venta'
 propertyType: 'terreno'

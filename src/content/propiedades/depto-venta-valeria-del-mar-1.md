@@ -3,7 +3,7 @@ title: 'Departamento en venta en Valeria del Mar'
 description: 'Luminoso departamento de 3 ambientes con balcón.'
 image: '/slider-1.webp'
 price: 180000
-currency: 'U$S'
+currency: 'USD'
 city: 'valeria-del-mar'
 operation: 'venta'
 propertyType: 'departamento'

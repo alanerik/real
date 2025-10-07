@@ -3,7 +3,7 @@ title: 'Departamento en alquiler en Carilo'
 description: 'Moderno departamento cerca del centro comercial.'
 image: '/slider-1.webp'
 price: 1200
-currency: 'U$S'
+currency: 'USD'
 city: 'carilo'
 operation: 'alquiler'
 propertyType: 'departamento'
