@@ -1,7 +1,15 @@
 ---
-import CardMain from '@/components/Tarjetas/TarjetasPropiedades.jsx';
+/**
+ * UltimasPropiedades.astro
+ * Componente que muestra las propiedades más recientes en la página principal
+ * Incluye structured data para SEO y manejo de estados de error
+ */
+
+import TarjetaPropiedad from '@/components/Tarjetas/TarjetasPropiedades.jsx';
 import BuscarButton from '@/components/BuscarButton.jsx';
+import { Button } from '@heroui/react';
 import { getCollection } from 'astro:content';
+import { formatPrice } from '@/utils/index.js';
 
 // ===== CONFIGURACIÓN =====
 const LATEST_PROPERTIES_COUNT = 4;
@@ -9,64 +17,95 @@ const LOCALE = 'es-AR';
 const DEFAULT_CURRENCY = 'USD';
 
 // ===== FUNCIONES UTILITARIAS =====
-function formatPrice(price, currency = DEFAULT_CURRENCY) {
-  if (!price || price <= 0) return 'Consultar precio';
-  
-  try {
-    return new Intl.NumberFormat(LOCALE, {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-  } catch (error) {
-    console.warn(`Error formatting price: ${error}. Price: ${price}, Currency: ${currency}`);
-    return `${currency} ${price.toLocaleString(LOCALE)}`;
-  }
-}
 
+/**
+ * Genera datos estructurados (Schema.org) para SEO
+ * @param {Array} properties - Array de propiedades
+ * @returns {Object} Objeto de structured data
+ */
 function generateStructuredData(properties) {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
     "name": "Últimas Propiedades",
+    "description": "Propiedades inmobiliarias más recientes disponibles",
     "numberOfItems": properties.length,
     "itemListElement": properties.map((property, index) => ({
-      "@type": "RealEstateListingProperty",
+      "@type": "ListItem",
       "position": index + 1,
-      "name": property.data?.title || 'Propiedad sin título',
-      "description": property.data?.description || 'Sin descripción',
-      "image": property.data?.image || '/images/placeholder-property.webp',
-      "url": `/propiedades/detalles/${property.slug}`,
-      "offers": {
-        "@type": "Offer",
-        "price": property.data?.price || 0,
-        "priceCurrency": property.data?.currency || DEFAULT_CURRENCY
+      "item": {
+        "@type": "RealEstateListing",
+        "name": property.data?.title || 'Propiedad sin título',
+        "description": property.data?.description || 'Sin descripción',
+        "image": property.data?.image || '/images/placeholder-property.webp',
+        "url": `${Astro.site || Astro.url.origin}/propiedades/detalles/${property.slug}`,
+        "address": property.data?.ciudad ? {
+          "@type": "PostalAddress",
+          "addressLocality": property.data.ciudad
+        } : undefined,
+        "offers": property.data?.price ? {
+          "@type": "Offer",
+          "price": property.data.price,
+          "priceCurrency": property.data?.currency || DEFAULT_CURRENCY,
+          "availability": "https://schema.org/InStock"
+        } : undefined
       }
     }))
   };
 }
 
+/**
+ * Ordena propiedades por fecha (más recientes primero)
+ * @param {Array} properties - Array de propiedades
+ * @returns {Array} Propiedades ordenadas
+ */
+function sortByDate(properties) {
+  return properties.sort((a, b) => {
+    const dateA = a.data?.date ? new Date(a.data.date) : new Date(0);
+    const dateB = b.data?.date ? new Date(b.data.date) : new Date(0);
+    return dateB - dateA; // Más reciente primero
+  });
+}
+
 // ===== LÓGICA PRINCIPAL =====
 let properties = [];
 let hasError = false;
+let errorMessage = '';
 
 try {
   const allProperties = await getCollection('propiedades');
-  properties = allProperties?.slice(0, LATEST_PROPERTIES_COUNT) || [];
+  
+  if (!allProperties || allProperties.length === 0) {
+    console.warn('No properties found in collection');
+    properties = [];
+  } else {
+    // Ordenar por fecha y tomar las más recientes
+    const sortedProperties = sortByDate([...allProperties]);
+    properties = sortedProperties.slice(0, LATEST_PROPERTIES_COUNT);
+    
+    console.log(`✅ Loaded ${properties.length} latest properties`);
+  }
 } catch (error) {
-  console.error('Error loading properties:', error);
+  console.error('❌ Error loading properties:', error);
   hasError = true;
+  errorMessage = error.message || 'Error desconocido';
 }
 
+// Generar structured data solo si hay propiedades
 const structuredData = properties.length > 0 ? generateStructuredData(properties) : null;
 
 // ===== SEO Y METADATA =====
 const sectionTitle = 'Últimas Propiedades';
-const sectionDescription = 'Descubre nuestras propiedades más recientes con las mejores ubicaciones y precios';
+const sectionDescription = 'Descubre nuestras propiedades más recientes con las mejores ubicaciones y precios del mercado inmobiliario';
+const sectionId = 'latest-properties';
+
+// Iconos SVG como strings para usar en HeroUI Button
+const RefreshIcon = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>';
+const EmailIcon = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>';
 ---
 
 <section 
+  id={sectionId}
   class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
   aria-labelledby="latest-properties-heading"
 >
@@ -84,25 +123,28 @@ const sectionDescription = 'Descubre nuestras propiedades más recientes con las
       </p>
     </header>
 
-    <!-- Properties Grid -->
+    <!-- Content -->
     {!hasError && properties.length > 0 ? (
       <>
+        <!-- Properties Grid -->
         <div 
-          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8"
+          class="properties-grid"
           role="list"
           aria-label="Lista de propiedades recientes"
         >
           {properties.map((property, index) => {
+            // Validación de slug
             if (!property?.slug) {
-              console.warn(`Property at index ${index} is missing slug`);
+              console.warn(`⚠️ Property at index ${index} is missing slug`);
               return null;
             }
 
+            // Las primeras 2 propiedades se cargan con prioridad (above the fold)
             const isAboveFold = index < 2;
             
             return (
-              <div role="listitem" key={property.slug}>
-                <CardMain 
+              <div key={property.slug} className="property-card-wrapper">
+                <TarjetaPropiedad 
                   client:idle
                   image={property.data?.image || '/images/placeholder-property.webp'} 
                   title={property.data?.title || 'Título no disponible'} 
@@ -122,49 +164,90 @@ const sectionDescription = 'Descubre nuestras propiedades más recientes con las
           <BuscarButton 
             variant="header" 
             client:idle
+            href="/propiedades"
           >
             Ver todas las propiedades
           </BuscarButton>
+          
+          <!-- Información adicional -->
+          <p class="text-sm text-gray-500 mt-4">
+            Mostrando {properties.length} de las propiedades más recientes
+          </p>
         </footer>
       </>
     ) : (
-      <!-- Error State -->
-      {hasError ? (
-        <div class="text-center py-12" role="alert">
-          <div class="max-w-md mx-auto">
-            <svg class="mx-auto h-12 w-12 text-red-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.98-.833-2.75 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">
-              Error al cargar propiedades
-            </h3>
-            <p class="text-gray-500 mb-4">
-              Hubo un problema técnico. Intenta recargar la página.
-            </p>
-            <button 
-              onclick="window.location.reload()" 
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              Recargar página
-            </button>
+      <!-- Estados de Error y Vacío -->
+      <div class="min-h-[400px] flex items-center justify-center">
+        {hasError ? (
+          <!-- Error State -->
+          <div class="text-center py-12" role="alert" aria-live="assertive">
+            <div class="max-w-md mx-auto">
+              <!-- Icono de error -->
+              <div class="mx-auto w-16 h-16 mb-6 text-red-400">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-full h-full">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.98-.833-2.75 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                Error al cargar propiedades
+              </h3>
+              
+              <p class="text-gray-600 mb-6">
+                Hubo un problema técnico al cargar las propiedades. Por favor, intenta recargar la página.
+              </p>
+              
+              {import.meta.env.DEV && (
+                <details class="text-left text-xs text-gray-500 mb-4 p-3 bg-gray-50 rounded">
+                  <summary class="cursor-pointer font-medium">Detalles del error (solo en desarrollo)</summary>
+                  <pre class="mt-2 whitespace-pre-wrap">{errorMessage}</pre>
+                </details>
+              )}
+              
+              <Button 
+                client:visible
+                color="danger"
+                variant="solid"
+                size="lg"
+                onPress={() => window.location.reload()}
+              >
+                🔄 Recargar página
+              </Button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <!-- Empty State -->
-        <div class="text-center py-12" role="status">
-          <div class="max-w-md mx-auto">
-            <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">
-              No hay propiedades disponibles
-            </h3>
-            <p class="text-gray-500">
-              Estamos trabajando para agregar nuevas propiedades pronto.
-            </p>
+        ) : (
+          <!-- Empty State -->
+          <div class="text-center py-12" role="status">
+            <div class="max-w-md mx-auto">
+              <!-- Icono de estado vacío -->
+              <div class="mx-auto w-20 h-20 mb-6 text-gray-300">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-full h-full">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                No hay propiedades disponibles
+              </h3>
+              
+              <p class="text-gray-600 mb-6">
+                Estamos trabajando para agregar nuevas propiedades pronto. Vuelve a visitarnos más tarde.
+              </p>
+              
+              <Button
+                client:visible
+                as="a"
+                href="/contacto"
+                color="primary"
+                variant="bordered"
+                size="lg"
+              >
+                ✉️ Contáctanos para más información
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     )}
   </div>
 
@@ -175,11 +258,61 @@ const sectionDescription = 'Descubre nuestras propiedades más recientes con las
 </section>
 
 <style>
-  /* Solo utilidades que realmente necesitamos */
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  /* Grid de propiedades responsive */
+  .properties-grid {
+    display: grid;
+    gap: 2rem;
+    width: 100%;
+  }
+
+  /* Mobile: 1 columna */
+  @media (max-width: 767px) {
+    .properties-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  /* Tablet: 2 columnas */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .properties-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  /* Desktop: 4 columnas */
+  @media (min-width: 1024px) {
+    .properties-grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+  }
+
+  /* CRÍTICO: Forzar que todos los hijos directos respeten la grid */
+  .properties-grid > * {
+    width: 100%;
+    min-width: 0; /* Previene overflow */
+    display: grid; /* Fuerza grid context */
+    grid-template-rows: subgrid;
+  }
+
+  /* Asegurar que astro-island (wrapper de client components) no rompa el layout */
+  .properties-grid > astro-island {
+    display: contents; /* Hace que el wrapper sea transparente al layout */
+  }
+
+  /* Focus states */
+  button:focus,
+  a:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+  }
+
+  /* Smooth transitions */
+  button,
+  a {
+    transition: all 0.2s ease-in-out;
   }
 </style>

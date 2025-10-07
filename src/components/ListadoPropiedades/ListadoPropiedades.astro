@@ -267,33 +267,9 @@ const structuredData = {
     contain: layout style;
   }
   
-  /* Loading state para las tarjetas */
-  [role="listitem"] {
-    animation: fadeIn 0.3s ease-in-out;
-  }
   
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
   
-  /* Hover effects para mejor UX */
-  .grid [role="listitem"]:hover {
-    transform: translateY(-2px);
-    transition: transform 0.2s ease-in-out;
-  }
   
-  /* Estados de carga */
-  .loading-skeleton {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: loading 1.5s infinite;
-  }
-  
-  @keyframes loading {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
   
   /* Responsive improvements */
   @media (max-width: 640px) {
@@ -307,19 +283,6 @@ const structuredData = {
     }
   }
   
-  /* Accessibility improvements */
-  @media (prefers-reduced-motion: reduce) {
-    * {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-  
-  /* Focus states */
-  a:focus,
-  button:focus {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
-  }
+
+ 
 </style>
