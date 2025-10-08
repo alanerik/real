@@ -30,9 +30,9 @@ const CardMain = memo(function CardMain({
   };
 
   return (
-    <div>
+    <div className="flex flex-col h-full">
       <Card isPressable
-        className="w-full h-full "
+        className="w-full h-full"
         onPress={handleCardClick}
       >
         {/* Header con imagen */}
