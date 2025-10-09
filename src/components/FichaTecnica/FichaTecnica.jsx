@@ -10,30 +10,9 @@ import { usePropertyDetailsList } from '../../hooks/usePropertyDetailsList.js';
 import { usePropertyMeasurementsList } from '../../hooks/usePropertyMeasurementsList.js';
 import { usePropertyHeaderData } from '../../hooks/usePropertyHeaderData.js';
 
-// --- Sub-components for better structure ---
+import GaleriaFichatecnica from '../GaleriaFichatecnica.jsx';
 
-const Gallery = ({ images }) => (
-  <div className="grid grid-cols-2 gap-2">
-    <div className="col-span-2">
-      <Image
-        src={images[0]}
-        alt="Main property view"
-        className="w-full h-auto object-cover rounded-lg"
-        loading="lazy"
-      />
-    </div>
-    {images.slice(1, 4).map((image, index) => (
-      <div key={index}>
-        <Image
-          src={image}
-          alt={`Property view ${index + 2}`}
-          className="w-full h-auto object-cover rounded-lg"
-          loading="lazy"
-        />
-      </div>
-    ))}
-  </div>
-);
+// --- Sub-components for better structure ---
 
 const InfoCard = ({ title, children }) => (
   <Card className="w-full">
@@ -83,12 +62,10 @@ export default function FichaTecnica({ property }) {
       <div className="lg:col-span-2">
       
 
-        {/* --- Gallery Card --- */}
-        <Card className="mb-8">
-          <CardBody className="p-0">
-            <Gallery images={gallery} />
-          </CardBody>
-        </Card>
+        {/* --- Gallery --- */}
+        <div className="mb-8">
+          <GaleriaFichatecnica images={gallery} />
+        </div>
   {/* --- Header Card --- */}
         <Card className="mb-8">
           <CardBody className="p-3">
