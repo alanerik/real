@@ -9,6 +9,8 @@ operation: 'venta'
 propertyType: 'terreno'
 area: 1000
 codigo: 'TVP3'
+latitud: 0
+longitud: 0
 ---
 
 A pocos metros de la playa.

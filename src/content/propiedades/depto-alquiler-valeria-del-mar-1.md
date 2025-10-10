@@ -11,6 +11,8 @@ bathrooms: 1
 bedrooms: 2
 area: 70
 codigo: 'DAVdM1'
+latitud: 0
+longitud: 0
 features:
   - 'Wi-Fi'
   - 'Parrilla'

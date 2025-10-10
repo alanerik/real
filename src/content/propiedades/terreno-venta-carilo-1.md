@@ -9,6 +9,8 @@ operation: 'venta'
 propertyType: 'terreno'
 area: 1200
 codigo: 'TVC1'
+latitud: 0
+longitud: 0
 ---
 
 Entorno natural y privado.

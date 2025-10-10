@@ -102,7 +102,7 @@ export default function FichaTecnica({ property }) {
         <div className="space-y-6">
           {propertyFeatures && propertyFeatures.length > 0 && (
             <InfoCard>
-              <TabsComponent features={propertyFeatures} />
+              <TabsComponent features={propertyFeatures} latitud={property.latitud} longitud={property.longitud} />
             </InfoCard>
           )}
 

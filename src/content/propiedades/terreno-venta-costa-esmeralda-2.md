@@ -9,6 +9,7 @@ operation: 'venta'
 propertyType: 'terreno'
 area: 1100
 codigo: 'TVCE2'
+
 ---
 
 Ubicación privilegiada.

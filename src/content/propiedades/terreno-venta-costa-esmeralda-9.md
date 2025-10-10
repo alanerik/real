@@ -9,6 +9,8 @@ operation: 'venta'
 propertyType: 'terreno'
 area: 990
 codigo: 'TVCE9'
+latitud: 0
+longitud: 0
 ---
 
 Cerca del acceso principal.

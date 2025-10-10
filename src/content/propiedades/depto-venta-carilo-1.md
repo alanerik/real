@@ -11,6 +11,8 @@ bathrooms: 2
 bedrooms: 2
 area: 100
 codigo: 'DVC1'
+latitud: 0
+longitud: 0
 features:
   - 'Wi-Fi'
   - 'Parrilla'

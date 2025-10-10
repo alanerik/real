@@ -11,6 +11,8 @@ bathrooms: 2
 bedrooms: 3
 area: 150
 codigo: 'CAVdM'
+latitud: 0
+longitud: 0
 features:
   - 'Wi-Fi'
   - 'Parrilla'

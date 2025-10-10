@@ -12,6 +12,8 @@ bedrooms: 5
 ambientes: 6 
 area: 350
 codigo: 'CVC1'
+latitud: 0
+longitud: 0
 features:
   - 'Wi-Fi'
   - 'Parrilla'

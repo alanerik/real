@@ -11,6 +11,8 @@ bathrooms: 5
 bedrooms: 5
 area: 400
 codigo: 'CAC1'
+latitud: 0
+longitud: 0
 features:
   - 'Aire Acondicionado'
   - 'Piscina'

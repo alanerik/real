@@ -8,6 +8,7 @@ city: 'costa-esmeralda'
 operation: 'venta'
 propertyType: 'terreno'
 area: 960
+orientation: 'Norte'
 codigo: 'TVCE10'
 ---
 

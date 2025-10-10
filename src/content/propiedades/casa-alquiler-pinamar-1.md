@@ -11,6 +11,8 @@ bathrooms: 3
 bedrooms: 4
 area: 220
 codigo: 'CAP1'
+latitud: 0
+longitud: 0
 features:
   - 'Wi-Fi'
   - 'Parrilla'

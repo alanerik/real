@@ -9,6 +9,8 @@ operation: 'venta'
 propertyType: 'terreno'
 area: 900
 codigo: 'TVVdM1'
+latitud: 0
+longitud: 0
 ---
 
 Ideal para construir la casa de tus sueños.

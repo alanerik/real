@@ -9,6 +9,8 @@ operation: 'venta'
 propertyType: 'terreno'
 area: 1100
 codigo: 'TVCE7'
+latitud: 0
+longitud: 0
 ---
 
 Un lugar para desconectar.

@@ -11,6 +11,8 @@ bathrooms: 2
 bedrooms: 2
 area: 90
 codigo: 'DAC'
+latitud: 0
+longitud: 0
 features:
   - 'Wi-Fi'
   - 'Parrilla'

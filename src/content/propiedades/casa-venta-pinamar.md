@@ -11,6 +11,8 @@ bathrooms: 3
 bedrooms: 4
 area: 200
 codigo: 'CVP1'
+latitud: -37.11
+longitud: -56.86
 features:
   - 'Wi-Fi'
   - 'Parrilla'

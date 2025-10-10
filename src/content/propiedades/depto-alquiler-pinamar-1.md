@@ -11,6 +11,8 @@ bathrooms: 1
 bedrooms: 1
 area: 55
 codigo: 'DAP1'
+latitud: 0
+longitud: 0
 features:
   - 'Wi-Fi'
   - 'Parrilla'

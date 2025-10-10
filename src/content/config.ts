@@ -19,6 +19,8 @@ const propiedadesCollection = defineCollection({
     orientation: z.string().optional(),
     codigo: z.string().optional(),
     features: z.array(z.string()).optional(),
+    latitud: z.number().optional(),
+    longitud: z.number().optional(),
   }),
 });
 

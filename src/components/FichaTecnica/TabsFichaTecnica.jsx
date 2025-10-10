@@ -1,5 +1,6 @@
 import { Tabs, Tab, Card, CardBody } from "@heroui/react";
 import React from 'react';
+import MapaFichaTecnica from "./MapaFichaTecnica";
 
 // A simple icon component
 const FeatureIcon = ({ icon }) => (
@@ -16,7 +17,7 @@ const FeatureItem = ({ feature }) => (
   </div>
 );
 
-export default function TabsComponent({ features = [] }) {
+export default function TabsComponent({ features = [], latitud, longitud }) {
 
   return (
     <div className="flex w-full flex-col">
@@ -35,7 +36,7 @@ export default function TabsComponent({ features = [] }) {
         <Tab key="mapa" title="Mapa">
           <Card>
             <CardBody>
-             
+              <MapaFichaTecnica latitud={latitud} longitud={longitud} />
             </CardBody>
           </Card>
         </Tab>
@@ -50,4 +51,3 @@ export default function TabsComponent({ features = [] }) {
     </div>
   );
 }
-

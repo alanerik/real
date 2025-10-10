@@ -11,6 +11,8 @@ bathrooms: 2
 bedrooms: 2
 area: 80
 codigo: 'DVVdM1'
+latitud: 0
+longitud: 0
 features:
   - 'Wi-Fi'
   - 'Parrilla'
