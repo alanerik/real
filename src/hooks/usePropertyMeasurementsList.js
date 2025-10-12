@@ -7,17 +7,27 @@ export function usePropertyMeasurementsList(property) {
     return measurements;
   }
 
-  const { area } = property;
+  const { area, superficieCubierta, superficieDescubierta, superficieTotal, superficieTerreno } = property;
 
   if (area) {
     measurements.push({ label: 'Superficie', value: `${area} m²` });
   }
 
-  // Add other measurement fields here if they exist in your property schema
-  // For example:
-  // if (property.coveredArea) {
-  //   measurements.push({ label: 'Superficie Cubierta', value: `${property.coveredArea} m²` });
-  // }
+  if (superficieCubierta) {
+    measurements.push({ label: 'Superficie Cubierta', value: `${superficieCubierta} m²` });
+  }
+
+  if (superficieDescubierta) {
+    measurements.push({ label: 'Superficie Descubierta', value: `${superficieDescubierta} m²` });
+  }
+
+  if (superficieTotal) {
+    measurements.push({ label: 'Superficie Total', value: `${superficieTotal} m²` });
+  }
+
+  if (superficieTerreno) {
+    measurements.push({ label: 'Superficie Terreno', value: `${superficieTerreno} m²` });
+  }
 
   return measurements;
 }

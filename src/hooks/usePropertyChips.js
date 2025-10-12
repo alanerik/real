@@ -17,10 +17,17 @@ export function usePropertyChips(property) {
     chips.push({ text: city, color: "primary" });
   }
 
-  // Example of another chip based on operation
-  // if (operation) {
-  //   chips.push({ text: operation === 'venta' ? 'En Venta' : 'En Alquiler', color: "success" });
-  // }
+  if (operation) {
+    chips.push({ text: operation === 'Venta' ? 'En Venta' : 'En Alquiler', color: "success" });
+  }
+
+  if (property.destacado) {
+    chips.push({ text: 'Destacado', color: 'warning' });
+  }
+
+  if (property.retasado) {
+    chips.push({ text: 'Retasado', color: 'danger' });
+  }
 
   return chips;
 }

@@ -78,8 +78,8 @@ export default function FichaTecnica({ property }) {
                     <HeroChip 
                       key={index} 
                       size="sm"
-                      variant="flat"
-                      color={chip.color === 'blue' ? 'primary' : chip.color === 'green' ? 'success' : 'default'}
+                      variant="solid"
+                      color={chip.color}
                     >
                       {chip.text}
                     </HeroChip>
@@ -102,7 +102,12 @@ export default function FichaTecnica({ property }) {
         <div className="space-y-6">
           {propertyFeatures && propertyFeatures.length > 0 && (
             <InfoCard>
-              <TabsComponent features={propertyFeatures} latitud={property.latitud} longitud={property.longitud} />
+             <TabsComponent 
+  features={propertyFeatures} 
+  latitud={property.latitud} 
+  longitud={property.longitud}
+  property={property}
+/>
             </InfoCard>
           )}
 

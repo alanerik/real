@@ -17,54 +17,28 @@ const GaleriaFichatecnica = ({ images }) => {
     }
   };
 
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -scrollContainerRef.current.offsetWidth, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: scrollContainerRef.current.offsetWidth, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="w-full max-w-7xl mx-auto sm:px-0 py-6">
-      {/* Grid de Galería for Desktop */}
-      <div className="hidden md:relative md:grid md:grid-cols-4 md:gap-2 md:h-[500px]">
-        {/* Imagen principal grande */}
-        <div className="col-span-2 row-span-2 relative overflow-hidden rounded-l-lg">
-          <img 
-            src={images[0]} 
-            alt="Imagen principal"
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        {/* Imágenes secundarias */}
-        {images.slice(1, 5).map((img, idx) => (
-          <div 
-            key={idx}
-            className={`relative overflow-hidden ${
-              idx === 1 ? 'rounded-tr-lg' : ''
-            } ${idx === 3 ? 'rounded-br-lg' : ''}`}
-          >
-            <img 
-              src={img} 
-              alt={`Imagen ${idx + 2}`}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        ))}
-
-        {/* Botón "Ver todas las fotos" */}
-        <div className="absolute bottom-4 right-4">
-          <Button 
-           
-          >
-            Ver todas las {images.length} fotos
-          </Button>
-        </div>
-      </div>
-
-      {/* Carousel for Mobile */}
-      <div className="md:hidden relative">
+    <div className="w-full max-w-7xl mx-auto sm:px-0 ">
+      <div className="relative group">
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
           className="overflow-x-auto snap-x snap-mandatory scroll-smooth flex"
         >
           {images.map((image, index) => (
-            <div className="snap-center flex-shrink-0 w-full h-[300px]" key={index}>
+            <div className="snap-center flex-shrink-0 w-full h-[500px]" key={index}>
               <img src={image} alt={`Imagen de la propiedad ${index + 1}`} className="w-full h-full object-cover" />
             </div>
           ))}
@@ -73,6 +47,14 @@ const GaleriaFichatecnica = ({ images }) => {
           <Chip>
             {currentIndex + 1} / {images.length}
           </Chip>
+        </div>
+        <div className="flex absolute top-1/2 -translate-y-1/2 w-full justify-between px-4">
+          <Button onClick={scrollLeft} disabled={currentIndex === 0} className="bg-white/50 text-black">
+            &#10094;
+          </Button>
+          <Button onClick={scrollRight} disabled={currentIndex === images.length - 1} className="bg-white/50 text-black">
+            &#10095;
+          </Button>
         </div>
       </div>
     </div>

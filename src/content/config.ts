@@ -21,6 +21,12 @@ const propiedadesCollection = defineCollection({
     features: z.array(z.string()).optional(),
     latitud: z.number().optional(),
     longitud: z.number().optional(),
+    destacado: z.boolean().optional(),
+    retasado: z.boolean().optional(),
+    superficieCubierta: z.number().optional(),
+    superficieDescubierta: z.number().optional(),
+    superficieTotal: z.number().optional(),
+    superficieTerreno: z.number().optional(),
   }),
 });
 

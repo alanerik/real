@@ -11,6 +11,12 @@ bathrooms: 5
 bedrooms: 5
 area: 400
 codigo: 'CAC1'
+destacado: true
+retasado: true
+superficieCubierta: 250
+superficieDescubierta: 150
+superficieTotal: 400
+superficieTerreno: 600
 latitud: 0
 longitud: 0
 features:

@@ -17,7 +17,7 @@ const FeatureItem = ({ feature }) => (
   </div>
 );
 
-export default function TabsComponent({ features = [], latitud, longitud }) {
+export default function TabsComponent({ features = [], latitud, longitud, property = {} }) {
 
   return (
     <div className="flex w-full flex-col">
@@ -36,7 +36,13 @@ export default function TabsComponent({ features = [], latitud, longitud }) {
         <Tab key="mapa" title="Mapa">
           <Card>
             <CardBody>
-              <MapaFichaTecnica latitud={latitud} longitud={longitud} />
+              <MapaFichaTecnica   latitud={latitud} 
+  longitud={longitud}
+  titulo={property?.title}
+  tipo={property?.propertyType}
+  precio={property?.price}
+  moneda={property?.currency}
+  imagen={property?.image} />
             </CardBody>
           </Card>
         </Tab>
