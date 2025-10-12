@@ -101,6 +101,7 @@ export default function NoticiasInput() {
             color="primary"
             isLoading={isSubmitting}
             isDisabled={isSubmitting}
+           className="mt-4"
           >
             {isSubmitting ? "Enviando..." : "Suscribirse"}
           </Button>
