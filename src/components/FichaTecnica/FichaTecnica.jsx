@@ -64,7 +64,7 @@ export default function FichaTecnica({ property }) {
 
         {/* --- Gallery --- */}
         <div className="mb-8">
-          <GaleriaFichatecnica images={gallery} />
+          <GaleriaFichatecnica images={gallery} property={property} />
         </div>
   {/* --- Header Card --- */}
         <Card className="mb-8">
