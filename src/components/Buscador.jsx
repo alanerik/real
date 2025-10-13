@@ -77,7 +77,7 @@ export default function Buscador({
     <div className={`${layoutClass} ${className}`}>
       {showCiudad && (
         <Autocomplete 
-          color="success"
+          color="default"
           className={maxWidthClass}
           label={isCompact ? "Ciudad" : "Selecciona una ciudad"}
           size={inputSize}
@@ -91,7 +91,7 @@ export default function Buscador({
       
       {showTipoVenta && (
         <Autocomplete
-          color="primary"
+          color="default"
           className={maxWidthClass}
           size={inputSize}
           defaultItems={TIPOS_PROPIEDAD_VENTA}
@@ -105,7 +105,7 @@ export default function Buscador({
       
       {showTipoAlquiler && (
         <Autocomplete
-          color="warning"
+          color="default"
           className={maxWidthClass}
           size={inputSize}
           defaultItems={TIPOS_PROPIEDAD_ALQUILER}
@@ -119,7 +119,7 @@ export default function Buscador({
 
       {showAmbientes && (
         <Autocomplete
-          color="secondary"
+          color="default"
           className={maxWidthClass}
           size={inputSize}
           defaultItems={NUMERO_AMBIENTES}
