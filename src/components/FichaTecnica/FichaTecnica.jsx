@@ -10,7 +10,7 @@ import { usePropertyDetailsList } from '../../hooks/usePropertyDetailsList.js';
 import { usePropertyMeasurementsList } from '../../hooks/usePropertyMeasurementsList.js';
 import { usePropertyHeaderData } from '../../hooks/usePropertyHeaderData.js';
 
-import GaleriaFichatecnica from '../GaleriaFichatecnica.jsx';
+import GaleriaFichatecnica from './GaleriaFichatecnica.jsx';
 
 // --- Sub-components for better structure ---
 

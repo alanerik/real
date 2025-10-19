@@ -25,7 +25,7 @@ const steps = [
 
 export default function PasoAPasoSection() {
   return (
-    <section className="w-full py-16 px-4 ">
+    <section className="w-full py-16 px-4 bg-green-50">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
@@ -122,7 +122,7 @@ export default function PasoAPasoSection() {
         {/* CTA */}
         <div className="text-center mt-16">
           <p className="text-black text-lg">
-            ¿Listo para comenzar? <Link isBlock showAnchorIcon color="warning" href="#" className="font-semibold text-black/100">Contactanos hoy</Link>
+            ¿Listo para comenzar? <Link as={Link} isBlock showAnchorIcon href="#" variant="solid" className="font-semibold text-black/100">Contactanos hoy</Link>
           </p>
         </div>
       </div>

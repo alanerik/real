@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Chip, Button } from '@heroui/react';
-import MapaFichaTecnica from './FichaTecnica/MapaFichaTecnica.jsx';
+import MapaFichaTecnica from './MapaFichaTecnica.jsx';
 
 const GaleriaFichatecnica = ({ images, property }) => {
   if (!images || images.length === 0) {
