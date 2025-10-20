@@ -25,7 +25,7 @@ export default function App() {
   ];
 
   return (
-    <section class="py-16 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section class="py-16">
       <div class="container mx-auto">
         <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Preguntas Frecuentes</h2>
         <Accordion selectionMode="multiple" variant="bordered">

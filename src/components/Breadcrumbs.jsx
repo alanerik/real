@@ -23,7 +23,7 @@ const BreadcrumbsComponent = ({ pathname, codigo, title }) => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 pt-4">
+    <div className="max-w-7xl mx-auto pt-4">
       <Breadcrumbs>
         <BreadcrumbItem 
           className="cursor-pointer"

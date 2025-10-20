@@ -92,7 +92,7 @@ const structuredData = generateStructuredData(pagination.items, metadata);
 
   <Breadcrumbs client:load pathname={Astro.url.pathname} />
   
-  <main class="mx-auto max-w-7xl pb-8 p-4">
+  <main class="mx-auto max-w-7xl pb-8">
     <!-- Información de resultados -->
     {pagination.totalItems > 0 && (
       <div class="mb-6 text-sm text-gray-600">

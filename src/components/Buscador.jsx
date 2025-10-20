@@ -35,9 +35,9 @@ export const NUMERO_AMBIENTES = [
 
 // Configuraciones de layout predefinidas
 const LAYOUT_CONFIGS = {
-  horizontal: "flex w-full flex-wrap justify-center md:flex-nowrap gap-4 px-3 md:px-0",
-  vertical: "flex flex-col gap-4 w-full max-w-sm px-3 md:px-0",
-  grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full px-3 md:px-0"
+  horizontal: "flex w-full flex-wrap justify-center md:flex-nowrap gap-4",
+  vertical: "flex flex-col gap-4 w-full max-w-sm",
+  grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full"
 };
 
 // Configuraciones de variante

@@ -25,8 +25,8 @@ const steps = [
 
 export default function PasoAPasoSection() {
   return (
-    <section className="w-full py-16 px-4 bg-green-50">
-      <div className="max-w-6xl mx-auto">
+    <section className="w-full py-16 bg-green-50">
+      <div>
         {/* Header */}
         <div className="text-center mb-16">
           <Chip 

@@ -12,11 +12,15 @@ import sliderImage from '/public/slider-1.webp'; // Import the image directly
     <div class="relative z-10 flex flex-col items-center justify-center h-full">
         
 
-        <div class="w-full flex flex-col items-center justify-center gap-7">
-            <div class="flex flex-wrap justify-center gap-7">
-                <Buscador client:load />
+        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col items-center justify-center gap-4">
+                <div class="w-full">
+                    <Buscador client:load />
+                </div>
+                <div class="w-full">
+                    <BuscarButton variant="hero" client:load />
+                </div>
             </div>
-            <BuscarButton variant="hero" client:load />
         </div>
     </div>
 </section>

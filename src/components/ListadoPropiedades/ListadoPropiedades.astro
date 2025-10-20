@@ -95,7 +95,7 @@ const structuredData = {
 <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
 <section 
-  class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+  class="py-16"
   aria-labelledby="properties-title"
 >
   <div class="container mx-auto">
@@ -106,7 +106,7 @@ const structuredData = {
       </h1>
       <div class="flex justify-center flex-wrap gap-2 mb-4">
         {uniqueTipos.map(tipo => (
-            <Chip color="primary">{tipo.label}</Chip>
+            <Chip color="primary" size="sm" variant="flat">{tipo.label}</Chip>
         ))}
       </div>
       
