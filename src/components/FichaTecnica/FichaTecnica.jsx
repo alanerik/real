@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardHeader, CardBody, Chip as HeroChip, Divider, Image } from '@heroui/react';
+import { Card, CardHeader, CardBody, Chip as HeroChip, Divider } from '@heroui/react';
 import Alerta from '../Alerta.jsx';
 import Formulario from './FormularioFichaTecnica.jsx';
 import TabsComponent from './TabsFichaTecnica.jsx';
@@ -9,7 +9,6 @@ import { usePropertyGallery } from '../../hooks/usePropertyGallery.js';
 import { usePropertyDetailsList } from '../../hooks/usePropertyDetailsList.js';
 import { usePropertyMeasurementsList } from '../../hooks/usePropertyMeasurementsList.js';
 import { usePropertyHeaderData } from '../../hooks/usePropertyHeaderData.js';
-
 import GaleriaFichatecnica from './GaleriaFichatecnica.jsx';
 
 // --- Sub-components for better structure ---
@@ -23,6 +22,40 @@ const InfoCard = ({ title, children }) => (
     )}
     <CardBody className={title ? "pt-0" : ""}>
       {children}
+    </CardBody>
+  </Card>
+);
+
+const Header = ({ property, headerData, chips }) => (
+  <Card className="mb-8">
+    <CardBody className="p-3">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start">
+        {/* Columna Izquierda (Título, Precio y Chips) */}
+        <div className="flex-1 mb-4 md:mb-0">
+          <h1 className="text-base font-normal mb-2 md:text-xl">{headerData.title}</h1>
+          <p className="text-xl font-semibold mb-3 md:hidden">{headerData.formattedPrice}</p>
+          <div className="flex gap-2 flex-wrap">
+            {chips.map((chip, index) => (
+              <HeroChip key={index} size="sm" variant="solid" color={chip.color}>
+                {chip.text}
+              </HeroChip>
+            ))}
+          </div>
+        </div>
+
+        {/* Columna Derecha (Operación, Precio y Botón de Compartir) */}
+        <div className="flex flex-col items-start md:items-end md:ml-4">
+          <div className="hidden md:block md:text-right">
+            <p className="text-base font-normal text-default-700 mb-1">
+              {headerData.displayOperation}
+            </p>
+            <p className="text-xl font-semibold mb-3">
+              {headerData.formattedPrice}
+            </p>
+          </div>
+          <SharePropertyButton property={property} />
+        </div>
+      </div>
     </CardBody>
   </Card>
 );
@@ -60,54 +93,24 @@ export default function FichaTecnica({ property }) {
     <div className="max-w-7xl mx-auto p-4 font-sans grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* --- Left Column --- */}
       <div className="lg:col-span-2">
-      
-
         {/* --- Gallery --- */}
         <div className="mb-8">
           <GaleriaFichatecnica images={gallery} property={property} />
         </div>
-  {/* --- Header Card --- */}
-        <Card className="mb-8">
-          <CardBody className="p-3">
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <h1 className="text-base font-normal mb-2">{headerData.title}</h1>
-                
-                <div className="flex gap-2 flex-wrap">
-                  {chips.map((chip, index) => (
-                    <HeroChip 
-                      key={index} 
-                      size="sm"
-                      variant="solid"
-                      color={chip.color}
-                    >
-                      {chip.text}
-                    </HeroChip>
-                  ))}
-                </div>
-              </div>
-              <div className="text-right ml-4">
-                <p className="text-base font-normal text-default-700 mb-1">
-                  {headerData.displayOperation}
-                </p>
-                <p className="text-xl font-semibold mb-3">
-                  {headerData.formattedPrice}
-                </p>
-                <SharePropertyButton property={property} />
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+        
+        {/* --- Header Card --- */}
+        <Header property={property} headerData={headerData} chips={chips} />
+
         {/* --- Feature Cards --- */}
         <div className="space-y-6">
           {propertyFeatures && propertyFeatures.length > 0 && (
             <InfoCard>
-             <TabsComponent 
-  features={propertyFeatures} 
-  latitud={property.latitud} 
-  longitud={property.longitud}
-  property={property}
-/>
+              <TabsComponent 
+                features={propertyFeatures} 
+                latitud={property.latitud} 
+                longitud={property.longitud}
+                property={property}
+              />
             </InfoCard>
           )}
 

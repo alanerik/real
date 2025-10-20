@@ -113,7 +113,7 @@ export default function SharePropertyButton({ property, currentUrl }) {
   );
 
   return (
-    <div className="flex flex-col sm:flex-row gap-2">
+    <div className="flex flex-row gap-2">
       <Dropdown backdrop="blur" placement="bottom-end">
         <DropdownTrigger>
           <Button
