@@ -1,5 +1,5 @@
 ---
-// index.astro - Refactorizado
+// index.astro
 import Layout from '@/layouts/Layout.astro';
 import ListadoPropiedades from '@/components/ListadoPropiedades/ListadoPropiedades.astro';
 import Buscador from '@/components/Buscador.jsx';
@@ -7,32 +7,28 @@ import BuscarButton from '@/components/BuscarButton';
 import Breadcrumbs from '@/components/Breadcrumbs.jsx';
 import { getCollection } from 'astro:content';
 
-// Importar utils para metadata y estadísticas
-import { 
-  generateMetadata,
-  generateStructuredData
-} from '@/utils/index.js';
-
-// Obtener todas las propiedades para generar estadísticas
+// Obtener todas las propiedades
 const allProperties = await getCollection('propiedades');
+const totalProperties = allProperties.length;
 
-// Metadata específica para la página de todas las propiedades
+// Metadata específica para la página
 const metadata = {
-  title: `Propiedades en Venta y Alquiler - ${allProperties.length} disponibles`,
-  description: `Explora nuestro catálogo completo con ${allProperties.length} propiedades en venta y alquiler. Encuentra tu propiedad ideal.`,
+  title: `Propiedades en Venta y Alquiler - ${totalProperties} disponibles`,
+  description: `Descubre nuestro catálogo de ${totalProperties} propiedades en venta y alquiler. Encuentra tu hogar ideal.`,
   keywords: 'propiedades, inmobiliaria, venta, alquiler, casas, departamentos, terrenos'
 };
 
-// Schema.org para la página de listado general
+// Schema.org para SEO
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   "name": metadata.title,
   "description": metadata.description,
-  "numberOfItems": allProperties.length,
+  "url": Astro.url.href,
+  "numberOfItems": totalProperties,
   "mainEntity": {
     "@type": "ItemList",
-    "numberOfItems": allProperties.length,
+    "numberOfItems": totalProperties,
     "description": "Catálogo completo de propiedades"
   },
   "breadcrumb": {
@@ -42,12 +38,13 @@ const structuredData = {
         "@type": "ListItem",
         "position": 1,
         "name": "Inicio",
-        "item": "/"
+        "item": `${Astro.url.origin}/`
       },
       {
         "@type": "ListItem",
         "position": 2,
-        "name": "Propiedades"
+        "name": "Propiedades",
+        "item": `${Astro.url.origin}/propiedades`
       }
     ]
   }
@@ -65,30 +62,29 @@ const structuredData = {
   <Breadcrumbs pathname={Astro.url.pathname} client:load />
   
   <!-- Hero Section -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="text-center">
-      <h1 class="text-4xl font-bold text-gray-900 sm:text-5xl mb-12">
+  <div class="max-w-7xl mx-auto sm:px-6 py-12">
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-bold text-gray-900 sm:text-5xl mb-4">
         Propiedades en Venta y Alquiler
       </h1>
-      
-
+      <p class="text-lg text-gray-600">
+        Descubre nuestro catálogo completo de <span class="font-semibold text-blue-600">{totalProperties}</span> propiedades
+      </p>
     </div>
     
     <!-- Buscador -->
-    <div class="max-w-4xl mx-auto">
-      <Buscador 
-        showCiudad={true} 
-        showTipoVenta={true} 
-        showTipoAlquiler={true} 
-        showAmbientes={true} 
-        layout="horizontal" 
-        className="mb-6"
-        client:load
-      />
-      
-      <div class="flex items-center justify-center">
-        <BuscarButton client:load/>
-      </div>
+    <Buscador 
+      showCiudad={true} 
+      showTipoVenta={true} 
+      showTipoAlquiler={true} 
+      showAmbientes={true} 
+      layout="horizontal" 
+      className="mb-6"
+      client:load
+    />
+    
+    <div class="flex items-center">
+      <BuscarButton client:load />
     </div>
   </div>
 
