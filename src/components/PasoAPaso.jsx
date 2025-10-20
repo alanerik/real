@@ -1,4 +1,4 @@
-import { Chip, Link, Divider } from "@heroui/react";
+import { Chip, Link, Card } from "@heroui/react";
 
 const steps = [
   {
@@ -25,8 +25,8 @@ const steps = [
 
 export default function PasoAPasoSection() {
   return (
-    <section className="w-full py-16 bg-green-50">
-      <div>
+    <section className="w-full py-16 ">
+      <div className="container mx-auto ">
         {/* Header */}
         <div className="text-center mb-16">
           <Chip 
@@ -44,80 +44,26 @@ export default function PasoAPasoSection() {
           </p>
         </div>
 
-        {/* Steps Grid - Diseño asimétrico */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
-          {/* Paso 01 - Ocupa 2 columnas */}
-          <div className="md:col-span-2 relative">
-            <div className="flex flex-col md:flex-row gap-6 items-start">
-              <span className="text-7xl md:text-8xl font-bold text-black/10 leading-none">
-                {steps[0].number}
-              </span>
-              <div className="flex-1">
-                <h3 className="text-2xl md:text-3xl font-bold text-black mb-3">
-                  {steps[0].title}
-                </h3>
-                <p className="text-black/100 leading-relaxed text-base md:text-lg">
-                  {steps[0].description}
-                </p>
+        {/* Single Card with Steps */}
+        <Card isHoverable className="p-8">
+          <div className="flex flex-col md:flex-row gap-8">
+            {steps.map((step) => (
+              <div key={step.number} className="flex-1">
+                <div className="flex flex-col items-start gap-4">
+                  <span className="text-8xl font-bold bg-gradient-to-br from-green-400 to-green-600 bg-clip-text text-transparent leading-none">
+                    {step.number}
+                  </span>
+                  <h3 className="text-2xl font-bold text-black mb-2">
+                    {step.title}
+                  </h3>
+                  <p className="text-black/100 leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
               </div>
-            </div>
-            <Divider className="mt-8 bg-black/20" />
+            ))}
           </div>
-
-          {/* Paso 02 - Ocupa 1 columna */}
-          <div className="md:col-span-1 relative">
-            <div className="flex flex-col gap-4">
-              <span className="text-7xl md:text-8xl font-bold text-black/10 leading-none">
-                {steps[1].number}
-              </span>
-              <div>
-                <h3 className="text-2xl font-bold text-black mb-3">
-                  {steps[1].title}
-                </h3>
-                <p className="text-black/100 leading-relaxed">
-                  {steps[1].description}
-                </p>
-              </div>
-            </div>
-            <Divider className="mt-8 bg-black/20" />
-          </div>
-
-          {/* Paso 03 - Ocupa 1 columna */}
-          <div className="md:col-span-1 relative">
-            <div className="flex flex-col gap-4">
-              <span className="text-7xl md:text-8xl font-bold text-black/10 leading-none">
-                {steps[2].number}
-              </span>
-              <div>
-                <h3 className="text-2xl font-bold text-black mb-3">
-                  {steps[2].title}
-                </h3>
-                <p className="text-black/100 leading-relaxed">
-                  {steps[2].description}
-                </p>
-              </div>
-            </div>
-            <Divider className="mt-8 bg-black/20" />
-          </div>
-
-          {/* Paso 04 - Ocupa 2 columnas */}
-          <div className="md:col-span-2 relative">
-            <div className="flex flex-col md:flex-row gap-6 items-start">
-              <span className="text-7xl md:text-8xl font-bold text-black/10 leading-none">
-                {steps[3].number}
-              </span>
-              <div className="flex-1">
-                <h3 className="text-2xl md:text-3xl font-bold text-black mb-3">
-                  {steps[3].title}
-                </h3>
-                <p className="text-black/100 leading-relaxed text-base md:text-lg">
-                  {steps[3].description}
-                </p>
-              </div>
-            </div>
-            <Divider className="mt-8 bg-black/20" />
-          </div>
-        </div>
+        </Card>
 
         {/* CTA */}
         <div className="text-center mt-16">

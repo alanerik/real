@@ -2,7 +2,7 @@ import { Card, Button } from "@heroui/react";
 
 const Banner = () => {
   return (
-    <div className="relative">
+    <div className="relative py-16">
         <Card isPressable
             className="w-full h-96 bg-cover bg-center"
             style={{ backgroundImage: "url('/imgHeroBanner.webp')" }}
