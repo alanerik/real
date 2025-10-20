@@ -9,19 +9,17 @@ import { getCollection } from 'astro:content';
 
 // Importar utils para metadata y estadísticas
 import { 
-  getPropertyStats,
   generateMetadata,
   generateStructuredData
 } from '@/utils/index.js';
 
 // Obtener todas las propiedades para generar estadísticas
 const allProperties = await getCollection('propiedades');
-const propertyStats = getPropertyStats(allProperties);
 
 // Metadata específica para la página de todas las propiedades
 const metadata = {
-  title: `Todas las Propiedades - ${propertyStats.total} propiedades disponibles`,
-  description: `Explora nuestro catálogo completo con ${propertyStats.total} propiedades en venta y alquiler. Encuentra tu propiedad ideal.`,
+  title: `Propiedades en Venta y Alquiler - ${allProperties.length} disponibles`,
+  description: `Explora nuestro catálogo completo con ${allProperties.length} propiedades en venta y alquiler. Encuentra tu propiedad ideal.`,
   keywords: 'propiedades, inmobiliaria, venta, alquiler, casas, departamentos, terrenos'
 };
 
@@ -31,10 +29,10 @@ const structuredData = {
   "@type": "CollectionPage",
   "name": metadata.title,
   "description": metadata.description,
-  "numberOfItems": propertyStats.total,
+  "numberOfItems": allProperties.length,
   "mainEntity": {
     "@type": "ItemList",
-    "numberOfItems": propertyStats.total,
+    "numberOfItems": allProperties.length,
     "description": "Catálogo completo de propiedades"
   },
   "breadcrumb": {
@@ -66,42 +64,14 @@ const structuredData = {
 
   <Breadcrumbs pathname={Astro.url.pathname} client:load />
   
-  <!-- Header con estadísticas -->
-  <div class="max-w-7xl mx-auto px-4 py-6">
-    <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 mb-4">
-        Todas las Propiedades
+  <!-- Hero Section -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold text-gray-900 sm:text-5xl mb-12">
+        Propiedades en Venta y Alquiler
       </h1>
       
-      <!-- Estadísticas rápidas -->
-      {propertyStats.total > 0 && (
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto mt-6">
-          {Object.entries(propertyStats.byOperation).map(([operation, count]) => (
-            <div class="bg-white rounded-lg shadow p-4">
-              <div class="text-2xl font-bold text-blue-600">{count}</div>
-              <div class="text-sm text-gray-600 capitalize">
-                {operation === 'venta' ? 'En Venta' : 'En Alquiler'}
-              </div>
-            </div>
-          ))}
-          
-          {propertyStats.averagePrice > 0 && (
-            <div class="bg-white rounded-lg shadow p-4">
-              <div class="text-lg font-bold text-green-600">
-                ${propertyStats.averagePrice.toLocaleString()}
-              </div>
-              <div class="text-sm text-gray-600">Precio Promedio</div>
-            </div>
-          )}
-          
-          <div class="bg-white rounded-lg shadow p-4">
-            <div class="text-2xl font-bold text-purple-600">
-              {Object.keys(propertyStats.byCity).length}
-            </div>
-            <div class="text-sm text-gray-600">Ciudades</div>
-          </div>
-        </div>
-      )}
+
     </div>
     
     <!-- Buscador -->
@@ -125,29 +95,3 @@ const structuredData = {
   <!-- Listado de propiedades -->
   <ListadoPropiedades />
 </Layout>
-
-<style>
-  /* Mejora visual para las estadísticas */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-  }
-  
-  /* Animación sutil para las tarjetas de stats */
-  .bg-white {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  }
-  
-  .bg-white:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  /* Responsive */
-  @media (max-width: 768px) {
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-</style>
