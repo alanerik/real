@@ -11,6 +11,7 @@ export default function BuscarButton({ variant, children }) {
       variant="solid"
       onClick={handleSearch}
       isDisabled={isDisabled}
+      size="lg"
     >
       {children || 'Buscar propiedades'}
     </Button>

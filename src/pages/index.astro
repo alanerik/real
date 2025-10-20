@@ -5,6 +5,7 @@ import Hero from '@/components/Hero.astro';
 import UltimasPropiedades from '@/components/UltimasPropiedades.astro';
 import PreguntasFrecuentes from '@/components/PreguntasFrecuentes.jsx';
 import PasoAPaso from '@/components/PasoAPaso.jsx';
+import Banner from '@/components/Banner.jsx';
 
 
 
@@ -21,7 +22,8 @@ import PasoAPaso from '@/components/PasoAPaso.jsx';
 	
 	<Hero slot="hero" />
 	<UltimasPropiedades />
-	
+	<Banner client:idle/>
+
 	<PasoAPaso client:load />
     <PreguntasFrecuentes client:load />
 
