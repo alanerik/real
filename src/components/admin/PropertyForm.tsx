@@ -15,6 +15,7 @@ import {
     Divider,
 } from "@heroui/react";
 import { supabase } from "../../lib/supabase";
+import LocationPicker from "./LocationPicker";
 
 interface PropertyFormProps {
     propertyId?: string;
@@ -46,6 +47,8 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
         is_brand_new: false,
         features: "", // Comma separated string for input
         slug: "",
+        latitud: "",
+        longitud: "",
     });
 
     useEffect(() => {
@@ -79,6 +82,8 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
                 expenses: data.expenses?.toString() || "",
                 gallery_images: data.gallery_images || [],
                 is_brand_new: data.is_brand_new || false,
+                latitud: data.latitud?.toString() || "",
+                longitud: data.longitud?.toString() || "",
             });
         }
         setLoading(false);
@@ -111,6 +116,14 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
             }
             return newData;
         });
+    };
+
+    const handleLocationSelect = (lat: number, lng: number) => {
+        setFormData(prev => ({
+            ...prev,
+            latitud: lat.toString(),
+            longitud: lng.toString()
+        }));
     };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, isGallery: boolean = false) => {
@@ -183,6 +196,8 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
             semi_covered_area: Number(formData.semi_covered_area) || 0,
             antiquity: Number(formData.antiquity) || 0,
             expenses: Number(formData.expenses) || 0,
+            latitud: formData.latitud ? Number(formData.latitud) : null,
+            longitud: formData.longitud ? Number(formData.longitud) : null,
             features: featuresArray,
         };
 
@@ -296,6 +311,34 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
                                 onChange={handleChange}
                                 className="md:col-span-3"
                             />
+                        </div>
+
+                        {/* Location Picker */}
+                        <div className="w-full flex flex-col gap-2">
+                            <span className="text-small text-default-500">Ubicación en Mapa</span>
+                            <LocationPicker
+                                latitud={formData.latitud ? Number(formData.latitud) : undefined}
+                                longitud={formData.longitud ? Number(formData.longitud) : undefined}
+                                onLocationSelect={handleLocationSelect}
+                            />
+                            <div className="grid grid-cols-2 gap-4 mt-2">
+                                <Input
+                                    type="number"
+                                    label="Latitud"
+                                    name="latitud"
+                                    value={formData.latitud}
+                                    onChange={handleChange}
+                                    description="Se completa automáticamente al tocar el mapa"
+                                />
+                                <Input
+                                    type="number"
+                                    label="Longitud"
+                                    name="longitud"
+                                    value={formData.longitud}
+                                    onChange={handleChange}
+                                    description="Se completa automáticamente al tocar el mapa"
+                                />
+                            </div>
                         </div>
 
                         <Divider />

@@ -1,11 +1,11 @@
 ---
 // index.astro
-import Layout from '../../layouts/Layout.astro';
-import ListadoPropiedades from '../../components/ListadoPropiedades/ListadoPropiedades.astro';
-import Buscador from '@/components/Buscador.jsx';
-import BuscarButton from '@/components/BuscarButton';
-import Breadcrumbs from '@/components/Breadcrumbs.jsx';
-import { getAllProperties } from '../../lib/properties';
+import Layout from "../../layouts/Layout.astro";
+import ListadoPropiedades from "../../components/ListadoPropiedades/ListadoPropiedades.astro";
+import Buscador from "@/components/Buscador.jsx";
+import BuscarButton from "@/components/BuscarButton";
+import Breadcrumbs from "@/components/Breadcrumbs.jsx";
+import { getAllProperties } from "../../lib/properties";
 
 // Obtener todas las propiedades
 const allProperties = await getAllProperties();
@@ -15,52 +15,56 @@ const totalProperties = allProperties.length;
 const metadata = {
   title: `Propiedades en Venta y Alquiler - ${totalProperties} disponibles`,
   description: `Descubre nuestro catálogo de ${totalProperties} propiedades en venta y alquiler. Encuentra tu hogar ideal.`,
-  keywords: 'propiedades, inmobiliaria, venta, alquiler, casas, departamentos, terrenos'
+  keywords:
+    "propiedades, inmobiliaria, venta, alquiler, casas, departamentos, terrenos",
 };
 
 // Schema.org para SEO
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  "name": metadata.title,
-  "description": metadata.description,
-  "url": Astro.url.href,
-  "numberOfItems": totalProperties,
-  "mainEntity": {
+  name: metadata.title,
+  description: metadata.description,
+  url: Astro.url.href,
+  numberOfItems: totalProperties,
+  mainEntity: {
     "@type": "ItemList",
-    "numberOfItems": totalProperties,
-    "description": "Catálogo completo de propiedades"
+    numberOfItems: totalProperties,
+    description: "Catálogo completo de propiedades",
   },
-  "breadcrumb": {
+  breadcrumb: {
     "@type": "BreadcrumbList",
-    "itemListElement": [
+    itemListElement: [
       {
         "@type": "ListItem",
-        "position": 1,
-        "name": "Inicio",
-        "item": `${Astro.url.origin}/`
+        position: 1,
+        name: "Inicio",
+        item: `${Astro.url.origin}/`,
       },
       {
         "@type": "ListItem",
-        "position": 2,
-        "name": "Propiedades",
-        "item": `${Astro.url.origin}/propiedades`
-      }
-    ]
-  }
+        position: 2,
+        name: "Propiedades",
+        item: `${Astro.url.origin}/propiedades`,
+      },
+    ],
+  },
 };
 ---
 
-<Layout 
+<Layout
   title={metadata.title}
   description={metadata.description}
   keywords={metadata.keywords}
 >
   <!-- Schema.org -->
-  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(structuredData)}
+  />
 
-  <Breadcrumbs pathname={Astro.url.pathname} client:load />
-  
+  <Breadcrumbs pathname={Astro.url.pathname} client:load slot="breadcrumb" />
+
   <!-- Hero Section -->
   <div class="max-w-7xl mx-auto sm:px-6 py-12">
     <div class="text-center mb-12">
@@ -68,21 +72,23 @@ const structuredData = {
         Propiedades en Venta y Alquiler
       </h1>
       <p class="text-lg text-gray-600">
-        Descubre nuestro catálogo completo de <span class="font-semibold text-blue-600">{totalProperties}</span> propiedades
+        Descubre nuestro catálogo completo de <span
+          class="font-semibold text-blue-600">{totalProperties}</span
+        > propiedades
       </p>
     </div>
-    
+
     <!-- Buscador -->
-    <Buscador 
-      showCiudad={true} 
-      showTipoVenta={true} 
-      showTipoAlquiler={true} 
-      showAmbientes={true} 
-      layout="horizontal" 
+    <Buscador
+      showCiudad={true}
+      showTipoVenta={true}
+      showTipoAlquiler={true}
+      showAmbientes={true}
+      layout="horizontal"
       className="mb-6"
       client:load
     />
-    
+
     <div class="flex items-center">
       <BuscarButton client:load />
     </div>

@@ -74,6 +74,8 @@ function mapProperty(dbProp) {
             publishDate: dbProp.created_at, // Fallback for publishDate
             gallery: dbProp.gallery_images || [],
             isBrandNew: dbProp.is_brand_new || false,
+            latitud: dbProp.latitud || null,
+            longitud: dbProp.longitud || null,
         }
     };
 }

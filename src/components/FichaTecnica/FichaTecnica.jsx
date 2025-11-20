@@ -3,7 +3,7 @@ import { Card, CardHeader, CardBody, Chip as HeroChip, Divider } from '@heroui/r
 import Alerta from '../Alerta.jsx';
 import Formulario from './FormularioFichaTecnica.jsx';
 import TabsComponent from './TabsFichaTecnica.jsx';
-import SharePropertyButton from './CompartirFichaTecnica.jsx';
+import BotonCompartir from './CompartirFichaTecnica.jsx';
 import { usePropertyChips } from '../../hooks/usePropertyChips.js';
 import { usePropertyGallery } from '../../hooks/usePropertyGallery.js';
 import { usePropertyDetailsList } from '../../hooks/usePropertyDetailsList.js';
@@ -53,7 +53,7 @@ const Header = ({ property, headerData, chips }) => (
               {headerData.formattedPrice}
             </p>
           </div>
-          <SharePropertyButton property={property} />
+          <BotonCompartir property={property} />
         </div>
       </div>
     </CardBody>
