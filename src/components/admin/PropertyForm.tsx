@@ -176,6 +176,10 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
         }));
     };
 
+    const removeMainImage = () => {
+        setFormData(prev => ({ ...prev, image_url: "" }));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -471,7 +475,17 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
                                 <span className="text-small text-default-500">Imagen Principal</span>
                                 <div className="flex items-center gap-4">
                                     {formData.image_url && (
-                                        <img src={formData.image_url} alt="Preview" className="h-20 w-20 object-cover rounded-md border" />
+                                        <div className="relative">
+                                            <img src={formData.image_url} alt="Preview" className="h-20 w-20 object-cover rounded-md border" />
+                                            <button
+                                                type="button"
+                                                onClick={removeMainImage}
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                                title="Eliminar imagen principal"
+                                            >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </button>
+                                        </div>
                                     )}
                                     <input
                                         type="file"
@@ -493,7 +507,8 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
                                             <button
                                                 type="button"
                                                 onClick={() => removeGalleryImage(index)}
-                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                                title="Eliminar imagen"
                                             >
                                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                             </button>
