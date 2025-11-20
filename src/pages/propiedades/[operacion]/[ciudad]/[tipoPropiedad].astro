@@ -1,19 +1,14 @@
 ---
-
 // [tipoPropiedad].astro - Refactorizado
-import Layout from '@/layouts/Layout.astro';
-import { getCollection } from 'astro:content';
-import CardMain from '@/components/Tarjetas/TarjetasPropiedades.jsx';
-import Pagination from '@/components/ListadoPropiedades/PaginacionListadoPropiedades.jsx';
-import Breadcrumbs from '@/components/Breadcrumbs.jsx';
-import { CIUDADES, TIPOS_PROPIEDAD_VENTA, TIPOS_PROPIEDAD_ALQUILER } from '@/components/Buscador.jsx';
-import { Button } from '@heroui/react';
-
-
+import Layout from "@/layouts/Layout.astro";
+import CardMain from "@/components/Tarjetas/TarjetasPropiedades.jsx";
+import Pagination from "@/components/ListadoPropiedades/PaginacionListadoPropiedades.jsx";
+import Breadcrumbs from "@/components/Breadcrumbs.jsx";
+import { Button } from "@heroui/react";
+import { getAllProperties } from "../../../../lib/properties";
 
 // Importar utils
-import { 
-  generatePropertyPaths,
+import {
   validatePropertyParams,
   parseUrlFilters,
   filterProperties,
@@ -21,145 +16,188 @@ import {
   generateMetadata,
   buildPropertyUrl,
   generateStructuredData,
-  PAGE_SIZE
-} from '@/utils/index.js';
+  PAGE_SIZE,
+} from "@/utils/index.js";
 
-export async function getStaticPaths() {
-  const allProperties = await getCollection('propiedades');
-  const { paths } = await generatePropertyPaths(
-    CIUDADES, 
-    TIPOS_PROPIEDAD_VENTA, 
-    TIPOS_PROPIEDAD_ALQUILER, 
-    allProperties
-  );
-  return paths;
-}
+export const prerender = false;
 
 // Validación de parámetros usando utils
 const validation = validatePropertyParams(Astro.params);
 if (!validation.isValid) {
-  console.error('Invalid parameters:', validation.error);
-  return Astro.redirect('/404');
+  console.error("Invalid parameters:", validation.error);
+  return Astro.redirect("/404");
 }
 
 const { operacion, ciudad, tipoPropiedad } = Astro.params;
-const { ciudadNombre, tipoNombre } = Astro.props;
+// Props might not be passed in SSR dynamic routes like this, so we derive them or default them
+// Actually, in dynamic routes [param], props are usually passed from getStaticPaths.
+// In SSR, we don't have getStaticPaths, so we don't have props passed automatically.
+// We need to derive ciudadNombre and tipoNombre from the params if needed, or just use the params.
+// For now, let's assume the utils or layout handle it, or we just pass params.
+const ciudadNombre = ciudad; // Placeholder, ideally we map key to label
+const tipoNombre = tipoPropiedad; // Placeholder
 
 // Parsear filtros de URL usando utils
 const urlFilters = parseUrlFilters(Astro.request.url);
 
 // Obtener y filtrar propiedades usando utils
-const allProperties = await getCollection('propiedades');
+const allProperties = await getAllProperties();
 const filteredProperties = filterProperties(allProperties, {
   operation: operacion,
   city: ciudad,
   propertyType: tipoPropiedad,
-  ambientes: urlFilters.ambientes
+  ambientes: urlFilters.ambientes,
 });
 
 // Calcular paginación usando utils
-const pagination = calculatePagination(filteredProperties, PAGE_SIZE, urlFilters.page || 1);
+const pagination = calculatePagination(
+  filteredProperties,
+  PAGE_SIZE,
+  urlFilters.page || 1,
+);
 
 // Redirección si página inválida
-if (pagination.totalPages > 0 && urlFilters.page && urlFilters.page !== pagination.currentPage) {
+if (
+  pagination.totalPages > 0 &&
+  urlFilters.page &&
+  urlFilters.page !== pagination.currentPage
+) {
   const redirectUrl = buildPropertyUrl(operacion, ciudad, tipoPropiedad, {
     ambientes: urlFilters.ambientes,
-    page: pagination.currentPage
+    page: pagination.currentPage,
   });
   return Astro.redirect(redirectUrl);
 }
 
 // Generar metadata usando utils
-const metadata = generateMetadata(operacion, ciudadNombre, tipoNombre, urlFilters, pagination);
+const metadata = generateMetadata(
+  operacion,
+  ciudadNombre,
+  tipoNombre,
+  urlFilters,
+  pagination,
+);
 
 // URL canónica usando utils
 const canonicalParams = {
   ...(urlFilters.ambientes && { ambientes: urlFilters.ambientes }),
-  ...(pagination.totalPages > 1 && { page: pagination.currentPage })
+  ...(pagination.totalPages > 1 && { page: pagination.currentPage }),
 };
-const canonicalUrl = buildPropertyUrl(operacion, ciudad, tipoPropiedad, canonicalParams);
+const canonicalUrl = buildPropertyUrl(
+  operacion,
+  ciudad,
+  tipoPropiedad,
+  canonicalParams,
+);
 
 // Schema.org usando utils
 const structuredData = generateStructuredData(pagination.items, metadata);
 ---
 
-<Layout 
+<Layout
   title={metadata.title}
   description={metadata.description}
   canonical={canonicalUrl}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(structuredData)}
+  />
 
   <Breadcrumbs client:load pathname={Astro.url.pathname} />
-  
+
   <main class="mx-auto max-w-7xl pb-8">
     <!-- Información de resultados -->
-    {pagination.totalItems > 0 && (
-      <div class="mb-6 text-sm text-gray-600">
-        {pagination.paginationInfo?.showing}
-      </div>
-    )}
+    {
+      pagination.totalItems > 0 && (
+        <div class="mb-6 text-sm text-gray-600">
+          {pagination.paginationInfo?.showing}
+        </div>
+      )
+    }
 
     <!-- Grid de propiedades -->
-    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto" aria-label="Lista de propiedades">
-      {pagination.items.length > 0 ? (
-        pagination.items.map((propiedad, index) => (
-          <CardMain
-            client:load
-            title={propiedad.data.title}
-            description={propiedad.data.description}
-            price={`${propiedad.data.currency} ${propiedad.data.price.toLocaleString()}`}
-            image={propiedad.data.image}
-            slug={propiedad.slug}
-            loading={index < 4 ? 'eager' : 'lazy'}
-          />
-        ))
-      ) : (
-        <div class="col-span-full text-center py-16">
-          <div class="max-w-md mx-auto">
-            <h2 class="text-xl font-semibold text-gray-900 mb-2">
-              No se encontraron propiedades
-            </h2>
-            <p class="text-gray-600 mb-4">
-              No hay propiedades que coincidan con los criterios de búsqueda.
-            </p>
-                        <Button client:load color='primary'  as="a" href={`/propiedades`}>
-              Volver a propiedades
-            </Button>
+    <section
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto"
+      aria-label="Lista de propiedades"
+    >
+      {
+        pagination.items.length > 0 ? (
+          pagination.items.map((propiedad, index) => (
+            <CardMain
+              client:load
+              title={propiedad.data.title}
+              description={propiedad.data.description}
+              price={`${propiedad.data.currency} ${propiedad.data.price.toLocaleString()}`}
+              image={propiedad.data.image}
+              slug={propiedad.slug}
+              loading={index < 4 ? "eager" : "lazy"}
+            />
+          ))
+        ) : (
+          <div class="col-span-full text-center py-16">
+            <div class="max-w-md mx-auto">
+              <h2 class="text-xl font-semibold text-gray-900 mb-2">
+                No se encontraron propiedades
+              </h2>
+              <p class="text-gray-600 mb-4">
+                No hay propiedades que coincidan con los criterios de búsqueda.
+              </p>
+              <Button client:load color="primary" as="a" href={`/propiedades`}>
+                Volver a propiedades
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
     </section>
 
     <!-- Paginación -->
-    {pagination.totalPages > 1 && (
-      <nav class="flex justify-center mt-12" aria-label="Navegación de páginas">
-        <Pagination 
-          client:load 
-          total={pagination.totalPages} 
-          initialPage={pagination.currentPage}
-          aria-label={`Página ${pagination.currentPage} de ${pagination.totalPages}`}
-        />
-      </nav>
-    )}
+    {
+      pagination.totalPages > 1 && (
+        <nav
+          class="flex justify-center mt-12"
+          aria-label="Navegación de páginas"
+        >
+          <Pagination
+            client:load
+            total={pagination.totalPages}
+            initialPage={pagination.currentPage}
+            aria-label={`Página ${pagination.currentPage} de ${pagination.totalPages}`}
+          />
+        </nav>
+      )
+    }
 
     <!-- Enlaces de paginación para SEO -->
-    {pagination.totalPages > 1 && (
-      <div class="hidden">
-        {pagination.hasPrev && (
-          <link rel="prev" href={buildPropertyUrl(operacion, ciudad, tipoPropiedad, {
-            ...(urlFilters.ambientes && { ambientes: urlFilters.ambientes }),
-            page: pagination.currentPage - 1
-          })} />
-        )}
-        {pagination.hasNext && (
-          <link rel="next" href={buildPropertyUrl(operacion, ciudad, tipoPropiedad, {
-            ...(urlFilters.ambientes && { ambientes: urlFilters.ambientes }),
-            page: pagination.currentPage + 1
-          })} />
-        )}
-      </div>
-    )}
+    {
+      pagination.totalPages > 1 && (
+        <div class="hidden">
+          {pagination.hasPrev && (
+            <link
+              rel="prev"
+              href={buildPropertyUrl(operacion, ciudad, tipoPropiedad, {
+                ...(urlFilters.ambientes && {
+                  ambientes: urlFilters.ambientes,
+                }),
+                page: pagination.currentPage - 1,
+              })}
+            />
+          )}
+          {pagination.hasNext && (
+            <link
+              rel="next"
+              href={buildPropertyUrl(operacion, ciudad, tipoPropiedad, {
+                ...(urlFilters.ambientes && {
+                  ambientes: urlFilters.ambientes,
+                }),
+                page: pagination.currentPage + 1,
+              })}
+            />
+          )}
+        </div>
+      )
+    }
   </main>
 </Layout>
 
@@ -168,7 +206,7 @@ const structuredData = generateStructuredData(pagination.items, metadata);
   .container {
     contain: layout style;
   }
-  
+
   /* Mejora de accesibilidad */
   @media (prefers-reduced-motion: reduce) {
     * {

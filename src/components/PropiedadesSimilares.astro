@@ -1,11 +1,11 @@
 ---
-import { getCollection } from "astro:content";
-import CardMain from "./Tarjetas/TarjetasPropiedades.jsx";
-import { formatPrice } from "../utils/formatters.js";
+import TarjetaPropiedad from "@/components/Tarjetas/TarjetasPropiedades.jsx";
+import { getAllProperties } from "../lib/properties";
+import { formatPrice } from "@/utils/index.js";
 
 const { propertyType, city, currentSlug } = Astro.props;
 
-const allProperties = await getCollection("propiedades");
+const allProperties = await getAllProperties();
 
 const similarProperties = allProperties.filter((prop) => {
   return (
@@ -23,17 +23,19 @@ const similarProperties = allProperties.filter((prop) => {
         <h2 class="text-3xl font-bold text-center mb-8">
           Propiedades Similares
         </h2>
-        <div class="flex overflow-x-auto gap-8 snap-x snap-mandatory">
+        <div class="flex overflow-x-auto gap-8 snap-x snap-mandatory pb-4">
           {similarProperties.map((prop) => (
             <div class="snap-start flex-shrink-0 w-full md:w-1/2 lg:w-1/3">
-              <CardMain
+              <TarjetaPropiedad
                 client:load
-                image={prop.data?.image || '/images/placeholder-property.webp'}
-                title={prop.data?.title || 'Título no disponible'}
-                description={prop.data?.description || 'Descripción no disponible'}
+                image={prop.data?.image || "/images/placeholder-property.webp"}
+                title={prop.data?.title || "Título no disponible"}
+                description={
+                  prop.data?.description || "Descripción no disponible"
+                }
                 price={formatPrice(prop.data?.price, prop.data?.currency)}
                 slug={prop.slug}
-                imageAlt={`Imagen de ${prop.data?.title || 'propiedad'}`}
+                imageAlt={`Imagen de ${prop.data?.title || "propiedad"}`}
               />
             </div>
           ))}

@@ -33,9 +33,27 @@ export function usePropertyDetailsList(property) {
 
 
 
-  // Only show orientation for terrenos
-  if (propertyType === 'terreno' && orientation) {
-    details.push({ label: 'Orientación', value: orientation });
+  // Status translation
+  const statusMap = {
+    'available': 'Disponible',
+    'reserved': 'Reservado',
+    'sold': 'Vendido/Alquilado'
+  };
+
+  if (property.status && statusMap[property.status]) {
+    details.push({ label: 'Estado', value: statusMap[property.status] });
+  }
+
+  if (property.garage) {
+    details.push({ label: 'Cochera', value: 'Sí' });
+  }
+
+  if (property.antiquity !== undefined && property.antiquity !== null) {
+    details.push({ label: 'Antigüedad', value: `${property.antiquity} años` });
+  }
+
+  if (property.expenses) {
+    details.push({ label: 'Expensas', value: `$${property.expenses}` });
   }
 
   return details;
@@ -55,17 +73,17 @@ export function calculateAmbientes(property) {
     case 'departamento':
       // Para departamentos: dormitorios + living/cocina integrado
       return Math.max(1, bedrooms + 1);
-    
+
     case 'casa':
       // Para casas: dormitorios + living + cocina + baños principales
       return bedrooms + 2 + Math.floor(bathrooms / 2);
-    
+
     case 'terreno':
     case 'campo':
     case 'galpon':
       // Para estos tipos no aplica el concepto de ambientes
       return null;
-    
+
     default:
       // Estimación general
       return bedrooms ? bedrooms + 1 : null;

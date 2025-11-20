@@ -18,7 +18,7 @@ export function usePropertyChips(property) {
   }
 
   if (operation) {
-    chips.push({ text: operation === 'Venta' ? 'En Venta' : 'En Alquiler', color: "success" });
+    chips.push({ text: operation.toLowerCase() === 'venta' ? 'En Venta' : 'En Alquiler', color: "success" });
   }
 
   if (property.destacado) {
@@ -27,6 +27,10 @@ export function usePropertyChips(property) {
 
   if (property.retasado) {
     chips.push({ text: 'Retasado', color: 'danger' });
+  }
+
+  if (property.isBrandNew) {
+    chips.push({ text: 'A Estrenar', color: 'success', variant: "shadow" });
   }
 
   return chips;

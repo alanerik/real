@@ -8,7 +8,7 @@
 import TarjetaPropiedad from '@/components/Tarjetas/TarjetasPropiedades.jsx';
 import BuscarButton from '@/components/BuscarButton.jsx';
 import { Button } from '@heroui/react';
-import { getCollection } from 'astro:content';
+import { getLatestProperties } from '../lib/properties';
 import { formatPrice } from '@/utils/index.js';
 
 // ===== CONFIGURACIÓN =====
@@ -54,36 +54,17 @@ function generateStructuredData(properties) {
   };
 }
 
-/**
- * Ordena propiedades por fecha (más recientes primero)
- * @param {Array} properties - Array de propiedades
- * @returns {Array} Propiedades ordenadas
- */
-function sortByDate(properties) {
-  return properties.sort((a, b) => {
-    const dateA = a.data?.date ? new Date(a.data.date) : new Date(0);
-    const dateB = b.data?.date ? new Date(b.data.date) : new Date(0);
-    return dateB - dateA; // Más reciente primero
-  });
-}
-
 // ===== LÓGICA PRINCIPAL =====
 let properties = [];
 let hasError = false;
 let errorMessage = '';
 
 try {
-  const allProperties = await getCollection('propiedades');
+  properties = await getLatestProperties(LATEST_PROPERTIES_COUNT);
   
-  if (!allProperties || allProperties.length === 0) {
-    console.warn('No properties found in collection');
+  if (!properties || properties.length === 0) {
+    console.warn('No properties found in database');
     properties = [];
-  } else {
-    // Ordenar por fecha y tomar las más recientes
-    const sortedProperties = sortByDate([...allProperties]);
-    properties = sortedProperties.slice(0, LATEST_PROPERTIES_COUNT);
-    
-   
   }
 } catch (error) {
   console.error('❌ Error loading properties:', error);
@@ -98,10 +79,6 @@ const structuredData = properties.length > 0 ? generateStructuredData(properties
 const sectionTitle = 'Últimas Propiedades';
 const sectionDescription = 'Descubre nuestras propiedades más recientes con las mejores ubicaciones y precios del mercado inmobiliario';
 const sectionId = 'latest-properties';
-
-// Iconos SVG como strings para usar en HeroUI Button
-const RefreshIcon = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>';
-const EmailIcon = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>';
 ---
 
 <section 
@@ -143,7 +120,7 @@ const EmailIcon = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBo
             const isAboveFold = index < 2;
             
             return (
-              <div key={property.slug} className="property-card-wrapper">
+              <div class="property-card-wrapper">
                 <TarjetaPropiedad 
                   client:idle
                   image={property.data?.image || '/images/placeholder-property.webp'} 
@@ -287,32 +264,5 @@ const EmailIcon = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBo
       grid-template-columns: repeat(4, 1fr);
       gap: 2rem;
     }
-  }
-
-  /* CRÍTICO: Forzar que todos los hijos directos respeten la grid */
-  .properties-grid > * {
-    width: 100%;
-    min-width: 0; /* Previene overflow */
-    display: grid; /* Fuerza grid context */
-    grid-template-rows: subgrid;
-  }
-
-  /* Asegurar que astro-island (wrapper de client components) no rompa el layout */
-  .properties-grid > astro-island {
-    display: contents; /* Hace que el wrapper sea transparente al layout */
-  }
-
-  /* Focus states */
-  button:focus,
-  a:focus {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
-    border-radius: 0.5rem;
-  }
-
-  /* Smooth transitions */
-  button,
-  a {
-    transition: all 0.2s ease-in-out;
   }
 </style>

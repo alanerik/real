@@ -1,14 +1,14 @@
 ---
 // index.astro
-import Layout from '@/layouts/Layout.astro';
-import ListadoPropiedades from '@/components/ListadoPropiedades/ListadoPropiedades.astro';
+import Layout from '../../layouts/Layout.astro';
+import ListadoPropiedades from '../../components/ListadoPropiedades/ListadoPropiedades.astro';
 import Buscador from '@/components/Buscador.jsx';
 import BuscarButton from '@/components/BuscarButton';
 import Breadcrumbs from '@/components/Breadcrumbs.jsx';
-import { getCollection } from 'astro:content';
+import { getAllProperties } from '../../lib/properties';
 
 // Obtener todas las propiedades
-const allProperties = await getCollection('propiedades');
+const allProperties = await getAllProperties();
 const totalProperties = allProperties.length;
 
 // Metadata específica para la página

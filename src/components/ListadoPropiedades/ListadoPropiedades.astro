@@ -1,49 +1,78 @@
 ---
-// ListadoPropiedades.astro - Refactorizado
-import { getCollection } from 'astro:content';
-import CardMain from '@/components/Tarjetas/TarjetasPropiedades.jsx';
-import Pagination from '@/components/ListadoPropiedades/PaginacionListadoPropiedades.jsx';
-import Acordion from '@/components/PreguntasFrecuentes.jsx';
-import FiltroPropiedades from '@/components/ListadoPropiedades/FiltroListadoPropiedades.jsx';
-import { Chip } from '@heroui/react';
-import { TIPOS_PROPIEDAD_VENTA, TIPOS_PROPIEDAD_ALQUILER } from '@/components/Buscador.jsx';
-
-// Importar utils
+import CardMain from '../Tarjetas/TarjetasPropiedades.jsx';
+import Pagination from './PaginacionListadoPropiedades.jsx';
+import FiltroPropiedades from './FiltroListadoPropiedades.jsx';
+import Acordion from '../PreguntasFrecuentes.jsx';
+import { Chip } from "@heroui/react";
+import { getAllProperties } from '../../lib/properties';
+import { 
+  TIPOS_PROPIEDAD_VENTA, 
+  TIPOS_PROPIEDAD_ALQUILER 
+} from '../Buscador.jsx';
 import {
-  getSortedProperties,
-  calculatePagination,
-  validateSortKey,
   parseUrlFilters,
-  formatPrice,
-  generatePaginationInfo,
-  PAGE_SIZE
+  filterProperties,
+  calculatePagination,
+  PAGE_SIZE,
+  formatPrice
 } from '@/utils/index.js';
 
-// ===== CONFIGURACIÓN =====
-const PROPERTIES_PER_PAGE = PAGE_SIZE; // Usar constante centralizada
+// Obtener todas las propiedades
+const allProperties = await getAllProperties();
 
-// ===== LÓGICA PRINCIPAL =====
-const allProperties = await getCollection('propiedades');
+// Obtener filtros de la URL
+const urlFilters = parseUrlFilters(Astro.request.url);
+const sortKey = urlFilters.sort || 'title_asc';
 
-if (!allProperties || allProperties.length === 0) {
-  console.warn('No properties found in collection');
-}
+// Filtrar propiedades
+const filteredProperties = filterProperties(allProperties, {
+  operation: urlFilters.operation,
+  city: urlFilters.city,
+  propertyType: urlFilters.propertyType,
+  ambientes: urlFilters.ambientes,
+  search: urlFilters.search
+});
 
-// Parsear parámetros de URL usando utils
-const urlParams = parseUrlFilters(Astro.request.url);
-const sortKey = validateSortKey(urlParams.sort || 'title_asc');
+// Ordenar propiedades
+const sortedProperties = [...filteredProperties].sort((a, b) => {
+  switch (sortKey) {
+    case 'price_asc':
+      return (a.data.price || 0) - (b.data.price || 0);
+    case 'price_desc':
+      return (b.data.price || 0) - (a.data.price || 0);
+    case 'date_desc':
+      return new Date(b.data.createdAt || 0).getTime() - new Date(a.data.createdAt || 0).getTime();
+    case 'date_asc':
+      return new Date(a.data.createdAt || 0).getTime() - new Date(b.data.createdAt || 0).getTime();
+    case 'ambientes_asc':
+      return (a.data.ambientes || 0) - (b.data.ambientes || 0);
+    case 'ambientes_desc':
+      return (b.data.ambientes || 0) - (a.data.ambientes || 0);
+    case 'title_desc':
+      return (b.data.title || '').localeCompare(a.data.title || '');
+    case 'title_asc':
+    default:
+      return (a.data.title || '').localeCompare(b.data.title || '');
+  }
+});
 
-// Ordenar propiedades usando utils
-const sortedProperties = getSortedProperties(allProperties, sortKey);
-
-// Calcular paginación usando utils
+// Paginación
 const pagination = calculatePagination(
-  sortedProperties, 
-  PROPERTIES_PER_PAGE, 
-  urlParams.page || 1
+  sortedProperties,
+  PAGE_SIZE,
+  urlFilters.page || 1
 );
 
 // Generar información de paginación
+const generatePaginationInfo = (pagination) => {
+  const start = pagination.startIndex + 1;
+  const end = Math.min(pagination.startIndex + pagination.items.length, pagination.totalItems);
+  return {
+    showing: `Mostrando ${start}-${end} de ${pagination.totalItems} propiedades`,
+    pages: `Página ${pagination.currentPage} de ${pagination.totalPages}`
+  };
+};
+
 const paginationInfo = generatePaginationInfo(pagination);
 
 // Obtener tipos de propiedad únicos para los chips
@@ -53,8 +82,6 @@ const uniqueTipos = allTipos.filter((tipo, index, self) =>
     t.key === tipo.key
   ))
 );
-
-
 
 const pageTitle = 'Todas Nuestras Propiedades';
 
@@ -106,7 +133,7 @@ const structuredData = {
       </h1>
       <div class="flex justify-center flex-wrap gap-2 mb-4">
         {uniqueTipos.map(tipo => (
-            <Chip color="primary" size="sm" variant="flat">{tipo.label}</Chip>
+            <Chip client:load color="primary" size="sm" variant="flat">{tipo.label}</Chip>
         ))}
       </div>
       
@@ -122,7 +149,7 @@ const structuredData = {
       
       <!-- Indicador de ordenamiento actual -->
       {sortKey !== 'title_asc' && (
-        <Chip className='mt-4' color="primary" size="sm">
+        <Chip client:load className='mt-4' color="primary" size="sm">
           Ordenado por: {(() => {
             const sortLabels = {
               'price_asc': 'Precio: menor a mayor',
@@ -267,10 +294,6 @@ const structuredData = {
     contain: layout style;
   }
   
-  
-  
-  
-  
   /* Responsive improvements */
   @media (max-width: 640px) {
     .grid {
@@ -282,7 +305,4 @@ const structuredData = {
       font-size: 2rem;
     }
   }
-  
-
- 
 </style>
