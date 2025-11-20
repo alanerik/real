@@ -77,7 +77,7 @@ const featureIcons = {
 
 export default function FichaTecnica({ property }) {
   const { description, features } = property;
-  
+
   const chips = usePropertyChips(property);
   const gallery = usePropertyGallery(property);
   const detailsList = usePropertyDetailsList(property);
@@ -90,14 +90,14 @@ export default function FichaTecnica({ property }) {
   }));
 
   return (
-    <div className="font-sans grid grid-cols-1 lg:grid-cols-3 gap-8 py-16">
+    <div className="font-sans grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* --- Left Column --- */}
       <div className="lg:col-span-2">
         {/* --- Gallery --- */}
         <div className="mb-8">
           <GaleriaFichatecnica images={gallery} property={property} />
         </div>
-        
+
         {/* --- Header Card --- */}
         <Header property={property} headerData={headerData} chips={chips} />
 
@@ -105,9 +105,9 @@ export default function FichaTecnica({ property }) {
         <div className="space-y-6">
           {propertyFeatures && propertyFeatures.length > 0 && (
             <InfoCard>
-              <TabsComponent 
-                features={propertyFeatures} 
-                latitud={property.latitud} 
+              <TabsComponent
+                features={propertyFeatures}
+                latitud={property.latitud}
                 longitud={property.longitud}
                 property={property}
               />
