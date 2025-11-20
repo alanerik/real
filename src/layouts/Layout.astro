@@ -1,9 +1,8 @@
 ---
-import '@/styles/global.css'
-import Header from '@/components/Header.astro'
-import Footer from '@/components/Footer.astro'
+import "@/styles/global.css";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
 import { ClientRouter } from "astro:transitions";
-
 ---
 
 <!doctype html>
@@ -13,17 +12,22 @@ import { ClientRouter } from "astro:transitions";
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<meta name="description" content="Inmobiliaria en pinamar, tecnologia realstate" />
+		<meta
+			name="description"
+			content="Inmobiliaria en pinamar, tecnologia realstate"
+		/>
 		<title>RealState inmobiliaria</title>
 		<ClientRouter />
 	</head>
 	<body>
-		<Header/>
-			
-			<slot name="hero" />
-		<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+		<Header />
+
+		<slot name="hero" />
+		<main
+			class="max-w-5xl mx-auto px-4 lg:px-0 py-36 flex flex-col gap-36 md:px-6"
+		>
 			<slot />
 		</main>
-		<Footer/>
+		<Footer />
 	</body>
 </html>

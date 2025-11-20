@@ -1,4 +1,4 @@
-import {Accordion, AccordionItem} from "@heroui/react";
+import { Accordion, AccordionItem } from "@heroui/react";
 
 export default function App() {
   const faqs = [
@@ -26,7 +26,7 @@ export default function App() {
 
   return (
     <section class="py-16">
-      <div class="container mx-auto">
+      <div>
         <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Preguntas Frecuentes</h2>
         <Accordion selectionMode="multiple" variant="bordered">
           {faqs.map((faq) => (

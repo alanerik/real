@@ -25,13 +25,13 @@ const steps = [
 
 export default function PasoAPasoSection() {
   return (
-    <section className="w-full py-16 ">
-      <div className="container mx-auto ">
+    <section className="w-full">
+      <div>
         {/* Header */}
         <div className="text-center mb-16">
-          <Chip 
-            color="warning" 
-            variant="flat" 
+          <Chip
+            color="warning"
+            variant="flat"
             className="mb-4"
           >
             Proceso
@@ -49,28 +49,28 @@ export default function PasoAPasoSection() {
         ">
           <div className="flex flex-col md:flex-row items-stretch">
             {steps.reduce((acc, step, index) => {
-                acc.push(
-                    <div key={step.number} className="flex-1 lg:p-2">
-                        <div className="flex flex-col items-start gap-4">
-                            <span className="text-8xl font-bold bg-gradient-to-br from-green-400 to-green-600 bg-clip-text text-transparent leading-none">
-                                {step.number}
-                            </span>
-                            <h3 className="text-2xl font-bold text-black mb-2">
-                                {step.title}
-                            </h3>
-                            <p className="text-black/100 leading-relaxed">
-                                {step.description}
-                            </p>
-                        </div>
-                    </div>
-                );
+              acc.push(
+                <div key={step.number} className="flex-1 lg:p-2">
+                  <div className="flex flex-col items-start gap-4">
+                    <span className="text-8xl font-bold bg-gradient-to-br from-green-400 to-green-600 bg-clip-text text-transparent leading-none">
+                      {step.number}
+                    </span>
+                    <h3 className="text-2xl font-bold text-black mb-2">
+                      {step.title}
+                    </h3>
+                    <p className="text-black/100 leading-relaxed">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
+              );
 
-                if (index < steps.length - 1) {
-                    acc.push(<Divider key={`divider-h-${index}`} className="my-8 md:hidden" />);
-                    acc.push(<Divider key={`divider-v-${index}`} orientation="vertical" className="hidden md:block" />);
-                }
+              if (index < steps.length - 1) {
+                acc.push(<Divider key={`divider-h-${index}`} className="my-8 md:hidden" />);
+                acc.push(<Divider key={`divider-v-${index}`} orientation="vertical" className="hidden md:block" />);
+              }
 
-                return acc;
+              return acc;
             }, [])}
           </div>
         </Card>

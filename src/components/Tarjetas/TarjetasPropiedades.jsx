@@ -2,14 +2,14 @@ import { Card, CardBody, CardHeader, Image, Button, Chip, Skeleton } from "@hero
 import { memo, useState } from "react";
 import { navigate } from "astro:transitions/client";
 
-const CardMain = memo(function CardMain({ 
-  image, 
-  title, 
-  description, 
-  price, 
+const CardMain = memo(function CardMain({
+  image,
+  title,
+  description,
+  price,
   slug,
   imageAlt,
-  priority = false 
+  priority = false
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -18,9 +18,9 @@ const CardMain = memo(function CardMain({
       console.warn('CardMain: slug is required for navigation');
       return;
     }
-    
+
     const targetUrl = `/propiedades/detalles/${slug}`;
-    
+
     // Usar navigate para navegación SPA
     if (typeof navigate === 'function') {
       navigate(targetUrl);
@@ -41,7 +41,7 @@ const CardMain = memo(function CardMain({
             <Skeleton isLoaded={imageLoaded} className="w-full h-full rounded-t-lg">
               <Image isZoomed
                 alt={imageAlt || title || 'Imagen de propiedad'}
-                src={image}
+                src={image || null}
                 width="100%"
                 height="100%"
                 className="object-cover w-full h-full "
@@ -51,13 +51,13 @@ const CardMain = memo(function CardMain({
                 onLoad={() => setImageLoaded(true)}
               />
             </Skeleton>
-            
+
             {/* Chip de precio flotante */}
             <div className="absolute top-3 right-3 z-10">
               <Skeleton isLoaded={imageLoaded} className="rounded-full">
-                <Chip 
-                  color="success" 
-                  variant="solid" 
+                <Chip
+                  color="success"
+                  variant="solid"
                   size="md"
                   className="font-semibold shadow-lg"
                 >
@@ -79,7 +79,7 @@ const CardMain = memo(function CardMain({
                 </h3>
               )}
             </Skeleton>
-            
+
             {/* Descripción */}
             <div className="space-y-1">
               <Skeleton isLoaded={imageLoaded} className="w-full rounded-lg">
@@ -106,12 +106,12 @@ const CardMain = memo(function CardMain({
             className="w-full font-medium"
             onPress={handleCardClick}
             startContent={
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                strokeWidth={2} 
-                stroke="currentColor" 
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
                 className="w-4 h-4"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
