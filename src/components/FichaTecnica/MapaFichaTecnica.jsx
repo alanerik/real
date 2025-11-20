@@ -3,9 +3,9 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-const MapaFichaTecnica = ({ 
-  latitud, 
-  longitud, 
+const MapaFichaTecnica = ({
+  latitud,
+  longitud,
   titulo = '',
   tipo = '',
   precio = '',
@@ -15,14 +15,7 @@ const MapaFichaTecnica = ({
   // Don't render the map on the server or if coordinates are missing.
   if (typeof window === 'undefined' || !latitud || !longitud) {
     return (
-      <div style={{ 
-        height: '400px', 
-        width: '100%', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        backgroundColor: '#f3f4f6' 
-      }}>
+      <div className="h-[500px] w-full flex items-center justify-center bg-gray-100 text-gray-500 rounded-xl">
         Ubicación no disponible.
       </div>
     );
@@ -30,11 +23,10 @@ const MapaFichaTecnica = ({
 
   // Icono de casa sobre el pin de Leaflet
   const houseIconSvg = `
-    <div style="position: relative; display:flex; justify-content:center; align-items:center; width: 50px; height: 50px; background:white; border:4px solid black; ; border-radius:9999px;">
-     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+    <div class="relative flex justify-center items-center w-[50px] h-[50px] bg-white border-4 border-black rounded-full shadow-lg">
+     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
   <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205 3 1m1.5.5-1.5-.5M6.75 7.364V3h-3v18m3-13.636 10.5-3.819" />
 </svg>
-
     </div>
   `;
 
@@ -58,7 +50,7 @@ const MapaFichaTecnica = ({
         }
         .leaflet-popup-content-wrapper {
           padding: 0;
-          border-radius: 12px;
+          border-radius: 0.75rem;
           overflow: hidden;
         }
         .leaflet-popup-content {
@@ -68,58 +60,12 @@ const MapaFichaTecnica = ({
         .leaflet-popup-tip {
           background: white;
         }
-        .property-popup-container {
-          display: flex;
-          flex-direction: row;
-          background: white;
-        }
-        .property-popup-image {
-          width: 120px;
-          height: 140px;
-          object-fit: cover;
-          flex-shrink: 0;
-        }
-        .property-popup-content {
-          padding: 16px;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-        }
-        .property-popup-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: #1f2937;
-          margin-bottom: 8px;
-          line-height: 1.3;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-        .property-popup-type {
-          display: inline-block;
-          background: #e5e7eb;
-          color: #374151;
-          padding: 3px 10px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 500;
-          margin-bottom: 8px;
-          width: fit-content;
-        }
-        .property-popup-price {
-          font-size: 18px;
-          font-weight: 700;
-          color: #10b981;
-          margin-top: auto;
-        }
       `}</style>
-      
-      <MapContainer 
-        center={position} 
-        zoom={15} 
-        style={{ height: '400px', width: '100%' }}
+
+      <MapContainer
+        center={position}
+        zoom={15}
+        className="h-[500px] w-full z-0 rounded-xl overflow-hidden shadow-sm"
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -127,29 +73,29 @@ const MapaFichaTecnica = ({
         />
         <Marker position={position} icon={houseIcon}>
           <Popup>
-            <div className="property-popup-container">
+            <div className="flex bg-white w-full">
               {imagen && (
-                <img 
-                  src={imagen} 
+                <img
+                  src={imagen}
                   alt={titulo}
-                  className="property-popup-image"
+                  className="w-[120px] h-[140px] object-cover shrink-0"
                 />
               )}
-              <div className="property-popup-content">
+              <div className="p-4 flex-1 flex flex-col justify-between">
                 <div>
                   {titulo && (
-                    <div className="property-popup-title">
+                    <div className="text-sm font-semibold text-gray-800 mb-2 line-clamp-2 leading-snug">
                       {titulo}
                     </div>
                   )}
                   {tipo && (
-                    <span className="property-popup-type">
+                    <span className="inline-block bg-gray-200 text-gray-700 px-2.5 py-0.5 rounded-md text-xs font-medium mb-2 w-fit">
                       {tipo}
                     </span>
                   )}
                 </div>
                 {precio && (
-                  <div className="property-popup-price">
+                  <div className="text-lg font-bold text-emerald-500 mt-auto">
                     {moneda} {Number(precio).toLocaleString()}
                   </div>
                 )}

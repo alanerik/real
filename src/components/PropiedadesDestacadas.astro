@@ -1,0 +1,186 @@
+---
+/**
+ * PropiedadesDestacadas.astro
+ * Componente que muestra las propiedades destacadas en la página principal
+ */
+
+import TarjetaPropiedad from '@/components/Tarjetas/TarjetasPropiedades.jsx';
+import BuscarButton from '@/components/BuscarButton.jsx';
+import { Button } from '@heroui/react';
+import { getFeaturedProperties } from '../lib/properties';
+import { formatPrice } from '@/utils/index.js';
+
+// ===== CONFIGURACIÓN =====
+const FEATURED_PROPERTIES_COUNT = 4;
+const DEFAULT_CURRENCY = 'USD';
+
+// ===== FUNCIONES UTILITARIAS =====
+
+function generateStructuredData(properties) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Propiedades Destacadas",
+    "description": "Selección de propiedades destacadas",
+    "numberOfItems": properties.length,
+    "itemListElement": properties.map((property, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "RealEstateListing",
+        "name": property.data?.title || 'Propiedad sin título',
+        "description": property.data?.description || 'Sin descripción',
+        "image": property.data?.image || '/images/placeholder-property.webp',
+        "url": `${Astro.site || Astro.url.origin}/propiedades/detalles/${property.slug}`,
+        "address": property.data?.city ? {
+          "@type": "PostalAddress",
+          "addressLocality": property.data.city
+        } : undefined,
+        "offers": property.data?.price ? {
+          "@type": "Offer",
+          "price": property.data.price,
+          "priceCurrency": property.data?.currency || DEFAULT_CURRENCY,
+          "availability": "https://schema.org/InStock"
+        } : undefined
+      }
+    }))
+  };
+}
+
+// ===== LÓGICA PRINCIPAL =====
+let properties = [];
+let hasError = false;
+let errorMessage = '';
+
+try {
+  properties = await getFeaturedProperties(FEATURED_PROPERTIES_COUNT);
+  
+  if (!properties || properties.length === 0) {
+    // Si no hay destacadas, no mostramos nada o mostramos un array vacío
+    properties = [];
+  }
+} catch (error) {
+  console.error('❌ Error loading featured properties:', error);
+  hasError = true;
+  errorMessage = error.message || 'Error desconocido';
+}
+
+// Generar structured data solo si hay propiedades
+const structuredData = properties.length > 0 ? generateStructuredData(properties) : null;
+
+// ===== SEO Y METADATA =====
+const sectionTitle = 'Propiedades Destacadas';
+const sectionDescription = 'Oportunidades únicas y exclusivas seleccionadas especialmente para vos.';
+const sectionId = 'featured-properties';
+
+// Si no hay propiedades y no hay error, no renderizamos la sección
+if (!hasError && properties.length === 0) {
+  return null;
+}
+---
+
+<section 
+  id={sectionId}
+  aria-labelledby="featured-properties-heading"
+  class="py-12 bg-gray-50" 
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header Section -->
+    <header class="text-center mb-12">
+      <h2 
+        id="featured-properties-heading"
+        class="text-4xl font-bold text-gray-900 mb-4"
+      >
+        {sectionTitle}
+      </h2>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        {sectionDescription}
+      </p>
+    </header>
+
+    <!-- Content -->
+    {!hasError ? (
+      <>
+        <!-- Properties Grid -->
+        <div 
+          class="properties-grid"
+          role="list"
+          aria-label="Lista de propiedades destacadas"
+        >
+          {properties.map((property, index) => {
+            if (!property?.slug) return null;
+
+            return (
+              <div class="property-card-wrapper">
+                <TarjetaPropiedad 
+                  client:visible
+                  image={property.data?.image || '/images/placeholder-property.webp'} 
+                  title={property.data?.title || 'Título no disponible'} 
+                  description={property.data?.description || 'Descripción no disponible'} 
+                  price={formatPrice(property.data?.price, property.data?.currency)}
+                  slug={property.slug}
+                  imageAlt={`Imagen de ${property.data?.title || 'propiedad'}`}
+                  priority={true} 
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        <!-- Call to Action -->
+        <footer class="text-center mt-12">
+          <BuscarButton 
+            variant="header" 
+            client:idle
+          >
+            Ver todas las propiedades
+          </BuscarButton>
+        </footer>
+      </>
+    ) : (
+       import.meta.env.DEV && (
+        <div class="text-center text-red-500">
+            Error cargando destacados: {errorMessage}
+        </div>
+       )
+    )}
+  </div>
+
+  <!-- Structured Data for SEO -->
+  {structuredData && (
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  )}
+</section>
+
+<style>
+  /* Grid de propiedades responsive */
+  .properties-grid {
+    display: grid;
+    gap: 2rem;
+    width: 100%;
+  }
+
+  /* Mobile: 1 columna */
+  @media (max-width: 767px) {
+    .properties-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  /* Tablet: 2 columnas */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .properties-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  /* Desktop: 4 columnas */
+  @media (min-width: 1024px) {
+    .properties-grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+  }
+</style>

@@ -46,6 +46,7 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
         image_url: "",
         gallery_images: [] as string[],
         is_brand_new: false,
+        is_featured: false,
         features: "", // Comma separated string for input
         slug: "",
         latitud: "",
@@ -84,6 +85,7 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
                 expenses: data.expenses?.toString() || "",
                 gallery_images: data.gallery_images || [],
                 is_brand_new: data.is_brand_new || false,
+                is_featured: data.is_featured || false,
                 latitud: data.latitud?.toString() || "",
                 longitud: data.longitud?.toString() || "",
             });
@@ -431,6 +433,13 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
                                 onValueChange={(isSelected) => handleCheckboxChange("is_brand_new", isSelected)}
                             >
                                 A Estrenar
+                            </Checkbox>
+                            <Checkbox
+                                isSelected={formData.is_featured}
+                                onValueChange={(isSelected) => handleCheckboxChange("is_featured", isSelected)}
+                                color="warning"
+                            >
+                                Destacar Propiedad
                             </Checkbox>
                         </div>
 

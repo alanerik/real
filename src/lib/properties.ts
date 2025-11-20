@@ -44,6 +44,22 @@ export async function getLatestProperties(limit = 3) {
     return data.map(mapProperty);
 }
 
+export async function getFeaturedProperties(limit = 4) {
+    const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('is_featured', true)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+    if (error) {
+        console.error('Error fetching featured properties:', error);
+        return [];
+    }
+
+    return data.map(mapProperty);
+}
+
 function mapProperty(dbProp: any) {
     return {
         id: dbProp.id,
@@ -75,6 +91,7 @@ function mapProperty(dbProp: any) {
             publishDate: dbProp.created_at, // Fallback for publishDate
             gallery: dbProp.gallery_images || [],
             isBrandNew: dbProp.is_brand_new || false,
+            isFeatured: dbProp.is_featured || false,
             latitud: dbProp.latitud || null,
             longitud: dbProp.longitud || null,
         }

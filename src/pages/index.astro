@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Hero from "@/components/Hero.astro";
+import PropiedadesDestacadas from "@/components/PropiedadesDestacadas.astro";
 import UltimasPropiedades from "@/components/UltimasPropiedades.astro";
 import PreguntasFrecuentes from "@/components/PreguntasFrecuentes.jsx";
 
@@ -12,6 +13,7 @@ import Banner from "@/components/Banner.jsx";
 
 <Layout>
 	<Hero slot="hero" />
+	<PropiedadesDestacadas />
 	<UltimasPropiedades />
 	<Banner client:idle />
 
