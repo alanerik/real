@@ -14,7 +14,7 @@ export async function getAllProperties() {
     return data.map(mapProperty);
 }
 
-export async function getPropertyBySlug(slug) {
+export async function getPropertyBySlug(slug: string) {
     const { data, error } = await supabase
         .from('properties')
         .select('*')
@@ -44,7 +44,7 @@ export async function getLatestProperties(limit = 3) {
     return data.map(mapProperty);
 }
 
-function mapProperty(dbProp) {
+function mapProperty(dbProp: any) {
     return {
         id: dbProp.id,
         slug: dbProp.slug,
@@ -66,6 +66,7 @@ function mapProperty(dbProp) {
             totalArea: Number(dbProp.total_area) || 0,
             coveredArea: Number(dbProp.covered_area) || 0,
             semiCoveredArea: Number(dbProp.semi_covered_area) || 0,
+            landArea: Number(dbProp.land_area) || 0,
             status: dbProp.status || 'available',
             garage: !!dbProp.garage,
             antiquity: Number(dbProp.antiquity) || 0,

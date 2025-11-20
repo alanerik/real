@@ -22,6 +22,10 @@ export function usePropertyMeasurementsList(property) {
     measurements.push({ label: 'Superficie Semicubierta', value: `${property.semiCoveredArea} m²` });
   }
 
+  if (property.landArea) {
+    measurements.push({ label: 'Superficie Terreno', value: `${property.landArea} m²` });
+  }
+
   // Legacy fields support (optional, keep if old data exists)
   if (area && !property.totalArea) {
     measurements.push({ label: 'Superficie', value: `${area} m²` });

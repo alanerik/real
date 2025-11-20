@@ -38,6 +38,7 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
         total_area: "",
         covered_area: "",
         semi_covered_area: "",
+        land_area: "",
         status: "available",
         garage: false,
         antiquity: "",
@@ -78,6 +79,7 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
                 total_area: data.total_area?.toString() || "",
                 covered_area: data.covered_area?.toString() || "",
                 semi_covered_area: data.semi_covered_area?.toString() || "",
+                land_area: data.land_area?.toString() || "",
                 antiquity: data.antiquity?.toString() || "",
                 expenses: data.expenses?.toString() || "",
                 gallery_images: data.gallery_images || [],
@@ -198,6 +200,7 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
             total_area: Number(formData.total_area) || 0,
             covered_area: Number(formData.covered_area) || 0,
             semi_covered_area: Number(formData.semi_covered_area) || 0,
+            land_area: Number(formData.land_area) || 0,
             antiquity: Number(formData.antiquity) || 0,
             expenses: Number(formData.expenses) || 0,
             latitud: formData.latitud ? Number(formData.latitud) : null,
@@ -454,6 +457,13 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
                                 label="Semicubierta"
                                 name="semi_covered_area"
                                 value={formData.semi_covered_area}
+                                onChange={handleChange}
+                            />
+                            <Input
+                                type="number"
+                                label="Terreno"
+                                name="land_area"
+                                value={formData.land_area}
                                 onChange={handleChange}
                             />
                         </div>
