@@ -97,3 +97,20 @@ function mapProperty(dbProp: any) {
         }
     };
 }
+
+export async function getPropertiesBySlugs(slugs: string[]) {
+    if (!slugs || slugs.length === 0) return [];
+
+    const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .in('slug', slugs)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching properties by slugs:', error);
+        return [];
+    }
+
+    return data.map(mapProperty);
+}

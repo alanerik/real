@@ -1,6 +1,7 @@
 import { Card, CardBody, CardHeader, Image, Button, Chip, Skeleton } from "@heroui/react";
 import { memo, useState } from "react";
 import { navigate } from "astro:transitions/client";
+import FavoriteButton from "@/components/FavoriteButton";
 
 const CardMain = memo(function CardMain({
   image,
@@ -53,7 +54,7 @@ const CardMain = memo(function CardMain({
             </Skeleton>
 
             {/* Chip de precio flotante */}
-            <div className="absolute top-3 right-3 z-10">
+            <div className="absolute top-3 right-3 z-10 flex gap-2">
               <Skeleton isLoaded={imageLoaded} className="rounded-full">
                 <Chip
                   color="success"
@@ -63,6 +64,9 @@ const CardMain = memo(function CardMain({
                 >
                   {price || 'Consultar'}
                 </Chip>
+              </Skeleton>
+              <Skeleton isLoaded={imageLoaded} className="rounded-full">
+                <FavoriteButton slug={slug} title={title} />
               </Skeleton>
             </div>
           </div>

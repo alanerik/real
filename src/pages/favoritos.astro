@@ -1,0 +1,22 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import FavoritesList from "@/components/FavoritesList.jsx";
+import Banner from "@/components/Banner.jsx";
+---
+
+<Layout>
+    <div slot="hero" class="bg-gray-900 py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl font-bold text-white mb-4">Tus Favoritos</h1>
+            <p class="text-xl text-gray-300">
+                Las propiedades que más te gustaron, todas en un solo lugar.
+            </p>
+        </div>
+    </div>
+
+    <section class="py-12">
+        <FavoritesList client:only="react" />
+    </section>
+
+    <Banner client:idle />
+</Layout>
