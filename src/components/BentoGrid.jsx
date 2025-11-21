@@ -2,12 +2,12 @@ import React from "react";
 import { Card, CardHeader, CardBody, CardFooter, Image, Button, Link } from "@heroui/react";
 
 const neighborhoods = [
-    { title: "Lasalle", span: "md:col-span-2" },
-    { title: "Pioneros", span: "md:col-span-1" },
-    { title: "Barrio b5", span: "md:col-span-1" },
-    { title: "Pinamar Norte", span: "md:col-span-2" },
-    { title: "Alamos", span: "md:col-span-1" },
-    { title: "Bosques", span: "md:col-span-2" },
+    { title: "LASALLE", span: "md:col-span-2" },
+    { title: "PIONEROS", span: "md:col-span-1" },
+    { title: "BARRIO B5", span: "md:col-span-1" },
+    { title: "PINAMAR NORTE", span: "md:col-span-2" },
+    { title: "ALAMOS I", span: "md:col-span-1" },
+    { title: "BOSQUES", span: "md:col-span-2" },
 ];
 
 export default function BentoGrid() {
@@ -33,12 +33,14 @@ export default function BentoGrid() {
                         <Card
                             key={index}
                             isPressable
+                            isHoverable
                             className={`w-[90%] md:w-full flex-shrink-0 md:flex-shrink h-[200px] md:h-full relative border-none snap-center ${item.span} col-span-1`}
                         >
                             <Image
                                 removeWrapper
+
                                 alt={`Imagen de ${item.title}`}
-                                className="z-0 w-full h-full object-cover brightness-75 hover:brightness-50 transition-all duration-300"
+                                className="z-0 w-full h-full object-cover"
                                 src="/bosques.webp"
                             />
                             <CardFooter className="absolute z-10 top-0 bottom-0 left-0 right-0 flex justify-center items-center bg-black/20 hover:bg-black/40 transition-colors">
