@@ -1,5 +1,3 @@
-import React from 'react';
-
 export function usePropertyGallery(property) {
   // Use the main image as the first item, then the gallery images
   const mainImage = property.image || '/imgHeroBanner.webp';

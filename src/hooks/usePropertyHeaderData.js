@@ -1,5 +1,3 @@
-import React from 'react';
-
 export function usePropertyHeaderData(property) {
   if (!property) {
     return {};
