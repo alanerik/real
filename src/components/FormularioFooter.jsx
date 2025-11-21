@@ -1,9 +1,9 @@
 import React from "react";
 import { Form, Input, Button } from "@heroui/react";
+import { showToast } from "./ToastManager";
 
 export default function NoticiasInput() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [submitResult, setSubmitResult] = React.useState(null);
 
   // Form ID desde variable de entorno (Astro.js)
   const FORMSPREE_ID = import.meta.env.PUBLIC_FORMSPREE_ID || import.meta.env.PUBLIC_FORMSPREE_NEWSLETTER_ID;
@@ -11,9 +11,8 @@ export default function NoticiasInput() {
   // Función de envío
   const onSubmit = async (e) => {
     e.preventDefault();
-    
+
     setIsSubmitting(true);
-    setSubmitResult(null);
 
     try {
       // Obtener datos del formulario
@@ -51,30 +50,27 @@ export default function NoticiasInput() {
         throw new Error(`Error ${response.status}: Por favor verifica tu configuración de Formspree`);
       }
 
-      setSubmitResult({ 
-        type: 'success', 
-        message: '¡Gracias por suscribirte! Te mantendremos informado.' 
+      // Mostrar toast de éxito
+      showToast({
+        title: "¡Suscripción exitosa!",
+        description: "Gracias por suscribirte. Te mantendremos informado.",
+        color: "success",
+        timeout: 5000,
       });
-      
+
       // Reset del formulario
       e.target.reset();
-      
-      // Auto-hide success message after 4 seconds
-      setTimeout(() => {
-        setSubmitResult(null);
-      }, 4000);
-      
+
     } catch (error) {
       console.error('Error al suscribirse al newsletter:', error);
-      setSubmitResult({ 
-        type: 'error', 
-        message: error.message || 'Error al suscribirse. Intenta nuevamente.'
+
+      // Mostrar toast de error
+      showToast({
+        title: "Error al suscribirse",
+        description: error.message || 'Error al suscribirse. Intenta nuevamente.',
+        color: "danger",
+        timeout: 6000,
       });
-      
-      // Auto-hide error message after 6 seconds
-      setTimeout(() => {
-        setSubmitResult(null);
-      }, 6000);
     } finally {
       setIsSubmitting(false);
     }
@@ -83,41 +79,30 @@ export default function NoticiasInput() {
   return (
     <div className="w-full max-w-md">
       <Form className="w-full max-w-xs" onSubmit={onSubmit}>
-       
-          <Input
-           
-            required
-            type="email"
-             label="Email"
-        
-           
-            errorMessage="Por favor ingresa un email válido"
-            
-            isDisabled={isSubmitting}
-          />
-          
-          <Button
-            type="submit"
-            color="primary"
-            isLoading={isSubmitting}
-            isDisabled={isSubmitting}
-           className="mt-4"
-          >
-            {isSubmitting ? "Enviando..." : "Suscribirse"}
-          </Button>
-        
 
-        {/* Mensaje de resultado */}
-        {submitResult && (
-          <div className={`text-xs p-2 rounded-md ${
-            submitResult.type === 'success' 
-              ? 'text-green-700 bg-green-50 border border-green-200' 
-              : 'text-red-700 bg-red-50 border border-red-200'
-          }`}>
-            {submitResult.message}
-          </div>
-        )}
-        
+        <Input
+
+          required
+          type="email"
+          label="Email"
+
+
+          errorMessage="Por favor ingresa un email válido"
+
+          isDisabled={isSubmitting}
+        />
+
+        <Button
+          type="submit"
+          color="primary"
+          isLoading={isSubmitting}
+          isDisabled={isSubmitting}
+          className="mt-4"
+        >
+          {isSubmitting ? "Enviando..." : "Suscribirse"}
+        </Button>
+
+
         {/* Términos pequeños */}
         <p className="text-xs text-gray-500">
           Al suscribirte, aceptas recibir emails con ofertas y noticias inmobiliarias.
