@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import Hero from "@/components/Hero.astro";
 import PropiedadesDestacadas from "@/components/PropiedadesDestacadas.astro";
+import BentoGrid from "@/components/BentoGrid.jsx";
 
 import PreguntasFrecuentes from "@/components/PreguntasFrecuentes.jsx";
 
@@ -14,6 +15,7 @@ import Banner from "@/components/Banner.jsx";
 <Layout>
 	<Hero slot="hero" />
 	<PropiedadesDestacadas />
+	<BentoGrid client:visible />
 
 	<Banner client:idle />
 
