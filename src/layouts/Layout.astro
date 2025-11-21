@@ -9,7 +9,7 @@ import { HeroUIProvider } from "@heroui/react";
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="es">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -17,9 +17,49 @@ import { HeroUIProvider } from "@heroui/react";
 		<meta name="generator" content={Astro.generator} />
 		<meta
 			name="description"
-			content="Inmobiliaria en pinamar, tecnologia realstate"
+			content="Inmobiliaria en Pinamar, tecnología real estate. Encuentra tu propiedad ideal en la costa argentina."
 		/>
-		<title>RealState inmobiliaria</title>
+		<title>RealState Inmobiliaria | Pinamar</title>
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={Astro.url} />
+		<meta property="og:title" content="RealState Inmobiliaria | Pinamar" />
+		<meta
+			property="og:description"
+			content="Inmobiliaria en Pinamar, tecnología real estate. Encuentra tu propiedad ideal en la costa argentina."
+		/>
+		<meta property="og:image" content="/slider-1.webp" />
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content={Astro.url} />
+		<meta
+			property="twitter:title"
+			content="RealState Inmobiliaria | Pinamar"
+		/>
+		<meta
+			property="twitter:description"
+			content="Inmobiliaria en Pinamar, tecnología real estate. Encuentra tu propiedad ideal en la costa argentina."
+		/>
+		<meta property="twitter:image" content="/slider-1.webp" />
+
+		<!-- Resource Hints for Performance -->
+		<link
+			rel="preconnect"
+			href="https://fonts.googleapis.com"
+			crossorigin
+		/>
+		<link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+		<!-- Preload Critical Resources -->
+		<link
+			rel="preload"
+			as="image"
+			href="/slider-1.webp"
+			fetchpriority="high"
+		/>
+
 		<ClientRouter />
 	</head>
 	<body>

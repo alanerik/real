@@ -38,15 +38,16 @@ const CardMain = memo(function CardMain({
       >
         {/* Header con imagen */}
         <CardHeader className="p-0 overflow-hidden">
-          <div className="relative w-full h-48 overflow-hidden rounded-t-lg">
+          <div className="relative w-full aspect-[4/3] overflow-hidden rounded-t-lg">
             <Skeleton isLoaded={imageLoaded} className="w-full h-full rounded-t-lg">
               <Image isZoomed
                 alt={imageAlt || title || 'Imagen de propiedad'}
                 src={image || null}
-                width="100%"
-                height="100%"
-                className="object-cover w-full h-full "
+                width={400}
+                height={300}
+                className="object-cover w-full h-full"
                 loading={priority ? "eager" : "lazy"}
+                decoding="async"
                 removeWrapper
                 fallbackSrc="/images/placeholder-property.webp"
                 onLoad={() => setImageLoaded(true)}

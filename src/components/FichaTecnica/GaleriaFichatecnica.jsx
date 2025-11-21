@@ -1,6 +1,8 @@
-import React, { useState, useRef } from 'react';
-import { Chip, Button } from '@heroui/react';
-import MapaFichaTecnica from './MapaFichaTecnica.jsx';
+import React, { useState, useRef, Suspense } from 'react';
+import { Chip, Button, Image, Skeleton } from '@heroui/react';
+
+// Lazy load del mapa para reducir bundle inicial
+const MapaFichaTecnica = React.lazy(() => import('./MapaFichaTecnica.jsx'));
 
 const GaleriaFichatecnica = ({ images, property }) => {
   if (!images || images.length === 0) {
@@ -50,7 +52,13 @@ const GaleriaFichatecnica = ({ images, property }) => {
         </div>
         {showMap ? (
           <div className="w-full h-[500px]">
-            <MapaFichaTecnica latitud={property.latitud} longitud={property.longitud} />
+            <Suspense fallback={
+              <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                <Skeleton className="w-full h-full rounded-xl" />
+              </div>
+            }>
+              <MapaFichaTecnica latitud={property.latitud} longitud={property.longitud} />
+            </Suspense>
           </div>
         ) : (
           <>
@@ -61,16 +69,25 @@ const GaleriaFichatecnica = ({ images, property }) => {
             >
               {images.map((image, index) => (
                 <div className="snap-center flex-shrink-0 w-full h-[500px]" key={index}>
-                  <img src={image} alt={`Imagen de la propiedad ${index + 1}`} className="w-full h-full object-cover" />
+                  <Image
+                    src={image}
+                    alt={`Imagen de la propiedad ${index + 1}`}
+                    width={1200}
+                    height={500}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    decoding="async"
+                    className="w-full h-full object-cover"
+                    removeWrapper
+                  />
                 </div>
               ))}
             </div>
-            <div className="absolute bottom-4 right-4 z-10">
+            <div className="absolute bottom-4 right-4 z-[100]">
               <Chip>
                 {currentIndex + 1} / {images.length}
               </Chip>
             </div>
-            <div className="flex absolute top-1/2 -translate-y-1/2 w-full justify-between px-4">
+            <div className="flex absolute top-1/2 -translate-y-1/2 w-full justify-between px-4 z-[100]">
               <Button onClick={scrollLeft} disabled={currentIndex === 0} className="bg-white/50 text-black">
                 &#10094;
               </Button>

@@ -1,18 +1,19 @@
 ---
 // Footer.astro
-import NoticiasInput from './FormularioFooter.jsx';
-import LinkComponent from '@/components/Link.jsx';
-import { Divider, Card } from '@heroui/react';
+import NoticiasInput from "./FormularioFooter.jsx";
+import LinkComponent from "@/components/Link.jsx";
+import { Divider, Card } from "@heroui/react";
 
 // 📊 CONFIGURACIÓN DEL FOOTER - Toda la info centralizada
 const FOOTER_CONFIG = {
   // Información de la empresa
   brand: {
     name: "RealEstate",
-    tagline: "Tu partner inmobiliario de confianza en la Costa Atlántica Argentina. Encontrá la propiedad de tus sueños.",
+    tagline:
+      "Tu partner inmobiliario de confianza en la Costa Atlántica Argentina. Encontrá la propiedad de tus sueños.",
     location: "Pinamar, Buenos Aires",
     email: "info@realestate.com",
-    newsletterText: "Recibí las mejores ofertas y novedades inmobiliarias"
+    newsletterText: "Recibí las mejores ofertas y novedades inmobiliarias",
   },
 
   // Redes sociales
@@ -28,7 +29,7 @@ const FOOTER_CONFIG = {
     {
       name: "LinkedIn",
       url: "/",
-    }
+    },
   ],
 
   // Servicios
@@ -37,20 +38,20 @@ const FOOTER_CONFIG = {
     { name: "Compra", url: "/compra" },
     { name: "Alquiler Temporario", url: "/alquiler" },
     { name: "Tasaciones", url: "/tasaciones" },
-    { name: "Inversiones", url: "/inversiones" }
+    { name: "Inversiones", url: "/inversiones" },
   ],
 
   // Ciudades
   ciudades: [
     { name: "Pinamar", url: "/pinamar" },
-    { name: "Cariló", url: "/carilo"},
+    { name: "Cariló", url: "/carilo" },
     { name: "Valeria del Mar", url: "/valeria-del-mar" },
     { name: "Juan Madariaga", url: "/juan-madariaga" },
-    { name: "Costa Esmeralda", url: "/costa-esmeralda" }
+    { name: "Costa Esmeralda", url: "/costa-esmeralda" },
   ],
 
   // Copyright
-  copyright: `© ${new Date().getFullYear()} RealEstate. Todos los derechos reservados.`
+  copyright: `© ${new Date().getFullYear()} RealEstate. Todos los derechos reservados.`,
 };
 
 // 🎨 ESTILOS - Clases CSS centralizadas
@@ -71,7 +72,6 @@ const STYLES = {
   <div class={STYLES.container}>
     <!-- Main Footer Content -->
     <div class={STYLES.grid}>
-      
       <!-- Brand Section -->
       <div class={STYLES.section}>
         <div class="flex items-center space-x-3">
@@ -90,11 +90,13 @@ const STYLES = {
           <span>Servicios</span>
         </h4>
         <nav class="space-y-3">
-          {FOOTER_CONFIG.servicios.map(servicio => (
-            <LinkComponent href={servicio.url} color="success" client:idle>
-              {servicio.name}
-            </LinkComponent>
-          ))}
+          {
+            FOOTER_CONFIG.servicios.map((servicio) => (
+              <LinkComponent href={servicio.url} color="success" client:idle>
+                {servicio.name}
+              </LinkComponent>
+            ))
+          }
         </nav>
       </div>
 
@@ -104,11 +106,13 @@ const STYLES = {
           <span>Ciudades</span>
         </h4>
         <nav class="space-y-3">
-          {FOOTER_CONFIG.ciudades.map(ciudad => (
-            <LinkComponent href={ciudad.url} color="success" client:idle>
-              {ciudad.name}
-            </LinkComponent>
-          ))}
+          {
+            FOOTER_CONFIG.ciudades.map((ciudad) => (
+              <LinkComponent href={ciudad.url} color="success" client:idle>
+                {ciudad.name}
+              </LinkComponent>
+            ))
+          }
         </nav>
       </div>
 
@@ -117,28 +121,56 @@ const STYLES = {
         <h4 class={STYLES.sectionTitle}>
           <span>Contacto</span>
         </h4>
-        
+
         <div class="space-y-4">
           <div class={STYLES.contactInfo}>
-            <svg class={`${STYLES.contactIcon} text-blue-500`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <svg
+              class={`${STYLES.contactIcon} text-blue-500`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              ></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
             <span>{FOOTER_CONFIG.brand.location}</span>
           </div>
-          
+
           <div class={STYLES.contactInfo}>
-            <svg class={`${STYLES.contactIcon} text-green-500`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            <svg
+              class={`${STYLES.contactIcon} text-green-500`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              ></path>
             </svg>
-            <a href={`mailto:${FOOTER_CONFIG.brand.email}`} class="hover:text-black transition-colors">
+            <a
+              href={`mailto:${FOOTER_CONFIG.brand.email}`}
+              class="hover:text-black transition-colors"
+              aria-label={`Enviar correo a ${FOOTER_CONFIG.brand.email}`}
+            >
               {FOOTER_CONFIG.brand.email}
             </a>
           </div>
         </div>
 
         <!-- Newsletter Section -->
-        <Card className='space-y-4 p-4'>
+        <Card className="space-y-4 p-4">
           <h5 class="text-sm font-semibold text-black mb-2">Newsletter</h5>
           <p class="text-xs text-gray-600 mb-3">
             {FOOTER_CONFIG.brand.newsletterText}
@@ -151,18 +183,27 @@ const STYLES = {
     <!-- Divider -->
     <div>
       <Divider className="my-12 " />
-      <div class="flex flex-col-reverse md:flex-row justify-between items-center gap-4 md:space-y-0">
-        <p class={STYLES.copyright} >
+      <div
+        class="flex flex-col-reverse md:flex-row justify-between items-center gap-4 md:space-y-0"
+      >
+        <p class={STYLES.copyright}>
           {FOOTER_CONFIG.copyright}
         </p>
-      
-       <!-- Social Media -->
-        <div class="flex space-x-4 ">
-          {FOOTER_CONFIG.socialMedia.map(social => (
-            <LinkComponent isExternal href={social.url} color="primary" client:idle>
-              {social.name}
-            </LinkComponent>
-          ))}
+
+        <!-- Social Media -->
+        <div class="flex space-x-4">
+          {
+            FOOTER_CONFIG.socialMedia.map((social) => (
+              <LinkComponent
+                isExternal
+                href={social.url}
+                color="primary"
+                client:idle
+              >
+                {social.name}
+              </LinkComponent>
+            ))
+          }
         </div>
       </div>
     </div>

@@ -1,17 +1,25 @@
 ---
-import BuscarButton from '@/components/BuscarButton.jsx';
-import Buscador from '@/components/Buscador.jsx';
-import { Image } from 'astro:assets'; // Import Image component
-import sliderImage from '/public/slider-1.webp'; // Import the image directly
-
+import BuscarButton from "@/components/BuscarButton.jsx";
+import Buscador from "@/components/Buscador.jsx";
+import { Image } from "astro:assets";
+import sliderImage from "/public/slider-1.webp";
 ---
 
 <section class="relative h-[620px] bg-cover bg-center">
-    <Image src={sliderImage} loading={"eager"} fetchpriority={"high"} alt="Hero Background" class="absolute inset-0 w-full h-full object-cover -z-10" />
-    <div class="absolute inset-0 bg-gradient-to-b from-[var(--gradient-color)] from-10% to-transparent 110%"></div>
+    <Image
+        src={sliderImage}
+        loading={"eager"}
+        fetchpriority={"high"}
+        alt="Hero Background"
+        width={1920}
+        height={620}
+        class="absolute inset-0 w-full h-full object-cover -z-10"
+    />
+    <div
+        class="absolute inset-0 bg-gradient-to-b from-[var(--gradient-color)] from-10% to-transparent 110%"
+    >
+    </div>
     <div class="relative z-10 flex flex-col items-center justify-center h-full">
-        
-
         <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col items-center justify-center gap-4">
                 <div class="w-full">
@@ -26,8 +34,7 @@ import sliderImage from '/public/slider-1.webp'; // Import the image directly
 </section>
 
 <style>
-section {
-    --gradient-color:#0D4715 ;
-    /* --url-img: url(/slider-1.webp); Removed */
-}
+    section {
+        --gradient-color: #0d4715;
+    }
 </style>

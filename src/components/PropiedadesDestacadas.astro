@@ -120,7 +120,7 @@ if (!hasError && properties.length === 0) {
                   price={formatPrice(property.data?.price, property.data?.currency)}
                   slug={property.slug}
                   imageAlt={`Imagen de ${property.data?.title || 'propiedad'}`}
-                  priority={true} 
+                  priority={index < 2} 
                 />
               </div>
             );

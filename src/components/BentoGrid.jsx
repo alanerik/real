@@ -38,10 +38,13 @@ export default function BentoGrid() {
                         >
                             <Image
                                 removeWrapper
-
                                 alt={`Imagen de ${item.title}`}
                                 className="z-0 w-full h-full object-cover"
                                 src="/bosques.webp"
+                                width={600}
+                                height={300}
+                                loading={index < 2 ? "eager" : "lazy"}
+                                decoding="async"
                             />
                             <CardFooter className="absolute z-10 top-0 bottom-0 left-0 right-0 flex justify-center items-center bg-black/20 hover:bg-black/40 transition-colors">
                                 <h3 className="text-white font-bold text-3xl drop-shadow-lg tracking-wide text-center px-4">
