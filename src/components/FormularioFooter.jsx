@@ -79,16 +79,12 @@ export default function NoticiasInput() {
   return (
     <div className="w-full max-w-md">
       <Form className="w-full max-w-xs" onSubmit={onSubmit}>
-
         <Input
-
+          name="email"
           required
           type="email"
           label="Email"
-
-
           errorMessage="Por favor ingresa un email válido"
-
           isDisabled={isSubmitting}
         />
 
@@ -101,7 +97,6 @@ export default function NoticiasInput() {
         >
           {isSubmitting ? "Enviando..." : "Suscribirse"}
         </Button>
-
 
         {/* Términos pequeños */}
         <p className="text-xs text-gray-500">
