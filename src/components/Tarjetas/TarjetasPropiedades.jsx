@@ -54,7 +54,13 @@ const CardMain = memo(function CardMain({
             </Skeleton>
 
             {/* Chip de precio flotante */}
-            <div className="absolute top-3 right-3 z-10 flex gap-2">
+            <div className="absolute top-3 right-3 z-10">
+              <Skeleton isLoaded={imageLoaded} className="rounded-full">
+                <FavoriteButton slug={slug} title={title} />
+              </Skeleton>
+            </div>
+
+            <div className="absolute bottom-3 left-3 z-10">
               <Skeleton isLoaded={imageLoaded} className="rounded-full">
                 <Chip
                   color="success"
@@ -64,9 +70,6 @@ const CardMain = memo(function CardMain({
                 >
                   {price || 'Consultar'}
                 </Chip>
-              </Skeleton>
-              <Skeleton isLoaded={imageLoaded} className="rounded-full">
-                <FavoriteButton slug={slug} title={title} />
               </Skeleton>
             </div>
           </div>
