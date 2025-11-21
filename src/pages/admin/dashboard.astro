@@ -1,9 +1,9 @@
 ---
-import Layout from "../../layouts/Layout.astro";
+import AdminLayout from "../../layouts/AdminLayout.astro";
 import Dashboard from "../../components/admin/Dashboard";
 ---
 
-<Layout title="Panel de Administración">
+<AdminLayout title="Panel de Administración">
     <div class="min-h-screen bg-gray-100">
         <nav class="bg-white shadow-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,7 +28,7 @@ import Dashboard from "../../components/admin/Dashboard";
             <Dashboard client:only="react" />
         </main>
     </div>
-</Layout>
+</AdminLayout>
 
 <script>
     import { supabase } from "../../lib/supabase";
