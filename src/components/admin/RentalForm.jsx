@@ -3,7 +3,7 @@ import { Input, Button, Select, SelectItem, Textarea, DatePicker, Tabs, Tab } fr
 import { createRental, updateRental, getRentalById } from '../../lib/rentals';
 import { getAllProperties } from '../../lib/properties';
 import { parseDate, getLocalTimeZone } from "@internationalized/date";
-import PaymentManager from './PaymentManager';
+import PaymentTab from './PaymentTab';
 import DocumentManager from './DocumentManager';
 
 /**
@@ -17,6 +17,7 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
         property_id: '',
         tenant_name: '',
         tenant_contact: '',
+        tenant_email: '',
         start_date: null,
         end_date: null,
         status: 'pending',
@@ -157,6 +158,15 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
                                     onValueChange={(val) => handleChange('tenant_contact', val)}
                                 />
 
+                                <Input
+                                    type="email"
+                                    label="Email del Inquilino"
+                                    placeholder="inquilino@ejemplo.com"
+                                    value={formData.tenant_email}
+                                    onValueChange={(val) => handleChange('tenant_email', val)}
+                                    description="Email para enviar la invitación al portal"
+                                />
+
                                 <DatePicker
                                     label="Fecha Inicio"
                                     value={formData.start_date}
@@ -214,7 +224,7 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
                     <Tab key="payments" title="Pagos" isDisabled={!rentalId}>
                         <div className="mt-4">
                             {rentalId ? (
-                                <PaymentManager rentalId={rentalId} />
+                                <PaymentTab rentalId={rentalId} />
                             ) : (
                                 <p className="text-gray-500">Guarda el alquiler primero para gestionar pagos.</p>
                             )}
