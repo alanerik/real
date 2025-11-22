@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Button, Chip, Tabs, Tab, Tooltip } from "@heroui/react";
 import { getRentals, deleteRental } from '../../lib/rentals';
+import { sendTenantInvitation } from '../../lib/auth-tenant';
 import RentalCalendar from './RentalCalendar';
 import PaymentManager from './PaymentManager';
 
@@ -28,20 +29,26 @@ export default function Rentals() {
         }
     };
 
-    const handleInvite = (rental) => {
+    const handleInvite = async (rental) => {
         if (!rental.tenant_email) {
             alert('Este alquiler no tiene un email de inquilino configurado.');
             return;
         }
 
-        const inviteUrl = `${window.location.origin}/tenant/accept-invitation?email=${encodeURIComponent(rental.tenant_email)}`;
+        if (!confirm(`¿Enviar invitación por email a ${rental.tenant_email}?`)) {
+            return;
+        }
 
-        // Copy to clipboard
-        navigator.clipboard.writeText(inviteUrl).then(() => {
-            alert(`Link de invitación copiado al portapapeles:\\n\\n${inviteUrl}\\n\\nEnvíalo al inquilino para que cree su cuenta.`);
-        }).catch(() => {
-            alert(`Link de invitación:\\n\\n${inviteUrl}\\n\\nCopia este link y envíalo al inquilino.`);
-        });
+        try {
+            await sendTenantInvitation(rental.id, rental.tenant_email, rental.properties?.title);
+            alert(`Invitación enviada correctamente a ${rental.tenant_email}`);
+        } catch (error) {
+            console.error('Error sending invite:', error);
+
+            // Fallback to clipboard if email fails
+            const inviteUrl = `${window.location.origin}/tenant/accept-invitation?email=${encodeURIComponent(rental.tenant_email)}`;
+            alert(`Error al enviar email. Puedes copiar el link manual:\n\n${inviteUrl}`);
+        }
     };
 
     const columns = [

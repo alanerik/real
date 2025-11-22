@@ -70,7 +70,7 @@ export const linkTenantToRental = async (rentalId: string, userId: string) => {
  * Send invitation email to tenant
  * This would typically integrate with an email service
  */
-export const sendTenantInvitation = async (rentalId: string, email: string) => {
+export const sendTenantInvitation = async (rentalId: string, email: string, propertyTitle?: string) => {
     // First, update the rental with the tenant email
     const { error: updateError } = await supabase
         .from('rentals')
@@ -82,19 +82,39 @@ export const sendTenantInvitation = async (rentalId: string, email: string) => {
         throw updateError;
     }
 
-    // In a real implementation, you would:
-    // 1. Generate a secure invitation token
-    // 2. Send an email with a link like: /tenant/accept-invitation?token=xxx
-    // 3. When they click, they create their account and get linked to the rental
+    // Generate the invitation link
+    const inviteUrl = `${window.location.origin}/tenant/accept-invitation?email=${encodeURIComponent(email)}`;
 
-    // For now, we'll return a success message
-    // You can integrate with services like SendGrid, Resend, or Supabase Edge Functions
+    // Call the API to send the email
+    try {
+        const response = await fetch('/api/send-invite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email,
+                propertyTitle,
+            }),
+        });
 
-    return {
-        success: true,
-        message: `Invitation would be sent to ${email}`,
-        // In production, you'd return the invitation link or confirmation
-    };
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error?.message || result.message || 'Failed to send email');
+        }
+
+        return {
+            success: true,
+            message: `Invitación enviada a ${email}`,
+            data: result
+        };
+    } catch (error) {
+        console.error('Error sending invitation email:', error);
+        // Even if email fails, we updated the DB, so we might want to return partial success or throw
+        // For now, let's throw so the UI knows the email failed
+        throw error;
+    }
 };
 
 /**
