@@ -97,20 +97,23 @@ export default function Rentals() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-800">Gestión de Alquileres</h2>
-                <div className="flex gap-3">
+        <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Gestión de Alquileres</h2>
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                     <Button
                         color="default"
                         variant="light"
                         onPress={() => window.location.href = '/admin/dashboard'}
+                        className="w-full sm:w-auto"
                     >
-                        Volver al Dashboard
+                        <span className="hidden sm:inline">Volver al Dashboard</span>
+                        <span className="sm:hidden">Dashboard</span>
                     </Button>
                     <Button
                         color="primary"
                         onPress={() => window.location.href = '/admin/rentals/new'}
+                        className="w-full sm:w-auto"
                     >
                         Nuevo Alquiler
                     </Button>

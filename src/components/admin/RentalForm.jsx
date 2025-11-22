@@ -93,139 +93,144 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
+        <div className="w-full space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                     {rentalId ? 'Editar Alquiler' : 'Nuevo Alquiler'}
                 </h2>
                 <Button
                     color="default"
                     variant="light"
                     onPress={() => window.location.href = '/admin/rentals'}
+                    className="w-full sm:w-auto"
                 >
-                    Volver a la lista
+                    <span className="hidden sm:inline">Volver a la lista</span>
+                    <span className="sm:hidden">Lista</span>
                 </Button>
             </div>
 
-            <Tabs aria-label="Opciones de Alquiler">
-                <Tab key="general" title="General">
-                    <form onSubmit={handleSubmit} className="space-y-6 mt-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Select
-                                label="Propiedad"
-                                placeholder="Seleccionar propiedad"
-                                selectedKeys={formData.property_id ? [formData.property_id] : []}
-                                onChange={(e) => handleChange('property_id', e.target.value)}
-                                isRequired
-                            >
-                                {properties.map((prop) => (
-                                    <SelectItem key={prop.id} value={prop.id}>
-                                        {prop.data.title}
-                                    </SelectItem>
-                                ))}
-                            </Select>
+            <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
 
-                            <Select
-                                label="Estado"
-                                placeholder="Seleccionar estado"
-                                selectedKeys={[formData.status]}
-                                onChange={(e) => handleChange('status', e.target.value)}
-                                isRequired
-                            >
-                                <SelectItem key="pending" value="pending">Pendiente</SelectItem>
-                                <SelectItem key="active" value="active">Activo</SelectItem>
-                                <SelectItem key="completed" value="completed">Completado</SelectItem>
-                                <SelectItem key="cancelled" value="cancelled">Cancelado</SelectItem>
-                            </Select>
+                <Tabs aria-label="Opciones de Alquiler">
+                    <Tab key="general" title="General">
+                        <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <Select
+                                    label="Propiedad"
+                                    placeholder="Seleccionar propiedad"
+                                    selectedKeys={formData.property_id ? [formData.property_id] : []}
+                                    onChange={(e) => handleChange('property_id', e.target.value)}
+                                    isRequired
+                                >
+                                    {properties.map((prop) => (
+                                        <SelectItem key={prop.id} value={prop.id}>
+                                            {prop.data.title}
+                                        </SelectItem>
+                                    ))}
+                                </Select>
 
-                            <Input
-                                label="Nombre del Inquilino"
-                                placeholder="Nombre completo"
-                                value={formData.tenant_name}
-                                onValueChange={(val) => handleChange('tenant_name', val)}
-                                isRequired
+                                <Select
+                                    label="Estado"
+                                    placeholder="Seleccionar estado"
+                                    selectedKeys={[formData.status]}
+                                    onChange={(e) => handleChange('status', e.target.value)}
+                                    isRequired
+                                >
+                                    <SelectItem key="pending" value="pending">Pendiente</SelectItem>
+                                    <SelectItem key="active" value="active">Activo</SelectItem>
+                                    <SelectItem key="completed" value="completed">Completado</SelectItem>
+                                    <SelectItem key="cancelled" value="cancelled">Cancelado</SelectItem>
+                                </Select>
+
+                                <Input
+                                    label="Nombre del Inquilino"
+                                    placeholder="Nombre completo"
+                                    value={formData.tenant_name}
+                                    onValueChange={(val) => handleChange('tenant_name', val)}
+                                    isRequired
+                                />
+
+                                <Input
+                                    label="Contacto"
+                                    placeholder="Teléfono o Email"
+                                    value={formData.tenant_contact}
+                                    onValueChange={(val) => handleChange('tenant_contact', val)}
+                                />
+
+                                <DatePicker
+                                    label="Fecha Inicio"
+                                    value={formData.start_date}
+                                    onChange={(val) => handleChange('start_date', val)}
+                                    isRequired
+                                />
+
+                                <DatePicker
+                                    label="Fecha Fin"
+                                    value={formData.end_date}
+                                    onChange={(val) => handleChange('end_date', val)}
+                                    isRequired
+                                />
+
+                                <Input
+                                    type="number"
+                                    label="Monto Total"
+                                    placeholder="0.00"
+                                    startContent={
+                                        <div className="pointer-events-none flex items-center">
+                                            <span className="text-default-400 text-small">$</span>
+                                        </div>
+                                    }
+                                    value={formData.total_amount}
+                                    onValueChange={(val) => handleChange('total_amount', val)}
+                                />
+                            </div>
+
+                            <Textarea
+                                label="Notas"
+                                placeholder="Notas adicionales..."
+                                value={formData.notes}
+                                onValueChange={(val) => handleChange('notes', val)}
                             />
 
-                            <Input
-                                label="Contacto"
-                                placeholder="Teléfono o Email"
-                                value={formData.tenant_contact}
-                                onValueChange={(val) => handleChange('tenant_contact', val)}
-                            />
-
-                            <DatePicker
-                                label="Fecha Inicio"
-                                value={formData.start_date}
-                                onChange={(val) => handleChange('start_date', val)}
-                                isRequired
-                            />
-
-                            <DatePicker
-                                label="Fecha Fin"
-                                value={formData.end_date}
-                                onChange={(val) => handleChange('end_date', val)}
-                                isRequired
-                            />
-
-                            <Input
-                                type="number"
-                                label="Monto Total"
-                                placeholder="0.00"
-                                startContent={
-                                    <div className="pointer-events-none flex items-center">
-                                        <span className="text-default-400 text-small">$</span>
-                                    </div>
-                                }
-                                value={formData.total_amount}
-                                onValueChange={(val) => handleChange('total_amount', val)}
-                            />
+                            <div className="flex justify-end gap-4">
+                                <Button
+                                    color="primary"
+                                    type="submit"
+                                    isLoading={loading}
+                                >
+                                    {rentalId ? 'Guardar Cambios' : 'Guardar y Continuar'}
+                                </Button>
+                                <Button
+                                    color="success"
+                                    className="text-white"
+                                    onPress={() => saveRental(true)}
+                                    isLoading={loading}
+                                >
+                                    Guardar y Salir
+                                </Button>
+                            </div>
+                        </form>
+                    </Tab>
+                    <Tab key="payments" title="Pagos" isDisabled={!rentalId}>
+                        <div className="mt-4">
+                            {rentalId ? (
+                                <PaymentManager rentalId={rentalId} />
+                            ) : (
+                                <p className="text-gray-500">Guarda el alquiler primero para gestionar pagos.</p>
+                            )}
                         </div>
-
-                        <Textarea
-                            label="Notas"
-                            placeholder="Notas adicionales..."
-                            value={formData.notes}
-                            onValueChange={(val) => handleChange('notes', val)}
-                        />
-
-                        <div className="flex justify-end gap-4">
-                            <Button
-                                color="primary"
-                                type="submit"
-                                isLoading={loading}
-                            >
-                                {rentalId ? 'Guardar Cambios' : 'Guardar y Continuar'}
-                            </Button>
-                            <Button
-                                color="success"
-                                className="text-white"
-                                onPress={() => saveRental(true)}
-                                isLoading={loading}
-                            >
-                                Guardar y Salir
-                            </Button>
+                    </Tab>
+                    <Tab key="documents" title="Documentos" isDisabled={!rentalId}>
+                        <div className="mt-4">
+                            {rentalId ? (
+                                <DocumentManager rentalId={rentalId} />
+                            ) : (
+                                <p className="text-gray-500">Guarda el alquiler primero para gestionar documentos.</p>
+                            )}
                         </div>
-                    </form>
-                </Tab>
-                <Tab key="payments" title="Pagos" isDisabled={!rentalId}>
-                    <div className="mt-4">
-                        {rentalId ? (
-                            <PaymentManager rentalId={rentalId} />
-                        ) : (
-                            <p className="text-gray-500">Guarda el alquiler primero para gestionar pagos.</p>
-                        )}
-                    </div>
-                </Tab>
-                <Tab key="documents" title="Documentos" isDisabled={!rentalId}>
-                    <div className="mt-4">
-                        {rentalId ? (
-                            <DocumentManager rentalId={rentalId} />
-                        ) : (
-                            <p className="text-gray-500">Guarda el alquiler primero para gestionar documentos.</p>
-                        )}
-                    </div>
-                </Tab>
-            </Tabs>
+                    </Tab>
+                </Tabs>
+            </div>
         </div>
     );
 }

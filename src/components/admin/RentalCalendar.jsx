@@ -42,27 +42,28 @@ export default function RentalCalendar({ rentals }) {
     );
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold capitalize">
+        <div className="bg-white p-3 sm:p-6 rounded-lg shadow">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                <h2 className="text-base sm:text-xl font-bold capitalize">
                     {currentDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' })}
                 </h2>
-                <div className="flex gap-2">
-                    <Button size="sm" variant="flat" onPress={prevMonth}>Anterior</Button>
-                    <Button size="sm" variant="flat" onPress={nextMonth}>Siguiente</Button>
+                <div className="flex gap-2 w-full sm:w-auto">
+                    <Button size="sm" variant="flat" onPress={prevMonth} className="flex-1 sm:flex-none">Anterior</Button>
+                    <Button size="sm" variant="flat" onPress={nextMonth} className="flex-1 sm:flex-none">Siguiente</Button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-7 gap-2 mb-2">
-                {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
-                    <div key={day} className="text-center font-semibold text-gray-500 text-sm py-2">
-                        {day}
+            <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
+                {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day, idx) => (
+                    <div key={day} className="text-center font-semibold text-gray-500 text-xs sm:text-sm py-1 sm:py-2">
+                        <span className="hidden sm:inline">{day}</span>
+                        <span className="sm:hidden">{day.charAt(0)}</span>
                     </div>
                 ))}
             </div>
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1 sm:gap-2">
                 {emptyDays.map(i => (
-                    <div key={`empty-${i}`} className="h-32 bg-gray-50 rounded-lg"></div>
+                    <div key={`empty-${i}`} className="h-20 sm:h-32 bg-gray-50 rounded-lg"></div>
                 ))}
                 {days.map(day => {
                     const dayRentals = getRentalsForDay(day);
@@ -70,8 +71,8 @@ export default function RentalCalendar({ rentals }) {
                     const hiddenCount = dayRentals.length - 2;
 
                     return (
-                        <div key={day} className="h-32 border border-gray-200 rounded-lg p-2 flex flex-col">
-                            <div className="text-right text-sm font-medium text-gray-700 mb-1">{day}</div>
+                        <div key={day} className="h-20 sm:h-32 border border-gray-200 rounded-lg p-1 sm:p-2 flex flex-col">
+                            <div className="text-right text-xs sm:text-sm font-medium text-gray-700 mb-1">{day}</div>
                             <div className="flex-1 overflow-hidden">
                                 {visibleRentals.map(renderRentalChip)}
                                 {hiddenCount > 0 && (

@@ -233,13 +233,14 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
 
     return (
         <HeroUIProvider>
-            <div className="w-full space-y-6">
-                <div className="flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-gray-800">
+            <div className="w-full space-y-4 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
                         {propertyId ? "Editar Propiedad" : "Nueva Propiedad"}
                     </h1>
-                    <Button as="a" href="/admin/dashboard" color="default" variant="light">
-                        Volver al Dashboard
+                    <Button as="a" href="/admin/dashboard" color="default" variant="light" className="w-full sm:w-auto">
+                        <span className="hidden sm:inline">Volver al Dashboard</span>
+                        <span className="sm:hidden">Dashboard</span>
                     </Button>
                 </div>
                 <Card className="w-full">
