@@ -1,12 +1,14 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import PropertyForm from "../../../components/admin/PropertyForm";
+import RentalForm from "../../../components/admin/RentalForm";
+
+const { id } = Astro.params;
 ---
 
-<AdminLayout title="Add New Property">
+<AdminLayout title="Editar Alquiler">
     <div class="min-h-screen bg-gray-100 py-10">
         <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <PropertyForm client:only="react" />
+            <RentalForm client:only="react" rentalId={id} />
         </main>
     </div>
 </AdminLayout>

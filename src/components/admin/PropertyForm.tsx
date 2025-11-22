@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
     Card,
-    CardHeader,
     CardBody,
     CardFooter,
     Input,
@@ -234,336 +233,334 @@ export default function PropertyForm({ propertyId }: PropertyFormProps) {
 
     return (
         <HeroUIProvider>
-            <Card className="w-full max-w-4xl mx-auto">
-                <CardHeader className="flex justify-between items-center">
-                    <h1 className="text-2xl font-bold">
+            <div className="w-full space-y-6">
+                <div className="flex justify-between items-center">
+                    <h1 className="text-2xl font-bold text-gray-800">
                         {propertyId ? "Editar Propiedad" : "Nueva Propiedad"}
                     </h1>
-                    <Button as="a" href="/admin/dashboard" size="sm" variant="light" startContent={<ArrowLeftIcon />}>
+                    <Button as="a" href="/admin/dashboard" color="default" variant="light">
                         Volver al Dashboard
                     </Button>
-                </CardHeader>
-                <CardBody>
-                    <Form
-                        className="flex flex-col gap-6"
-                        validationBehavior="native"
-                        onSubmit={handleSubmit}
-                    >
-                        {/* Información Básica */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                            <Input
-                                isRequired
-                                label="Título"
-                                name="title"
-                                placeholder="Ej: Casa moderna en el centro"
-                                value={formData.title}
-                                onChange={handleChange}
-                                className="md:col-span-2"
-                            />
-
-                            <Input
-                                isRequired
-                                label="Slug (URL)"
-                                name="slug"
-                                placeholder="casa-moderna-centro"
-                                value={formData.slug}
-                                onChange={handleChange}
-                                className="md:col-span-2"
-                            />
-
-                            <Textarea
-                                label="Descripción"
-                                name="description"
-                                placeholder="Descripción detallada de la propiedad..."
-                                value={formData.description}
-                                onChange={handleChange}
-                                className="md:col-span-2"
-                            />
-                        </div>
-
-                        <Divider />
-                        <h3 className="text-lg font-semibold">Precio y Ubicación</h3>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                            <Select
-                                label="Moneda"
-                                selectedKeys={[formData.currency]}
-                                onChange={(e) => handleSelectChange("currency", e.target.value)}
-                            >
-                                <SelectItem key="USD">Dólares (USD)</SelectItem>
-                                <SelectItem key="ARS">Pesos (ARS)</SelectItem>
-                            </Select>
-
-                            <Input
-                                isRequired
-                                type="number"
-                                label="Precio"
-                                name="price"
-                                value={formData.price}
-                                onChange={handleChange}
-                            />
-
-                            <Input
-                                type="number"
-                                label="Expensas"
-                                name="expenses"
-                                placeholder="0"
-                                value={formData.expenses}
-                                onChange={handleChange}
-                            />
-
-                            <Input
-                                isRequired
-                                label="Ciudad / Barrio"
-                                name="city"
-                                value={formData.city}
-                                onChange={handleChange}
-                                className="md:col-span-3"
-                            />
-                        </div>
-
-                        {/* Location Picker */}
-                        <div className="w-full flex flex-col gap-2">
-                            <span className="text-small text-default-500">Ubicación en Mapa</span>
-                            <LocationPicker
-                                latitud={formData.latitud ? Number(formData.latitud) : undefined}
-                                longitud={formData.longitud ? Number(formData.longitud) : undefined}
-                                onLocationSelect={handleLocationSelect}
-                            />
-                            <div className="grid grid-cols-2 gap-4 mt-2">
+                </div>
+                <Card className="w-full">
+                    <CardBody>
+                        <Form
+                            className="flex flex-col gap-6"
+                            validationBehavior="native"
+                            onSubmit={handleSubmit}
+                        >
+                            {/* Información Básica */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                                 <Input
-                                    type="number"
-                                    label="Latitud"
-                                    name="latitud"
-                                    value={formData.latitud}
+                                    isRequired
+                                    label="Título"
+                                    name="title"
+                                    placeholder="Ej: Casa moderna en el centro"
+                                    value={formData.title}
                                     onChange={handleChange}
-                                    description="Se completa automáticamente al tocar el mapa"
+                                    className="md:col-span-2"
                                 />
+
                                 <Input
-                                    type="number"
-                                    label="Longitud"
-                                    name="longitud"
-                                    value={formData.longitud}
+                                    isRequired
+                                    label="Slug (URL)"
+                                    name="slug"
+                                    placeholder="casa-moderna-centro"
+                                    value={formData.slug}
                                     onChange={handleChange}
-                                    description="Se completa automáticamente al tocar el mapa"
+                                    className="md:col-span-2"
+                                />
+
+                                <Textarea
+                                    label="Descripción"
+                                    name="description"
+                                    placeholder="Descripción detallada de la propiedad..."
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    className="md:col-span-2"
                                 />
                             </div>
-                        </div>
 
-                        <Divider />
-                        <h3 className="text-lg font-semibold">Características</h3>
+                            <Divider />
+                            <h3 className="text-lg font-semibold">Precio y Ubicación</h3>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                            <Select
-                                label="Operación"
-                                selectedKeys={[formData.operation]}
-                                onChange={(e) => handleSelectChange("operation", e.target.value)}
-                            >
-                                <SelectItem key="venta">Venta</SelectItem>
-                                <SelectItem key="alquiler">Alquiler</SelectItem>
-                                <SelectItem key="alquiler_temporal">Alquiler Temporal</SelectItem>
-                            </Select>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                                <Select
+                                    label="Moneda"
+                                    selectedKeys={[formData.currency]}
+                                    onChange={(e) => handleSelectChange("currency", e.target.value)}
+                                >
+                                    <SelectItem key="USD">Dólares (USD)</SelectItem>
+                                    <SelectItem key="ARS">Pesos (ARS)</SelectItem>
+                                </Select>
 
-                            <Select
-                                label="Tipo de Propiedad"
-                                selectedKeys={[formData.property_type]}
-                                onChange={(e) => handleSelectChange("property_type", e.target.value)}
-                            >
-                                <SelectItem key="casa">Casa</SelectItem>
-                                <SelectItem key="departamento">Departamento</SelectItem>
-                                <SelectItem key="ph">PH</SelectItem>
-                                <SelectItem key="terreno">Terreno</SelectItem>
-                                <SelectItem key="local">Local</SelectItem>
-                                <SelectItem key="oficina">Oficina</SelectItem>
-                                <SelectItem key="otro">Otro</SelectItem>
-                            </Select>
+                                <Input
+                                    isRequired
+                                    type="number"
+                                    label="Precio"
+                                    name="price"
+                                    value={formData.price}
+                                    onChange={handleChange}
+                                />
 
-                            <Select
-                                label="Estado"
-                                selectedKeys={[formData.status]}
-                                onChange={(e) => handleSelectChange("status", e.target.value)}
-                            >
-                                <SelectItem key="available">Disponible</SelectItem>
-                                <SelectItem key="reserved">Reservado</SelectItem>
-                                <SelectItem key="sold">Vendido / Alquilado</SelectItem>
-                            </Select>
-                        </div>
+                                <Input
+                                    type="number"
+                                    label="Expensas"
+                                    name="expenses"
+                                    placeholder="0"
+                                    value={formData.expenses}
+                                    onChange={handleChange}
+                                />
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-                            <Input
-                                type="number"
-                                label="Ambientes"
-                                name="ambientes"
-                                value={formData.ambientes}
-                                onChange={handleChange}
-                            />
-                            <Input
-                                type="number"
-                                label="Dormitorios"
-                                name="bedrooms"
-                                value={formData.bedrooms}
-                                onChange={handleChange}
-                            />
-                            <Input
-                                type="number"
-                                label="Baños"
-                                name="bathrooms"
-                                value={formData.bathrooms}
-                                onChange={handleChange}
-                            />
-                            <Input
-                                type="number"
-                                label="Antigüedad (años)"
-                                name="antiquity"
-                                value={formData.antiquity}
-                                onChange={handleChange}
-                                isDisabled={formData.is_brand_new}
-                            />
-                        </div>
+                                <Input
+                                    isRequired
+                                    label="Ciudad / Barrio"
+                                    name="city"
+                                    value={formData.city}
+                                    onChange={handleChange}
+                                    className="md:col-span-3"
+                                />
+                            </div>
 
-                        <div className="flex gap-4 items-center flex-wrap">
-                            <Checkbox
-                                isSelected={formData.garage}
-                                onValueChange={(isSelected) => handleCheckboxChange("garage", isSelected)}
-                            >
-                                Tiene Cochera
-                            </Checkbox>
-                            <Checkbox
-                                isSelected={formData.is_brand_new}
-                                onValueChange={(isSelected) => handleCheckboxChange("is_brand_new", isSelected)}
-                            >
-                                A Estrenar
-                            </Checkbox>
-                            <Checkbox
-                                isSelected={formData.is_featured}
-                                onValueChange={(isSelected) => handleCheckboxChange("is_featured", isSelected)}
-                                color="warning"
-                            >
-                                Destacar Propiedad
-                            </Checkbox>
-                        </div>
-
-                        <Divider />
-                        <h3 className="text-lg font-semibold">Superficies (m²)</h3>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                            <Input
-                                type="number"
-                                label="Total"
-                                name="total_area"
-                                value={formData.total_area}
-                                onChange={handleChange}
-                            />
-                            <Input
-                                type="number"
-                                label="Cubierta"
-                                name="covered_area"
-                                value={formData.covered_area}
-                                onChange={handleChange}
-                            />
-                            <Input
-                                type="number"
-                                label="Semicubierta"
-                                name="semi_covered_area"
-                                value={formData.semi_covered_area}
-                                onChange={handleChange}
-                            />
-                            <Input
-                                type="number"
-                                label="Terreno"
-                                name="land_area"
-                                value={formData.land_area}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        <Divider />
-                        <h3 className="text-lg font-semibold">Multimedia y Extras</h3>
-
-                        <Input
-                            label="Características (separadas por coma)"
-                            name="features"
-                            placeholder="Piscina, Quincho, Seguridad..."
-                            value={formData.features}
-                            onChange={handleChange}
-                        />
-
-                        <div className="flex flex-col gap-4">
-                            {/* Imagen Principal */}
-                            <div className="flex flex-col gap-2">
-                                <span className="text-small text-default-500">Imagen Principal</span>
-                                <div className="flex items-center gap-4">
-                                    {formData.image_url && (
-                                        <div className="relative">
-                                            <img src={formData.image_url} alt="Preview" className="h-20 w-20 object-cover rounded-md border" />
-                                            <button
-                                                type="button"
-                                                onClick={removeMainImage}
-                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                                                title="Eliminar imagen principal"
-                                            >
-                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                            </button>
-                                        </div>
-                                    )}
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => handleImageUpload(e, false)}
-                                        disabled={uploading}
-                                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                            {/* Location Picker */}
+                            <div className="w-full flex flex-col gap-2">
+                                <span className="text-small text-default-500">Ubicación en Mapa</span>
+                                <LocationPicker
+                                    latitud={formData.latitud ? Number(formData.latitud) : undefined}
+                                    longitud={formData.longitud ? Number(formData.longitud) : undefined}
+                                    onLocationSelect={handleLocationSelect}
+                                />
+                                <div className="grid grid-cols-2 gap-4 mt-2">
+                                    <Input
+                                        type="number"
+                                        label="Latitud"
+                                        name="latitud"
+                                        value={formData.latitud}
+                                        onChange={handleChange}
+                                        description="Se completa automáticamente al tocar el mapa"
+                                    />
+                                    <Input
+                                        type="number"
+                                        label="Longitud"
+                                        name="longitud"
+                                        value={formData.longitud}
+                                        onChange={handleChange}
+                                        description="Se completa automáticamente al tocar el mapa"
                                     />
                                 </div>
                             </div>
 
-                            {/* Galería */}
-                            <div className="flex flex-col gap-2">
-                                <span className="text-small text-default-500">Galería de Imágenes</span>
-                                <div className="flex flex-wrap gap-4 mb-2">
-                                    {formData.gallery_images.map((img, index) => (
-                                        <div key={index} className="relative group">
-                                            <img src={img} alt={`Gallery ${index}`} className="h-20 w-20 object-cover rounded-md border" />
-                                            <button
-                                                type="button"
-                                                onClick={() => removeGalleryImage(index)}
-                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                                                title="Eliminar imagen"
-                                            >
-                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    multiple
-                                    onChange={(e) => handleImageUpload(e, true)}
-                                    disabled={uploading}
-                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                            <Divider />
+                            <h3 className="text-lg font-semibold">Características</h3>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                                <Select
+                                    label="Operación"
+                                    selectedKeys={[formData.operation]}
+                                    onChange={(e) => handleSelectChange("operation", e.target.value)}
+                                >
+                                    <SelectItem key="venta">Venta</SelectItem>
+                                    <SelectItem key="alquiler">Alquiler</SelectItem>
+                                    <SelectItem key="alquiler_temporal">Alquiler Temporal</SelectItem>
+                                </Select>
+
+                                <Select
+                                    label="Tipo de Propiedad"
+                                    selectedKeys={[formData.property_type]}
+                                    onChange={(e) => handleSelectChange("property_type", e.target.value)}
+                                >
+                                    <SelectItem key="casa">Casa</SelectItem>
+                                    <SelectItem key="departamento">Departamento</SelectItem>
+                                    <SelectItem key="ph">PH</SelectItem>
+                                    <SelectItem key="terreno">Terreno</SelectItem>
+                                    <SelectItem key="local">Local</SelectItem>
+                                    <SelectItem key="oficina">Oficina</SelectItem>
+                                    <SelectItem key="otro">Otro</SelectItem>
+                                </Select>
+
+                                <Select
+                                    label="Estado"
+                                    selectedKeys={[formData.status]}
+                                    onChange={(e) => handleSelectChange("status", e.target.value)}
+                                >
+                                    <SelectItem key="available">Disponible</SelectItem>
+                                    <SelectItem key="reserved">Reservado</SelectItem>
+                                    <SelectItem key="sold">Vendido / Alquilado</SelectItem>
+                                </Select>
+                            </div>
+
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+                                <Input
+                                    type="number"
+                                    label="Ambientes"
+                                    name="ambientes"
+                                    value={formData.ambientes}
+                                    onChange={handleChange}
+                                />
+                                <Input
+                                    type="number"
+                                    label="Dormitorios"
+                                    name="bedrooms"
+                                    value={formData.bedrooms}
+                                    onChange={handleChange}
+                                />
+                                <Input
+                                    type="number"
+                                    label="Baños"
+                                    name="bathrooms"
+                                    value={formData.bathrooms}
+                                    onChange={handleChange}
+                                />
+                                <Input
+                                    type="number"
+                                    label="Antigüedad (años)"
+                                    name="antiquity"
+                                    value={formData.antiquity}
+                                    onChange={handleChange}
+                                    isDisabled={formData.is_brand_new}
                                 />
                             </div>
 
-                            {uploading && <p className="text-xs text-primary">Subiendo imágenes...</p>}
-                        </div>
+                            <div className="flex gap-4 items-center flex-wrap">
+                                <Checkbox
+                                    isSelected={formData.garage}
+                                    onValueChange={(isSelected) => handleCheckboxChange("garage", isSelected)}
+                                >
+                                    Tiene Cochera
+                                </Checkbox>
+                                <Checkbox
+                                    isSelected={formData.is_brand_new}
+                                    onValueChange={(isSelected) => handleCheckboxChange("is_brand_new", isSelected)}
+                                >
+                                    A Estrenar
+                                </Checkbox>
+                                <Checkbox
+                                    isSelected={formData.is_featured}
+                                    onValueChange={(isSelected) => handleCheckboxChange("is_featured", isSelected)}
+                                    color="warning"
+                                >
+                                    Destacar Propiedad
+                                </Checkbox>
+                            </div>
 
-                        <div className="flex justify-end gap-2 mt-4">
-                            <Button as="a" href="/admin/dashboard" variant="flat" color="danger">
-                                Cancelar
-                            </Button>
-                            <Button type="submit" color="primary" isLoading={loading}>
-                                {loading ? "Guardando..." : "Guardar Propiedad"}
-                            </Button>
-                        </div>
-                    </Form>
-                </CardBody>
-            </Card>
+                            <Divider />
+                            <h3 className="text-lg font-semibold">Superficies (m²)</h3>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                                <Input
+                                    type="number"
+                                    label="Total"
+                                    name="total_area"
+                                    value={formData.total_area}
+                                    onChange={handleChange}
+                                />
+                                <Input
+                                    type="number"
+                                    label="Cubierta"
+                                    name="covered_area"
+                                    value={formData.covered_area}
+                                    onChange={handleChange}
+                                />
+                                <Input
+                                    type="number"
+                                    label="Semicubierta"
+                                    name="semi_covered_area"
+                                    value={formData.semi_covered_area}
+                                    onChange={handleChange}
+                                />
+                                <Input
+                                    type="number"
+                                    label="Terreno"
+                                    name="land_area"
+                                    value={formData.land_area}
+                                    onChange={handleChange}
+                                />
+                            </div>
+
+                            <Divider />
+                            <h3 className="text-lg font-semibold">Multimedia y Extras</h3>
+
+                            <Input
+                                label="Características (separadas por coma)"
+                                name="features"
+                                placeholder="Piscina, Quincho, Seguridad..."
+                                value={formData.features}
+                                onChange={handleChange}
+                            />
+
+                            <div className="flex flex-col gap-4">
+                                {/* Imagen Principal */}
+                                <div className="flex flex-col gap-2">
+                                    <span className="text-small text-default-500">Imagen Principal</span>
+                                    <div className="flex items-center gap-4">
+                                        {formData.image_url && (
+                                            <div className="relative">
+                                                <img src={formData.image_url} alt="Preview" className="h-20 w-20 object-cover rounded-md border" />
+                                                <button
+                                                    type="button"
+                                                    onClick={removeMainImage}
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                                    title="Eliminar imagen principal"
+                                                >
+                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                </button>
+                                            </div>
+                                        )}
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => handleImageUpload(e, false)}
+                                            disabled={uploading}
+                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Galería */}
+                                <div className="flex flex-col gap-2">
+                                    <span className="text-small text-default-500">Galería de Imágenes</span>
+                                    <div className="flex flex-wrap gap-4 mb-2">
+                                        {formData.gallery_images.map((img, index) => (
+                                            <div key={index} className="relative group">
+                                                <img src={img} alt={`Gallery ${index}`} className="h-20 w-20 object-cover rounded-md border" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeGalleryImage(index)}
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                                    title="Eliminar imagen"
+                                                >
+                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        onChange={(e) => handleImageUpload(e, true)}
+                                        disabled={uploading}
+                                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                                    />
+                                </div>
+
+                                {uploading && <p className="text-xs text-primary">Subiendo imágenes...</p>}
+                            </div>
+
+                            <div className="flex justify-end gap-2 mt-4">
+                                <Button as="a" href="/admin/dashboard" variant="flat" color="danger">
+                                    Cancelar
+                                </Button>
+                                <Button type="submit" color="primary" isLoading={loading}>
+                                    {loading ? "Guardando..." : "Guardar Propiedad"}
+                                </Button>
+                            </div>
+                        </Form>
+                    </CardBody>
+                </Card>
+            </div>
         </HeroUIProvider>
     );
 }
 
-const ArrowLeftIcon = (props: any) => (
-    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
-        <path d="M15.5 19l-7-7 7-7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-    </svg>
-);
+

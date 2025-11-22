@@ -203,7 +203,7 @@ export default function Dashboard() {
 
     return (
         <HeroUIProvider>
-            <div className="p-6 max-w-[1400px] mx-auto space-y-6">
+            <div className="p-6 max-w-5xl mx-auto space-y-6">
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <StatsCard title="Total Propiedades" value={stats.total} color="primary" />
@@ -211,6 +211,9 @@ export default function Dashboard() {
                     <StatsCard title="Reservadas" value={stats.reserved} color="warning" />
                     <StatsCard title="Vendidas" value={stats.sold} color="danger" />
                 </div>
+
+                {/* Rental Alerts */}
+                <RentalAlerts />
 
                 {/* Search and Table */}
                 <div className="flex flex-col gap-4">
@@ -221,10 +224,12 @@ export default function Dashboard() {
                             placeholder="Buscar por nombre o ciudad..."
                             startContent={<SearchIcon />}
                             value={filterValue}
-                            onClear={() => setFilterValue("")}
                             onValueChange={setFilterValue}
                         />
                         <div className="flex gap-3">
+                            <Button color="secondary" as="a" href="/admin/rentals">
+                                Gestionar Alquileres
+                            </Button>
                             <Button color="primary" as="a" href="/admin/properties/new" endContent={<PlusIcon />}>
                                 Nueva Propiedad
                             </Button>
@@ -308,7 +313,7 @@ const SearchIcon = (props) => (
     </svg>
 );
 
-const PlusIcon = (props) => (
+const PlusIcon = (props: any) => (
     <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
         <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
             <path d="M6 12h12" />
@@ -316,3 +321,63 @@ const PlusIcon = (props) => (
         </g>
     </svg>
 );
+
+const RentalAlerts = () => {
+    const [alerts, setAlerts] = useState([]);
+
+    useEffect(() => {
+        loadAlerts();
+    }, []);
+
+    const loadAlerts = async () => {
+        const { getActiveRentals } = await import("../../lib/rentals");
+        const rentals = await getActiveRentals();
+
+        const today = new Date();
+        const nextWeek = new Date();
+        nextWeek.setDate(today.getDate() + 7);
+
+        const upcoming = rentals.filter((r: any) => {
+            const endDate = new Date(r.end_date);
+            return endDate >= today && endDate <= nextWeek;
+        });
+
+        setAlerts(upcoming as any);
+    };
+
+    if (alerts.length === 0) return null;
+
+    return (
+        <Card className="w-full bg-warning-50 border-warning-200 border">
+            <CardBody>
+                <div className="flex flex-col gap-2">
+                    <h3 className="text-lg font-bold text-warning-700 flex items-center gap-2">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Alertas de Alquileres
+                    </h3>
+                    <div className="grid gap-2">
+                        {alerts.map((alert: any) => (
+                            <div key={alert.id} className="flex justify-between items-center bg-white p-3 rounded border border-warning-100">
+                                <div>
+                                    <p className="font-semibold text-gray-800">{alert.properties?.title}</p>
+                                    <p className="text-sm text-gray-600">Finaliza el: {new Date(alert.end_date).toLocaleDateString()}</p>
+                                </div>
+                                <Button
+                                    size="sm"
+                                    color="warning"
+                                    variant="flat"
+                                    as="a"
+                                    href={`/admin/rentals/${alert.id}`}
+                                >
+                                    Ver
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </CardBody>
+        </Card>
+    );
+};
