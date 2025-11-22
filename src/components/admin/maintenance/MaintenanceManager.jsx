@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import MaintenanceTicketForm from './MaintenanceTicketForm';
 import MaintenanceTicketList from './MaintenanceTicketList';
-import { Button } from "@heroui/react";
+import ProviderForm from './ProviderForm';
+import ProviderList from './ProviderList';
+import { Button, Tabs, Tab } from "@heroui/react";
 
 export default function MaintenanceManager() {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [showForm, setShowForm] = useState(false);
+    const [selectedTab, setSelectedTab] = useState("tickets");
 
     const handleSuccess = () => {
         setRefreshTrigger(prev => prev + 1);
@@ -15,7 +18,9 @@ export default function MaintenanceManager() {
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Tickets de Mantenimiento</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+                    {selectedTab === "tickets" ? "Tickets de Mantenimiento" : "Agenda de Oficios"}
+                </h2>
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                     <Button
                         color="default"
@@ -31,18 +36,39 @@ export default function MaintenanceManager() {
                         onPress={() => setShowForm(!showForm)}
                         className="w-full sm:w-auto"
                     >
-                        {showForm ? 'Cancelar' : 'Nuevo Ticket'}
+                        {showForm ? 'Cancelar' : (selectedTab === "tickets" ? 'Nuevo Ticket' : 'Nuevo Proveedor')}
                     </Button>
                 </div>
             </div>
 
-            {showForm && (
-                <div className="mb-8">
-                    <MaintenanceTicketForm onSuccess={handleSuccess} />
-                </div>
-            )}
-
-            <MaintenanceTicketList refreshTrigger={refreshTrigger} />
+            <Tabs
+                aria-label="Opciones de Mantenimiento"
+                selectedKey={selectedTab}
+                onSelectionChange={setSelectedTab}
+                color="primary"
+                variant="underlined"
+            >
+                <Tab key="tickets" title="Tickets">
+                    <div className="mt-4">
+                        {showForm && (
+                            <div className="mb-8">
+                                <MaintenanceTicketForm onSuccess={handleSuccess} />
+                            </div>
+                        )}
+                        <MaintenanceTicketList refreshTrigger={refreshTrigger} />
+                    </div>
+                </Tab>
+                <Tab key="agenda" title="Agenda de Oficios">
+                    <div className="mt-4">
+                        {showForm && (
+                            <div className="mb-8">
+                                <ProviderForm onSuccess={handleSuccess} />
+                            </div>
+                        )}
+                        <ProviderList refreshTrigger={refreshTrigger} />
+                    </div>
+                </Tab>
+            </Tabs>
         </div>
     );
 }
