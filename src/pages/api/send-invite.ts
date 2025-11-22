@@ -36,27 +36,27 @@ export const POST: APIRoute = async ({ request }) => {
       data: {
         property_title: propertyTitle || 'Propiedad'
       },
-      redirectTo: `${new URL(request.url).origin}/tenant/invitation?email=${email}`
+      redirectTo: `${import.meta.env.PUBLIC_SITE_URL || new URL(request.url).origin}/tenant/accept-invitation?email=${email}`
     });
 
     if (error) {
       console.error('Supabase Invite error:', error);
-      
+
       // Generate a fallback link for manual sharing
-      const fallbackLink = `${new URL(request.url).origin}/tenant/accept-invitation?email=${encodeURIComponent(email)}`;
-      
-      return new Response(JSON.stringify({ 
+      const fallbackLink = `${import.meta.env.PUBLIC_SITE_URL || new URL(request.url).origin}/tenant/accept-invitation?email=${encodeURIComponent(email)}`;
+
+      return new Response(JSON.stringify({
         error: error.message,
-        fallbackLink 
+        fallbackLink
       }), { status: 500 });
     }
 
     // Also return a link for manual sharing if needed
-    const inviteLink = `${new URL(request.url).origin}/tenant/accept-invitation?email=${encodeURIComponent(email)}`;
-    
-    return new Response(JSON.stringify({ 
+    const inviteLink = `${import.meta.env.PUBLIC_SITE_URL || new URL(request.url).origin}/tenant/accept-invitation?email=${encodeURIComponent(email)}`;
+
+    return new Response(JSON.stringify({
       data,
-      inviteLink 
+      inviteLink
     }), { status: 200 });
   } catch (error) {
     console.error('Server error:', error);
