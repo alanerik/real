@@ -241,6 +241,10 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
                             onValueChange={setFilterValue}
                         />
                         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                            <Button color="warning" as="a" href="/admin/maintenance" className="w-full sm:w-auto text-white">
+                                <span className="hidden sm:inline">Mantenimiento</span>
+                                <span className="sm:hidden">Mantenimiento</span>
+                            </Button>
                             <Button color="secondary" as="a" href="/admin/rentals" className="w-full sm:w-auto">
                                 <span className="hidden sm:inline">Gestionar Alquileres</span>
                                 <span className="sm:hidden">Alquileres</span>

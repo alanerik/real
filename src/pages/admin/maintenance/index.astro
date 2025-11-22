@@ -1,0 +1,36 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import MaintenanceManager from "../../../components/admin/maintenance/MaintenanceManager";
+---
+
+<AdminLayout title="Gestión de Mantenimiento">
+    <div class="min-h-screen bg-gray-100 py-10">
+        <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <MaintenanceManager client:only="react" />
+        </main>
+    </div>
+</AdminLayout>
+
+<script>
+    import { supabase } from "../../../lib/supabase";
+
+    const logoutBtn = document.getElementById("logout-btn");
+
+    // Check Auth
+    const checkUser = async () => {
+        const {
+            data: { session },
+        } = await supabase.auth.getSession();
+        if (!session) {
+            window.location.href = "/admin/login";
+        }
+    };
+
+    checkUser();
+
+    // Logout
+    logoutBtn?.addEventListener("click", async () => {
+        await supabase.auth.signOut();
+        window.location.href = "/admin/login";
+    });
+</script>
