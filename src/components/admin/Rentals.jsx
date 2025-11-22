@@ -40,14 +40,37 @@ export default function Rentals() {
         }
 
         try {
-            await sendTenantInvitation(rental.id, rental.tenant_email, rental.properties?.title);
-            alert(`Invitación enviada correctamente a ${rental.tenant_email}`);
+            const result = await sendTenantInvitation(rental.id, rental.tenant_email, rental.properties?.title);
+
+            if (result.success) {
+                // Email sent successfully
+                alert(`✅ Invitación enviada correctamente a ${rental.tenant_email}`);
+            } else {
+                // Email failed, copy link to clipboard
+                const inviteLink = result.inviteLink;
+
+                // Try to copy to clipboard
+                try {
+                    await navigator.clipboard.writeText(inviteLink);
+                    alert(`⚠️ No se pudo enviar el email.\n\n✅ El link de invitación se copió al portapapeles automáticamente.\n\nCompártelo manualmente con ${rental.tenant_email}:\n\n${inviteLink}`);
+                } catch (clipboardError) {
+                    // Fallback if clipboard fails
+                    console.error('Clipboard error:', clipboardError);
+                    alert(`⚠️ No se pudo enviar el email ni copiar al portapapeles.\n\nCopia este link manualmente y envíalo a ${rental.tenant_email}:\n\n${inviteLink}`);
+                }
+            }
         } catch (error) {
             console.error('Error sending invite:', error);
 
-            // Fallback to clipboard if email fails
+            // Generate fallback link
             const inviteUrl = `${window.location.origin}/tenant/accept-invitation?email=${encodeURIComponent(rental.tenant_email)}`;
-            alert(`Error al enviar email. Puedes copiar el link manual:\n\n${inviteUrl}`);
+
+            try {
+                await navigator.clipboard.writeText(inviteUrl);
+                alert(`⚠️ Error al enviar invitación.\n\n✅ El link se copió al portapapeles automáticamente.\n\nCompártelo manualmente con ${rental.tenant_email}:\n\n${inviteUrl}`);
+            } catch (clipboardError) {
+                alert(`⚠️ Error al enviar invitación.\n\nCopia este link manualmente:\n\n${inviteUrl}`);
+            }
         }
     };
 

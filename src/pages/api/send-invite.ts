@@ -41,10 +41,23 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (error) {
       console.error('Supabase Invite error:', error);
-      return new Response(JSON.stringify({ error }), { status: 500 });
+      
+      // Generate a fallback link for manual sharing
+      const fallbackLink = `${new URL(request.url).origin}/tenant/accept-invitation?email=${encodeURIComponent(email)}`;
+      
+      return new Response(JSON.stringify({ 
+        error: error.message,
+        fallbackLink 
+      }), { status: 500 });
     }
 
-    return new Response(JSON.stringify({ data }), { status: 200 });
+    // Also return a link for manual sharing if needed
+    const inviteLink = `${new URL(request.url).origin}/tenant/accept-invitation?email=${encodeURIComponent(email)}`;
+    
+    return new Response(JSON.stringify({ 
+      data,
+      inviteLink 
+    }), { status: 200 });
   } catch (error) {
     console.error('Server error:', error);
     return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), { status: 500 });

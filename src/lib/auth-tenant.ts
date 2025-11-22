@@ -101,19 +101,25 @@ export const sendTenantInvitation = async (rentalId: string, email: string, prop
         const result = await response.json();
 
         if (!response.ok) {
-            throw new Error(result.error?.message || result.message || 'Failed to send email');
+            // Return the fallback link from the API response
+            throw new Error(result.error || result.message || 'Failed to send email');
         }
 
         return {
             success: true,
             message: `Invitación enviada a ${email}`,
+            inviteLink: result.inviteLink || inviteUrl,
             data: result
         };
     } catch (error) {
         console.error('Error sending invitation email:', error);
-        // Even if email fails, we updated the DB, so we might want to return partial success or throw
-        // For now, let's throw so the UI knows the email failed
-        throw error;
+        // Return the invitation link so it can be copied manually
+        return {
+            success: false,
+            message: error instanceof Error ? error.message : 'Error al enviar invitación',
+            inviteLink: inviteUrl,
+            error
+        };
     }
 };
 
