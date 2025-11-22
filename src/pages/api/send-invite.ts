@@ -19,6 +19,14 @@ export const POST: APIRoute = async ({ request }) => {
     }
   });
 
+  const getSiteUrl = () => {
+    if (import.meta.env.PUBLIC_SITE_URL) return import.meta.env.PUBLIC_SITE_URL;
+    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+    return new URL(request.url).origin;
+  };
+
+  const siteUrl = getSiteUrl();
+
   try {
     const body = await request.json();
     const { email, propertyTitle } = body;
@@ -36,7 +44,7 @@ export const POST: APIRoute = async ({ request }) => {
       data: {
         property_title: propertyTitle || 'Propiedad'
       },
-      redirectTo: `${import.meta.env.PUBLIC_SITE_URL || new URL(request.url).origin}/tenant/accept-invitation?email=${email}`
+      redirectTo: `${siteUrl}/tenant/accept-invitation?email=${email}`
     });
 
 
@@ -45,7 +53,7 @@ export const POST: APIRoute = async ({ request }) => {
       console.error('Supabase Invite error:', error);
 
       // Generate a fallback link for manual sharing
-      const fallbackLink = `${import.meta.env.PUBLIC_SITE_URL || new URL(request.url).origin}/tenant/accept-invitation?email=${encodeURIComponent(email)}`;
+      const fallbackLink = `${siteUrl}/tenant/accept-invitation?email=${encodeURIComponent(email)}`;
 
       return new Response(JSON.stringify({
         error: error.message,
@@ -54,7 +62,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Also return a link for manual sharing if needed
-    const inviteLink = `${import.meta.env.PUBLIC_SITE_URL || new URL(request.url).origin}/tenant/accept-invitation?email=${encodeURIComponent(email)}`;
+    const inviteLink = `${siteUrl}/tenant/accept-invitation?email=${encodeURIComponent(email)}`;
 
     return new Response(JSON.stringify({
       data,
