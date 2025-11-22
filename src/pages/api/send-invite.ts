@@ -39,6 +39,8 @@ export const POST: APIRoute = async ({ request }) => {
       redirectTo: `${import.meta.env.PUBLIC_SITE_URL || new URL(request.url).origin}/tenant/accept-invitation?email=${email}`
     });
 
+
+
     if (error) {
       console.error('Supabase Invite error:', error);
 

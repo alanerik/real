@@ -102,7 +102,9 @@ export const sendTenantInvitation = async (rentalId: string, email: string, prop
 
         if (!response.ok) {
             // Return the fallback link from the API response
-            throw new Error(result.error || result.message || 'Failed to send email');
+            const error = new Error(result.error || result.message || 'Failed to send email');
+            (error as any).fallbackLink = result.fallbackLink;
+            throw error;
         }
 
         return {
@@ -114,10 +116,13 @@ export const sendTenantInvitation = async (rentalId: string, email: string, prop
     } catch (error) {
         console.error('Error sending invitation email:', error);
         // Return the invitation link so it can be copied manually
+        // Try to get the fallback link from the error object if it was parsed from the response
+        const fallbackLink = (error as any)?.fallbackLink || inviteUrl;
+
         return {
             success: false,
             message: error instanceof Error ? error.message : 'Error al enviar invitación',
-            inviteLink: inviteUrl,
+            inviteLink: fallbackLink,
             error
         };
     }
