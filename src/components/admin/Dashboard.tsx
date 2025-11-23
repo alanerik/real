@@ -351,19 +351,18 @@ const RentalAlerts = () => {
     }, []);
 
     const loadAlerts = async () => {
-        const { getActiveRentals } = await import("../../lib/rentals");
-        const rentals = await getActiveRentals();
+        const { data, error } = await supabase
+            .from('rentals')
+            .select('*, properties(title)')
+            .in('status', ['near_expiration', 'expired'])
+            .order('end_date', { ascending: true });
 
-        const today = new Date();
-        const nextWeek = new Date();
-        nextWeek.setDate(today.getDate() + 7);
-
-        const upcoming = rentals.filter((r: any) => {
-            const endDate = new Date(r.end_date);
-            return endDate >= today && endDate <= nextWeek;
-        });
-
-        setAlerts(upcoming as any);
+        if (error) {
+            console.error('Error loading rental alerts:', error);
+            setAlerts([]);
+        } else {
+            setAlerts(data || []);
+        }
     };
 
     const hasAlerts = alerts.length > 0;
@@ -406,33 +405,41 @@ const RentalAlerts = () => {
                             <ModalBody>
                                 {hasAlerts ? (
                                     <div className="flex flex-col gap-3">
-                                        {alerts.map((alert: any) => (
-                                            <Card key={alert.id} className="border border-warning-200">
-                                                <CardBody className="p-4">
-                                                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                                                        <div className="flex-1">
-                                                            <p className="font-semibold text-base text-gray-800">{alert.properties?.title}</p>
-                                                            <p className="text-sm text-gray-600 mt-1">Inquilino: {alert.tenant_name}</p>
-                                                            <div className="flex items-center gap-2 mt-2">
-                                                                <Chip size="sm" color="warning" variant="flat">
-                                                                    Finaliza: {new Date(alert.end_date).toLocaleDateString()}
-                                                                </Chip>
+                                        {alerts.map((alert: any) => {
+                                            const remainingDays = Math.ceil((new Date(alert.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                                            const isExpired = remainingDays < 0;
+
+                                            return (
+                                                <Card key={alert.id} className={`border ${isExpired ? 'border-danger-200' : 'border-warning-200'}`}>
+                                                    <CardBody className="p-4">
+                                                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                                                            <div className="flex-1">
+                                                                <p className="font-semibold text-base text-gray-800">{alert.properties?.title}</p>
+                                                                <p className="text-sm text-gray-600 mt-1">Inquilino: {alert.tenant_name}</p>
+                                                                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                                                                    <Chip size="sm" color={isExpired ? "danger" : "warning"} variant="flat">
+                                                                        {isExpired ? `Vencido hace ${Math.abs(remainingDays)} días` : `${remainingDays} días restantes`}
+                                                                    </Chip>
+                                                                    <Chip size="sm" color={isExpired ? "danger" : "warning"} variant="dot">
+                                                                        Finaliza: {new Date(alert.end_date).toLocaleDateString()}
+                                                                    </Chip>
+                                                                </div>
                                                             </div>
+                                                            <Button
+                                                                size="sm"
+                                                                color={isExpired ? "danger" : "warning"}
+                                                                variant="flat"
+                                                                as="a"
+                                                                href={`/admin/rentals`}
+                                                                className="w-full sm:w-auto"
+                                                            >
+                                                                Ver Detalles
+                                                            </Button>
                                                         </div>
-                                                        <Button
-                                                            size="sm"
-                                                            color="warning"
-                                                            variant="flat"
-                                                            as="a"
-                                                            href={`/admin/rentals/${alert.id}`}
-                                                            className="w-full sm:w-auto"
-                                                        >
-                                                            Ver Detalles
-                                                        </Button>
-                                                    </div>
-                                                </CardBody>
-                                            </Card>
-                                        ))}
+                                                    </CardBody>
+                                                </Card>
+                                            );
+                                        })}
                                     </div>
                                 ) : (
                                     <div className="text-center py-8 text-gray-500">
