@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Button, Select, SelectItem, Textarea, DatePicker, Tabs, Tab } from "@heroui/react";
+import { Input, Button, Select, SelectItem, Textarea, DatePicker, Tabs, Tab, Checkbox, CheckboxGroup, Switch, Card, CardBody, Divider } from "@heroui/react";
 import { createRental, updateRental, getRentalById } from '../../lib/rentals';
 import { getAllProperties } from '../../lib/properties';
 import { parseDate, getLocalTimeZone } from "@internationalized/date";
+import { AVAILABLE_SERVICES, RENTAL_TYPES } from '../../lib/rental-utils';
 import PaymentTab from './PaymentTab';
 import DocumentManager from './DocumentManager';
 
@@ -22,7 +23,16 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
         end_date: null,
         status: 'pending',
         total_amount: '',
-        notes: ''
+        notes: '',
+        // Phase 1 new fields
+        rental_type: 'long_term',
+        services_included: [],
+        utilities_included_in_rent: true,
+        pets_allowed: false,
+        max_pets: 0,
+        smoking_allowed: false,
+        max_occupants: 2,
+        special_conditions: ''
     });
 
     useEffect(() => {
@@ -115,91 +125,245 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
                 <Tabs aria-label="Opciones de Alquiler">
                     <Tab key="general" title="General">
                         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <Select
-                                    label="Propiedad"
-                                    placeholder="Seleccionar propiedad"
-                                    selectedKeys={formData.property_id ? [formData.property_id] : []}
-                                    onChange={(e) => handleChange('property_id', e.target.value)}
-                                    isRequired
-                                >
-                                    {properties.map((prop) => (
-                                        <SelectItem key={prop.id} value={prop.id}>
-                                            {prop.data.title}
-                                        </SelectItem>
-                                    ))}
-                                </Select>
+                            {/* Basic Information */}
+                            <Card>
+                                <CardBody className="gap-4">
+                                    <h3 className="text-lg font-semibold">Información Básica</h3>
 
-                                <Select
-                                    label="Estado"
-                                    placeholder="Seleccionar estado"
-                                    selectedKeys={[formData.status]}
-                                    onChange={(e) => handleChange('status', e.target.value)}
-                                    isRequired
-                                >
-                                    <SelectItem key="pending" value="pending">Pendiente</SelectItem>
-                                    <SelectItem key="active" value="active">Activo</SelectItem>
-                                    <SelectItem key="completed" value="completed">Completado</SelectItem>
-                                    <SelectItem key="cancelled" value="cancelled">Cancelado</SelectItem>
-                                </Select>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <Select
+                                            label="Propiedad"
+                                            placeholder="Seleccionar propiedad"
+                                            selectedKeys={formData.property_id ? [formData.property_id] : []}
+                                            onChange={(e) => handleChange('property_id', e.target.value)}
+                                            isRequired
+                                        >
+                                            {properties.map((prop) => (
+                                                <SelectItem key={prop.id} value={prop.id}>
+                                                    {prop.data.title}
+                                                </SelectItem>
+                                            ))}
+                                        </Select>
 
-                                <Input
-                                    label="Nombre del Inquilino"
-                                    placeholder="Nombre completo"
-                                    value={formData.tenant_name}
-                                    onValueChange={(val) => handleChange('tenant_name', val)}
-                                    isRequired
-                                />
+                                        <Select
+                                            label="Tipo de Alquiler"
+                                            placeholder="Seleccionar tipo"
+                                            selectedKeys={[formData.rental_type]}
+                                            onChange={(e) => handleChange('rental_type', e.target.value)}
+                                            description="Define la duración y características del alquiler"
+                                            isRequired
+                                        >
+                                            {Object.entries(RENTAL_TYPES).map(([key, { label, icon, description }]) => (
+                                                <SelectItem key={key} value={key} textValue={label}>
+                                                    <div className="flex flex-col">
+                                                        <span>{label}</span>
+                                                        <span className="text-xs text-gray-500">{description}</span>
+                                                    </div>
+                                                </SelectItem>
+                                            ))}
+                                        </Select>
 
-                                <Input
-                                    label="Contacto"
-                                    placeholder="Teléfono o Email"
-                                    value={formData.tenant_contact}
-                                    onValueChange={(val) => handleChange('tenant_contact', val)}
-                                />
+                                        <Select
+                                            label="Estado"
+                                            placeholder="Seleccionar estado"
+                                            selectedKeys={[formData.status]}
+                                            onChange={(e) => handleChange('status', e.target.value)}
+                                            isRequired
+                                        >
+                                            <SelectItem key="pending" value="pending">Pendiente</SelectItem>
+                                            <SelectItem key="active" value="active">Activo</SelectItem>
+                                            <SelectItem key="near_expiration" value="near_expiration">Próximo a Vencer</SelectItem>
+                                            <SelectItem key="expired" value="expired">Vencido</SelectItem>
+                                            <SelectItem key="terminated" value="terminated">Terminado</SelectItem>
+                                            <SelectItem key="cancelled" value="cancelled">Cancelado</SelectItem>
+                                        </Select>
+                                    </div>
+                                </CardBody>
+                            </Card>
 
-                                <Input
-                                    type="email"
-                                    label="Email del Inquilino"
-                                    placeholder="inquilino@ejemplo.com"
-                                    value={formData.tenant_email}
-                                    onValueChange={(val) => handleChange('tenant_email', val)}
-                                    description="Email para enviar la invitación al portal"
-                                />
+                            {/* Tenant Information */}
+                            <Card>
+                                <CardBody className="gap-4">
+                                    <h3 className="text-lg font-semibold">Información del Inquilino</h3>
 
-                                <DatePicker
-                                    label="Fecha Inicio"
-                                    value={formData.start_date}
-                                    onChange={(val) => handleChange('start_date', val)}
-                                    isRequired
-                                />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <Input
+                                            label="Nombre del Inquilino"
+                                            placeholder="Nombre completo"
+                                            value={formData.tenant_name}
+                                            onValueChange={(val) => handleChange('tenant_name', val)}
+                                            isRequired
+                                        />
 
-                                <DatePicker
-                                    label="Fecha Fin"
-                                    value={formData.end_date}
-                                    onChange={(val) => handleChange('end_date', val)}
-                                    isRequired
-                                />
+                                        <Input
+                                            label="Contacto"
+                                            placeholder="Teléfono o Email"
+                                            value={formData.tenant_contact}
+                                            onValueChange={(val) => handleChange('tenant_contact', val)}
+                                        />
 
-                                <Input
-                                    type="number"
-                                    label="Monto Total"
-                                    placeholder="0.00"
-                                    startContent={
-                                        <div className="pointer-events-none flex items-center">
-                                            <span className="text-default-400 text-small">$</span>
+                                        <Input
+                                            type="email"
+                                            label="Email del Inquilino"
+                                            placeholder="inquilino@ejemplo.com"
+                                            value={formData.tenant_email}
+                                            onValueChange={(val) => handleChange('tenant_email', val)}
+                                            description="Email para enviar la invitación al portal"
+                                            className="md:col-span-2"
+                                        />
+                                    </div>
+                                </CardBody>
+                            </Card>
+
+                            {/* Dates and Amount */}
+                            <Card>
+                                <CardBody className="gap-4">
+                                    <h3 className="text-lg font-semibold">Fechas y Monto</h3>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <DatePicker
+                                            label="Fecha Inicio"
+                                            value={formData.start_date}
+                                            onChange={(val) => handleChange('start_date', val)}
+                                            isRequired
+                                        />
+
+                                        <DatePicker
+                                            label="Fecha Fin"
+                                            value={formData.end_date}
+                                            onChange={(val) => handleChange('end_date', val)}
+                                            isRequired
+                                        />
+
+                                        <Input
+                                            type="number"
+                                            label="Monto Total"
+                                            placeholder="0.00"
+                                            startContent={
+                                                <div className="pointer-events-none flex items-center">
+                                                    <span className="text-default-400 text-small">$</span>
+                                                </div>
+                                            }
+                                            value={formData.total_amount}
+                                            onValueChange={(val) => handleChange('total_amount', val)}
+                                        />
+                                    </div>
+                                </CardBody>
+                            </Card>
+
+                            {/* Services Included */}
+                            <Card>
+                                <CardBody className="gap-4">
+                                    <h3 className="text-lg font-semibold">Servicios Incluidos</h3>
+
+                                    <CheckboxGroup
+                                        value={formData.services_included}
+                                        onValueChange={(value) => handleChange('services_included', value)}
+                                        orientation="horizontal"
+                                        classNames={{
+                                            wrapper: "grid grid-cols-2 md:grid-cols-3 gap-2"
+                                        }}
+                                    >
+                                        {AVAILABLE_SERVICES.map(service => (
+                                            <Checkbox key={service.value} value={service.value}>
+                                                {service.icon} {service.label}
+                                            </Checkbox>
+                                        ))}
+                                    </CheckboxGroup>
+
+                                    <Divider />
+
+                                    <Switch
+                                        isSelected={formData.utilities_included_in_rent}
+                                        onValueChange={(value) => handleChange('utilities_included_in_rent', value)}
+                                    >
+                                        Servicios incluidos en la renta mensual
+                                    </Switch>
+                                    <p className="text-xs text-gray-500">
+                                        {formData.utilities_included_in_rent
+                                            ? "Los servicios están incluidos en el precio de la renta"
+                                            : "Los servicios se pagan por separado"
+                                        }
+                                    </p>
+                                </CardBody>
+                            </Card>
+
+                            {/* Conditions and Restrictions */}
+                            <Card>
+                                <CardBody className="gap-4">
+                                    <h3 className="text-lg font-semibold">Condiciones y Restricciones</h3>
+
+                                    <div className="space-y-4">
+                                        {/* Pets */}
+                                        <div className="flex items-start gap-4">
+                                            <Switch
+                                                isSelected={formData.pets_allowed}
+                                                onValueChange={(value) => {
+                                                    handleChange('pets_allowed', value);
+                                                    if (!value) handleChange('max_pets', 0);
+                                                }}
+                                            >
+                                                Mascotas permitidas
+                                            </Switch>
+
+                                            {formData.pets_allowed && (
+                                                <Input
+                                                    type="number"
+                                                    label="Máximo de mascotas"
+                                                    value={String(formData.max_pets)}
+                                                    onValueChange={(val) => handleChange('max_pets', Number(val))}
+                                                    className="w-40"
+                                                    min={1}
+                                                    max={10}
+                                                />
+                                            )}
                                         </div>
-                                    }
-                                    value={formData.total_amount}
-                                    onValueChange={(val) => handleChange('total_amount', val)}
-                                />
-                            </div>
 
+                                        <Divider />
+
+                                        {/* Smoking */}
+                                        <Switch
+                                            isSelected={formData.smoking_allowed}
+                                            onValueChange={(value) => handleChange('smoking_allowed', value)}
+                                        >
+                                            Permitido fumar
+                                        </Switch>
+
+                                        <Divider />
+
+                                        {/* Max Occupants */}
+                                        <Input
+                                            type="number"
+                                            label="Máximo de ocupantes"
+                                            value={String(formData.max_occupants)}
+                                            onValueChange={(val) => handleChange('max_occupants', Number(val))}
+                                            className="max-w-xs"
+                                            min={1}
+                                            max={20}
+                                            description="Número máximo de personas que pueden habitar la propiedad"
+                                        />
+
+                                        <Divider />
+
+                                        {/* Special Conditions */}
+                                        <Textarea
+                                            label="Condiciones especiales"
+                                            placeholder="Ej: Horarios de ruido, restricciones de uso, normas de convivencia, etc."
+                                            value={formData.special_conditions}
+                                            onValueChange={(val) => handleChange('special_conditions', val)}
+                                            minRows={3}
+                                        />
+                                    </div>
+                                </CardBody>
+                            </Card>
+
+                            {/* Notes */}
                             <Textarea
-                                label="Notas"
-                                placeholder="Notas adicionales..."
+                                label="Notas Adicionales"
+                                placeholder="Notas internas sobre el alquiler..."
                                 value={formData.notes}
                                 onValueChange={(val) => handleChange('notes', val)}
+                                minRows={2}
                             />
 
                             <div className="flex justify-end gap-4">
