@@ -8,12 +8,16 @@ export default function TenantInvitationForm() {
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState('');
     const [rentalInfo, setRentalInfo] = useState(null);
+    const [userSession, setUserSession] = useState(null);
     const [formData, setFormData] = useState({
         password: '',
         confirmPassword: ''
     });
 
     useEffect(() => {
+        // Check if user came from Supabase invite link (has tokens in hash)
+        checkSupabaseSession();
+
         // Get email from URL params
         const params = new URLSearchParams(window.location.search);
         const emailParam = params.get('email');
@@ -22,6 +26,27 @@ export default function TenantInvitationForm() {
             checkInvitation(emailParam);
         }
     }, []);
+
+    const checkSupabaseSession = async () => {
+        try {
+            // Supabase automatically handles the tokens from the URL hash
+            const { data: { session }, error } = await supabase.auth.getSession();
+
+            if (error) {
+                console.error('Error getting session:', error);
+                return;
+            }
+
+            if (session?.user) {
+                console.log('User session found from invite:', session.user.email);
+                setUserSession(session);
+                setEmail(session.user.email);
+                checkInvitation(session.user.email);
+            }
+        } catch (error) {
+            console.error('Error checking Supabase session:', error);
+        }
+    };
 
     const checkInvitation = async (email) => {
         try {
@@ -61,16 +86,22 @@ export default function TenantInvitationForm() {
         setLoading(true);
 
         try {
-            // Create user account
-            const { data: authData, error: signUpError } = await supabase.auth.signUp({
-                email: email,
-                password: formData.password,
+            // Get the current user (should be authenticated from invite link)
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+            if (userError || !user) {
+                throw new Error('No se pudo verificar la sesión. Por favor, usa el link del email de invitación.');
+            }
+
+            // Update the user's password
+            const { error: updateError } = await supabase.auth.updateUser({
+                password: formData.password
             });
 
-            if (signUpError) throw signUpError;
+            if (updateError) throw updateError;
 
             // Link user to rental
-            await linkTenantToRental(rentalInfo.id, authData.user.id);
+            await linkTenantToRental(rentalInfo.id, user.id);
 
             showToast({
                 title: '¡Cuenta creada!',
@@ -97,7 +128,18 @@ export default function TenantInvitationForm() {
     if (!email) {
         return (
             <div className="text-center py-8">
-                <p className="text-gray-600">Invitación no válida. Verifica el link que recibiste.</p>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-4">
+                    <svg className="w-12 h-12 text-yellow-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <h3 className="text-lg font-semibold text-yellow-800 mb-2">Link Inválido</h3>
+                    <p className="text-sm text-yellow-700 mb-4">
+                        Por favor, usa el link que recibiste en tu email de invitación.
+                    </p>
+                    <p className="text-xs text-yellow-600">
+                        Si no recibiste el email, contacta al propietario.
+                    </p>
+                </div>
             </div>
         );
     }
