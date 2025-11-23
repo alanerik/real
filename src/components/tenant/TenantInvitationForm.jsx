@@ -8,7 +8,6 @@ export default function TenantInvitationForm() {
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState('');
     const [rentalInfo, setRentalInfo] = useState(null);
-    const [userSession, setUserSession] = useState(null);
     const [formData, setFormData] = useState({
         password: '',
         confirmPassword: ''
@@ -39,7 +38,6 @@ export default function TenantInvitationForm() {
 
             if (session?.user) {
                 console.log('User session found from invite:', session.user.email);
-                setUserSession(session);
                 setEmail(session.user.email);
                 checkInvitation(session.user.email);
             }
