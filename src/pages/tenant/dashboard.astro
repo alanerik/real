@@ -1,9 +1,9 @@
 ---
-import Layout from "../../layouts/Layout.astro";
+import AdminLayout from "../../layouts/AdminLayout.astro";
 import TenantDashboard from "../../components/tenant/TenantDashboard";
 ---
 
-<Layout title="Mi Portal - Dashboard">
+<AdminLayout title="Mi Portal - Dashboard">
     <div class="min-h-screen bg-gray-50">
         <nav class="bg-white shadow-sm border-b">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,7 +31,7 @@ import TenantDashboard from "../../components/tenant/TenantDashboard";
             <TenantDashboard client:only="react" />
         </main>
     </div>
-</Layout>
+</AdminLayout>
 
 <script>
     import { supabase } from "../../lib/supabase";
