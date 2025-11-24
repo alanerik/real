@@ -52,11 +52,18 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
     const [loading, setLoading] = useState(true);
     const [filterValue, setFilterValue] = useState("");
     const [page, setPage] = useState(1);
+    const [currentUser, setCurrentUser] = useState<any>(null);
     const rowsPerPage = 10;
 
     useEffect(() => {
         loadProperties();
+        checkUser();
     }, []);
+
+    async function checkUser() {
+        const { data: { user } } = await supabase.auth.getUser();
+        setCurrentUser(user);
+    }
 
     async function loadProperties() {
         setLoading(true);
@@ -101,6 +108,11 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
         } else {
             setProperties((prev) => prev.filter((p) => p.id !== id));
         }
+    };
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        window.location.href = "/login";
     };
 
     // Stats
@@ -216,80 +228,142 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
         );
     }
 
+    const NavigationItems = ({ isMobile = false }) => (
+        <>
+            <Tooltip content="Nueva Propiedad" placement={isMobile ? "top" : "right"}>
+                <Button isIconOnly variant="light" as="a" href="/admin/properties/new" className="text-default-500 hover:text-primary">
+                    <PlusIcon className="w-6 h-6" />
+                </Button>
+            </Tooltip>
+            <Tooltip content="Gestionar Alquileres" placement={isMobile ? "top" : "right"}>
+                <Button isIconOnly variant="light" as="a" href="/admin/rentals" className="text-default-500 hover:text-secondary">
+                    <KeyIcon className="w-6 h-6" />
+                </Button>
+            </Tooltip>
+            <Tooltip content="Mantenimiento" placement={isMobile ? "top" : "right"}>
+                <Button isIconOnly variant="light" as="a" href="/admin/maintenance" className="text-default-500 hover:text-warning">
+                    <WrenchIcon className="w-6 h-6" />
+                </Button>
+            </Tooltip>
+            <div className={isMobile ? "" : "mt-auto"}>
+                <Tooltip content="Cerrar Sesión" placement={isMobile ? "top" : "right"}>
+                    <Button isIconOnly variant="light" onPress={handleLogout} className="text-default-500 hover:text-danger">
+                        <LogOutIcon className="w-6 h-6" />
+                    </Button>
+                </Tooltip>
+            </div>
+        </>
+    );
+
     return (
         <HeroUIProvider>
-            <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-4 sm:space-y-6">
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <StatsCard title="Total Propiedades" value={stats.total} color="primary" />
-                    <StatsCard title="Disponibles" value={stats.available} color="success" />
-                    <StatsCard title="Reservadas" value={stats.reserved} color="warning" />
-                    <StatsCard title="Vendidas" value={stats.sold} color="danger" />
-                </div>
+            <div className="min-h-screen bg-transparent pb-20 sm:pb-0">
+                <div className="max-w-5xl mx-auto p-4 sm:p-6 flex flex-col sm:flex-row gap-6">
 
-
-
-                {/* Search and Table */}
-                <div className="flex flex-col gap-4">
-                    <div className="flex flex-col sm:flex-row justify-between gap-3 items-stretch sm:items-end">
-                        <Input
-                            isClearable
-                            className="w-full sm:max-w-[44%]"
-                            placeholder="Buscar por nombre o ciudad..."
-                            startContent={<SearchIcon />}
-                            value={filterValue}
-                            onValueChange={setFilterValue}
-                        />
-                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                            <Button color="warning" as="a" href="/admin/maintenance" className="w-full sm:w-auto text-white">
-                                <span className="hidden sm:inline">Mantenimiento</span>
-                                <span className="sm:hidden">Mantenimiento</span>
-                            </Button>
-                            <Button color="secondary" as="a" href="/admin/rentals" className="w-full sm:w-auto">
-                                <span className="hidden sm:inline">Gestionar Alquileres</span>
-                                <span className="sm:hidden">Alquileres</span>
-                            </Button>
-                            <Button color="primary" as="a" href="/admin/properties/new" endContent={<PlusIcon />} className="w-full sm:w-auto">
-                                <span className="hidden sm:inline">Nueva Propiedad</span>
-                                <span className="sm:hidden">Nueva</span>
-                            </Button>
-                        </div>
+                    {/* Desktop Sidebar */}
+                    <div className="hidden sm:flex flex-col items-center py-6 px-2 bg-white/80 dark:bg-black/20 backdrop-blur-md shadow-lg rounded-2xl h-[calc(100vh-3rem)] sticky top-6 w-16 gap-6 z-40">
+                        <NavigationItems />
                     </div>
 
-                    <Table
-                        aria-label="Tabla de propiedades"
-                        bottomContent={
-                            <div className="flex w-full justify-center">
-                                <Pagination
-                                    isCompact
-                                    showControls
-                                    showShadow
-                                    color="primary"
-                                    page={page}
-                                    total={Math.ceil(filteredItems.length / rowsPerPage)}
-                                    onChange={(page) => setPage(page)}
-                                />
+                    {/* Main Content */}
+                    <div className="flex-1 flex flex-col gap-6 w-full">
+
+                        {/* Header */}
+                        <div className="flex flex-row justify-between items-center w-full">
+                            {/* Desktop Left: Welcome */}
+                            <div className="hidden sm:block text-left">
+                                <h1 className="text-xl font-bold">
+                                    Bienvenido, <span className="text-primary">{currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || "Usuario"}</span>
+                                </h1>
                             </div>
-                        }
-                        classNames={{
-                            wrapper: "min-h-[222px]",
-                        }}
-                    >
-                        <TableHeader columns={columns}>
-                            {(column) => (
-                                <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
-                                    {column.name}
-                                </TableColumn>
-                            )}
-                        </TableHeader>
-                        <TableBody items={items} emptyContent={"No se encontraron propiedades"}>
-                            {(item) => (
-                                <TableRow key={item.id}>
-                                    {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+
+                            {/* Mobile Left: Welcome */}
+                            <div className="sm:hidden">
+                                <h1 className="text-xl font-bold">
+                                    Bienvenido, <span className="text-primary">{currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || "Usuario"}</span>
+                                </h1>
+                            </div>
+
+                            {/* Mobile Right: Alerts */}
+                            <div className="sm:hidden">
+                                <RentalAlerts />
+                            </div>
+
+                            {/* Desktop Right: Alerts + Search */}
+                            <div className="hidden sm:flex items-center justify-end gap-4 flex-1 max-w-xl">
+                                <Input
+                                    isClearable
+                                    className="w-full"
+                                    placeholder="Buscar por nombre o ciudad..."
+                                    startContent={<SearchIcon />}
+                                    value={filterValue}
+                                    onValueChange={setFilterValue}
+                                />
+                                <RentalAlerts />
+                            </div>
+                        </div>
+
+                        {/* Stats Cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <StatsCard title="Total Propiedades" value={stats.total} color="primary" />
+                            <StatsCard title="Disponibles" value={stats.available} color="success" />
+                            <StatsCard title="Reservadas" value={stats.reserved} color="warning" />
+                            <StatsCard title="Vendidas" value={stats.sold} color="danger" />
+                        </div>
+
+                        {/* Mobile Search (Below Stats) */}
+                        <div className="sm:hidden w-full">
+                            <Input
+                                isClearable
+                                className="w-full"
+                                placeholder="Buscar por nombre o ciudad..."
+                                startContent={<SearchIcon />}
+                                value={filterValue}
+                                onValueChange={setFilterValue}
+                            />
+                        </div>
+
+                        {/* Table */}
+                        <Table
+                            aria-label="Tabla de propiedades"
+                            bottomContent={
+                                <div className="flex w-full justify-center">
+                                    <Pagination
+                                        isCompact
+                                        showControls
+                                        showShadow
+                                        color="primary"
+                                        page={page}
+                                        total={Math.ceil(filteredItems.length / rowsPerPage) || 1}
+                                        onChange={(page) => setPage(page)}
+                                    />
+                                </div>
+                            }
+                            classNames={{
+                                wrapper: "min-h-[222px]",
+                            }}
+                        >
+                            <TableHeader columns={columns}>
+                                {(column) => (
+                                    <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
+                                        {column.name}
+                                    </TableColumn>
+                                )}
+                            </TableHeader>
+                            <TableBody items={items} emptyContent={"No se encontraron propiedades"}>
+                                {(item) => (
+                                    <TableRow key={item.id}>
+                                        {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </div>
+
+                {/* Mobile Bottom Navigation */}
+                <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-black/90 backdrop-blur-lg border-t border-default-200 z-50 px-6 py-3 flex justify-between items-center rounded-t-2xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                    <NavigationItems isMobile={true} />
                 </div>
             </div>
         </HeroUIProvider>
@@ -297,7 +371,7 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
 }
 
 const StatsCard = ({ title, value, color }) => (
-    <Card className="w-full">
+    <Card className="w-full border-none shadow-md">
         <CardBody className="flex flex-row items-center justify-between p-4">
             <div>
                 <p className="text-xs sm:text-sm text-default-500 font-medium uppercase">{title}</p>
@@ -339,6 +413,31 @@ const PlusIcon = (props: any) => (
             <path d="M6 12h12" />
             <path d="M12 18V6" />
         </g>
+    </svg>
+);
+
+const KeyIcon = (props: any) => (
+    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
+        <path d="M14 14l6-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+        <path d="M20 10V4h-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+        <path d="M9 20a5 5 0 1 0 0-10 5 5 0 0 0 0 10z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+    </svg>
+);
+
+const WrenchIcon = (props: any) => (
+    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
+        <path d="M14.5 2l-5 5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+        <path d="M19.5 7l-5 5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+        <path d="M21 3l-4 4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+        <path d="M11 11L3 19c-1.1 1.1-1.1 2.9 0 4s2.9 1.1 4 0l8-8" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+    </svg>
+);
+
+const LogOutIcon = (props: any) => (
+    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+        <path d="M16 17l5-5-5-5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+        <path d="M21 12H9" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
     </svg>
 );
 
