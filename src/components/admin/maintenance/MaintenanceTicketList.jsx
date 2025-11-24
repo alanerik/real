@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getMaintenanceTickets, updateMaintenanceTicketStatus, deleteMaintenanceTicket } from '../../../lib/maintenance';
+import { getMaintenanceTickets, updateMaintenanceTicketStatus, deleteMaintenanceTicket, assignProviderToTicket } from '../../../lib/maintenance';
+import { getProviders } from '../../../lib/providers';
 import { showToast } from '../../ToastManager';
 import {
     Table,
@@ -14,14 +15,19 @@ import {
     Dropdown,
     DropdownTrigger,
     DropdownMenu,
-    DropdownItem
+    DropdownItem,
+    Modal,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter
 } from "@heroui/react";
-
 const columns = [
     { name: "PROPIEDAD", uid: "property" },
     { name: "PROBLEMA", uid: "title" },
     { name: "PRIORIDAD", uid: "priority" },
     { name: "ESTADO", uid: "status" },
+    { name: "PROVEEDOR", uid: "provider" },
     { name: "COSTO", uid: "cost" },
     { name: "ACCIONES", uid: "actions" },
 ];
@@ -47,9 +53,14 @@ const statusOptions = [
 export default function MaintenanceTicketList({ refreshTrigger }) {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [providers, setProviders] = useState([]);
+    const [selectedTicket, setSelectedTicket] = useState(null);
+    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+    const [selectedProvider, setSelectedProvider] = useState(null);
 
     useEffect(() => {
         loadTickets();
+        loadProviders();
     }, [refreshTrigger]);
 
     const loadTickets = async () => {
@@ -108,6 +119,46 @@ export default function MaintenanceTicketList({ refreshTrigger }) {
             });
         }
     };
+
+    const loadProviders = async () => {
+        try {
+            const data = await getProviders();
+            setProviders(data || []);
+        } catch (error) {
+            console.error('Error loading providers:', error);
+        }
+    };
+
+    const handleOpenAssignModal = (ticket) => {
+        setSelectedTicket(ticket);
+        setSelectedProvider(ticket.service_providers?.id || null);
+        setIsAssignModalOpen(true);
+    };
+
+    const handleAssignProvider = async () => {
+        if (!selectedTicket) return;
+
+        try {
+            await assignProviderToTicket(selectedTicket.id, selectedProvider);
+            showToast({
+                title: selectedProvider ? 'Proveedor asignado' : 'Asignación eliminada',
+                description: selectedProvider ? 'El proveedor ha sido asignado al ticket' : 'Se quitó el proveedor del ticket',
+                color: 'success'
+            });
+            loadTickets();
+            setIsAssignModalOpen(false);
+            setSelectedTicket(null);
+            setSelectedProvider(null);
+        } catch (error) {
+            console.error('Error assigning provider:', error);
+            showToast({
+                title: 'Error al asignar',
+                description: error.message,
+                color: 'danger'
+            });
+        }
+    };
+
 
     const renderCell = (ticket, columnKey) => {
         const cellValue = ticket[columnKey];
@@ -171,6 +222,21 @@ export default function MaintenanceTicketList({ refreshTrigger }) {
                         </DropdownMenu>
                     </Dropdown>
                 );
+            case "provider":
+                return (
+                    <div>
+                        {ticket.service_providers ? (
+                            <div>
+                                <p className="text-bold text-sm">{ticket.service_providers.name}</p>
+                                <Chip size="sm" color="primary" variant="dot" className="capitalize">
+                                    {ticket.service_providers.trade?.replace('_', ' ')}
+                                </Chip>
+                            </div>
+                        ) : (
+                            <span className="text-small text-default-400">Sin asignar</span>
+                        )}
+                    </div>
+                );
             case "cost":
                 return (
                     <div className="text-sm text-default-500">
@@ -180,6 +246,11 @@ export default function MaintenanceTicketList({ refreshTrigger }) {
             case "actions":
                 return (
                     <div className="relative flex items-center gap-2">
+                        <Tooltip content="Asignar Proveedor">
+                            <span className="text-lg text-primary cursor-pointer active:opacity-50" onClick={() => handleOpenAssignModal(ticket)}>
+                                <AssignIcon />
+                            </span>
+                        </Tooltip>
                         <Tooltip color="danger" content="Eliminar">
                             <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={() => handleDelete(ticket.id)}>
                                 <DeleteIcon />
@@ -195,22 +266,90 @@ export default function MaintenanceTicketList({ refreshTrigger }) {
     if (loading) return <div className="text-center py-4">Cargando tickets...</div>;
 
     return (
-        <Table aria-label="Tabla de tickets de mantenimiento">
-            <TableHeader columns={columns}>
-                {(column) => (
-                    <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
-                        {column.name}
-                    </TableColumn>
-                )}
-            </TableHeader>
-            <TableBody items={tickets} emptyContent={"No hay tickets registrados."}>
-                {(item) => (
-                    <TableRow key={item.id}>
-                        {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                    </TableRow>
-                )}
-            </TableBody>
-        </Table>
+        <>
+            <Table aria-label="Tabla de tickets de mantenimiento">
+                <TableHeader columns={columns}>
+                    {(column) => (
+                        <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
+                            {column.name}
+                        </TableColumn>
+                    )}
+                </TableHeader>
+                <TableBody items={tickets} emptyContent={"No hay tickets registrados."}>
+                    {(item) => (
+                        <TableRow key={item.id}>
+                            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+
+            <Modal
+                isOpen={isAssignModalOpen}
+                onClose={() => setIsAssignModalOpen(false)}
+                scrollBehavior="inside"
+                size="2xl"
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">
+                                Asignar Proveedor
+                            </ModalHeader>
+                            <ModalBody>
+                                <p className="text-sm text-gray-600 mb-4">
+                                    Selecciona un proveedor para asignar a este ticket:
+                                </p>
+
+                                <div className="space-y-2">
+                                    <div
+                                        className={`p-3 border rounded-lg cursor-pointer transition-all ${selectedProvider === null
+                                            ? 'border-primary bg-primary-50'
+                                            : 'border-gray-200 hover:border-gray-300'
+                                            }`}
+                                        onClick={() => setSelectedProvider(null)}
+                                    >
+                                        <p className="text-sm font-medium">Sin asignar</p>
+                                        <p className="text-xs text-gray-500">Quitar asignación actual</p>
+                                    </div>
+
+                                    {providers.map((provider) => (
+                                        <div
+                                            key={provider.id}
+                                            className={`p-3 border rounded-lg cursor-pointer transition-all ${selectedProvider === provider.id
+                                                ? 'border-primary bg-primary-50'
+                                                : 'border-gray-200 hover:border-gray-300'
+                                                }`}
+                                            onClick={() => setSelectedProvider(provider.id)}
+                                        >
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <p className="text-sm font-medium">{provider.name}</p>
+                                                    <p className="text-xs text-gray-500 capitalize">
+                                                        {provider.trade.replace('_', ' ')}
+                                                    </p>
+                                                </div>
+                                                <Chip size="sm" color="default" variant="flat">
+                                                    {provider.phone}
+                                                </Chip>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button color="default" variant="light" onPress={onClose}>
+                                    Cancelar
+                                </Button>
+                                <Button color="primary" onPress={handleAssignProvider}>
+                                    Asignar
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+        </>
     );
 }
 
@@ -227,5 +366,11 @@ const DeleteIcon = (props) => (
 const UserIcon = (props) => (
     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" {...props}>
         <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+    </svg>
+);
+
+const AssignIcon = (props) => (
+    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor" />
     </svg>
 );

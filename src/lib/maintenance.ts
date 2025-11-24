@@ -23,6 +23,12 @@ export const getMaintenanceTickets = async () => {
       properties (
         title,
         city
+      ),
+      service_providers (
+        id,
+        name,
+        trade,
+        phone
       )
     `)
     .order('created_at', { ascending: false });
@@ -63,4 +69,32 @@ export const deleteMaintenanceTicket = async (id) => {
   }
 
   return true;
+};
+
+export const assignProviderToTicket = async (ticketId, providerId) => {
+  const { data, error } = await supabase
+    .from('maintenance_tickets')
+    .update({ assigned_provider_id: providerId })
+    .eq('id', ticketId)
+    .select(`
+      *,
+      properties (
+        title,
+        city
+      ),
+      service_providers (
+        id,
+        name,
+        trade,
+        phone
+      )
+    `)
+    .single();
+
+  if (error) {
+    console.error('Error assigning provider to ticket:', error);
+    throw error;
+  }
+
+  return data;
 };
