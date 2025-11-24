@@ -9,10 +9,17 @@ export default function MaintenanceManager() {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [showForm, setShowForm] = useState(false);
     const [selectedTab, setSelectedTab] = useState("tickets");
+    const [editingProvider, setEditingProvider] = useState(null);
 
     const handleSuccess = () => {
         setRefreshTrigger(prev => prev + 1);
         setShowForm(false);
+        setEditingProvider(null);
+    };
+
+    const handleEdit = (provider) => {
+        setEditingProvider(provider);
+        setShowForm(true);
     };
 
     return (
@@ -33,7 +40,10 @@ export default function MaintenanceManager() {
                     </Button>
                     <Button
                         color="primary"
-                        onPress={() => setShowForm(!showForm)}
+                        onPress={() => {
+                            setShowForm(!showForm);
+                            if (!showForm) setEditingProvider(null);
+                        }}
                         className="w-full sm:w-auto"
                     >
                         {showForm ? 'Cancelar' : (selectedTab === "tickets" ? 'Nuevo Ticket' : 'Nuevo Proveedor')}
@@ -62,10 +72,10 @@ export default function MaintenanceManager() {
                     <div className="mt-4">
                         {showForm && (
                             <div className="mb-8">
-                                <ProviderForm onSuccess={handleSuccess} />
+                                <ProviderForm onSuccess={handleSuccess} editingProvider={editingProvider} />
                             </div>
                         )}
-                        <ProviderList refreshTrigger={refreshTrigger} />
+                        <ProviderList refreshTrigger={refreshTrigger} onEdit={handleEdit} />
                     </div>
                 </Tab>
             </Tabs>
