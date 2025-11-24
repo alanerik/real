@@ -123,7 +123,20 @@ export default function MaintenanceTicketList({ refreshTrigger }) {
             case "title":
                 return (
                     <div>
-                        <p className="text-bold text-sm capitalize">{ticket.title}</p>
+                        <div className="flex items-center gap-2">
+                            <p className="text-bold text-sm capitalize">{ticket.title}</p>
+                            {ticket.created_by_tenant && (
+                                <Chip
+                                    size="sm"
+                                    variant="flat"
+                                    color="secondary"
+                                    startContent={<UserIcon />}
+                                    className="h-5"
+                                >
+                                    Inquilino
+                                </Chip>
+                            )}
+                        </div>
                         <p className="text-bold text-xs text-default-400 truncate max-w-xs">{ticket.description}</p>
                     </div>
                 );
@@ -208,5 +221,11 @@ const DeleteIcon = (props) => (
         <path d="M15.7084 9.16669L15.1667 17.5667C15.0834 18.875 15 19.1667 12.675 19.1667H7.32502C5.00002 19.1667 4.91669 18.875 4.83335 17.5667L4.29169 9.16669" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
         <path d="M8.60834 13.75H11.3833" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
         <path d="M7.91669 10.4167H12.0834" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+    </svg>
+);
+
+const UserIcon = (props) => (
+    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" {...props}>
+        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
     </svg>
 );
