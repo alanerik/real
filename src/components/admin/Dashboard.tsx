@@ -112,7 +112,7 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
-        window.location.href = "/login";
+        window.location.href = "/admin/login";
     };
 
     // Stats
@@ -258,61 +258,31 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
     return (
         <HeroUIProvider>
             <div className="min-h-screen bg-transparent pb-20 sm:pb-0">
-                <div className="max-w-5xl mx-auto p-4 sm:p-6 flex flex-col sm:flex-row gap-6">
+                <div className="max-w-5xl mx-auto p-4 sm:p-6 flex flex-col gap-6">
 
-                    {/* Desktop Sidebar */}
-                    <div className="hidden sm:flex flex-col items-center py-6 px-2 bg-white/80 dark:bg-black/20 backdrop-blur-md shadow-lg rounded-2xl h-[calc(100vh-3rem)] sticky top-6 w-16 gap-6 z-40">
-                        <NavigationItems />
-                    </div>
-
-                    {/* Main Content */}
-                    <div className="flex-1 flex flex-col gap-6 w-full">
-
-                        {/* Header */}
-                        <div className="flex flex-row justify-between items-center w-full">
-                            {/* Desktop Left: Welcome */}
-                            <div className="hidden sm:block text-left">
-                                <h1 className="text-xl font-bold">
-                                    Bienvenido, <span className="text-primary">{currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || "Usuario"}</span>
-                                </h1>
-                            </div>
-
-                            {/* Mobile Left: Welcome */}
-                            <div className="sm:hidden">
-                                <h1 className="text-xl font-bold">
-                                    Bienvenido, <span className="text-primary">{currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || "Usuario"}</span>
-                                </h1>
-                            </div>
-
-                            {/* Mobile Right: Alerts */}
-                            <div className="sm:hidden">
-                                <RentalAlerts />
-                            </div>
-
-                            {/* Desktop Right: Alerts + Search */}
-                            <div className="hidden sm:flex items-center justify-end gap-4 flex-1 max-w-xl">
-                                <Input
-                                    isClearable
-                                    className="w-full"
-                                    placeholder="Buscar por nombre o ciudad..."
-                                    startContent={<SearchIcon />}
-                                    value={filterValue}
-                                    onValueChange={setFilterValue}
-                                />
-                                <RentalAlerts />
-                            </div>
+                    {/* Header */}
+                    <div className="flex flex-row justify-between items-center w-full">
+                        {/* Desktop Left: Welcome */}
+                        <div className="hidden sm:block text-left">
+                            <h1 className="text-xl font-bold">
+                                Bienvenido, <span className="text-primary">{currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || "Usuario"}</span>
+                            </h1>
                         </div>
 
-                        {/* Stats Cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <StatsCard title="Total Propiedades" value={stats.total} color="primary" />
-                            <StatsCard title="Disponibles" value={stats.available} color="success" />
-                            <StatsCard title="Reservadas" value={stats.reserved} color="warning" />
-                            <StatsCard title="Vendidas" value={stats.sold} color="danger" />
+                        {/* Mobile Left: Welcome */}
+                        <div className="sm:hidden">
+                            <h1 className="text-xl font-bold">
+                                Bienvenido, <span className="text-primary">{currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || "Usuario"}</span>
+                            </h1>
                         </div>
 
-                        {/* Mobile Search (Below Stats) */}
-                        <div className="sm:hidden w-full">
+                        {/* Mobile Right: Alerts */}
+                        <div className="sm:hidden">
+                            <RentalAlerts />
+                        </div>
+
+                        {/* Desktop Right: Alerts + Search */}
+                        <div className="hidden sm:flex items-center justify-end gap-4 flex-1 max-w-xl">
                             <Input
                                 isClearable
                                 className="w-full"
@@ -321,43 +291,75 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
                                 value={filterValue}
                                 onValueChange={setFilterValue}
                             />
+                            <RentalAlerts />
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-6">
+                        {/* Desktop Sidebar */}
+                        <div className="hidden sm:flex flex-col items-center py-6 px-2 bg-white/80 dark:bg-black/20 backdrop-blur-md shadow-lg rounded-2xl h-[calc(100vh-8rem)] sticky top-6 w-16 gap-6 z-40">
+                            <NavigationItems />
                         </div>
 
-                        {/* Table */}
-                        <Table
-                            aria-label="Tabla de propiedades"
-                            bottomContent={
-                                <div className="flex w-full justify-center">
-                                    <Pagination
-                                        isCompact
-                                        showControls
-                                        showShadow
-                                        color="primary"
-                                        page={page}
-                                        total={Math.ceil(filteredItems.length / rowsPerPage) || 1}
-                                        onChange={(page) => setPage(page)}
-                                    />
-                                </div>
-                            }
-                            classNames={{
-                                wrapper: "min-h-[222px]",
-                            }}
-                        >
-                            <TableHeader columns={columns}>
-                                {(column) => (
-                                    <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
-                                        {column.name}
-                                    </TableColumn>
-                                )}
-                            </TableHeader>
-                            <TableBody items={items} emptyContent={"No se encontraron propiedades"}>
-                                {(item) => (
-                                    <TableRow key={item.id}>
-                                        {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
+                        {/* Main Content */}
+                        <div className="flex-1 flex flex-col gap-6 w-full">
+
+                            {/* Stats Cards */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <StatsCard title="Total Propiedades" value={stats.total} color="primary" />
+                                <StatsCard title="Disponibles" value={stats.available} color="success" />
+                                <StatsCard title="Reservadas" value={stats.reserved} color="warning" />
+                                <StatsCard title="Vendidas" value={stats.sold} color="danger" />
+                            </div>
+
+                            {/* Mobile Search (Below Stats) */}
+                            <div className="sm:hidden w-full">
+                                <Input
+                                    isClearable
+                                    className="w-full"
+                                    placeholder="Buscar por nombre o ciudad..."
+                                    startContent={<SearchIcon />}
+                                    value={filterValue}
+                                    onValueChange={setFilterValue}
+                                />
+                            </div>
+
+                            {/* Table */}
+                            <Table
+                                aria-label="Tabla de propiedades"
+                                bottomContent={
+                                    <div className="flex w-full justify-center">
+                                        <Pagination
+                                            isCompact
+                                            showControls
+                                            showShadow
+                                            color="primary"
+                                            page={page}
+                                            total={Math.ceil(filteredItems.length / rowsPerPage) || 1}
+                                            onChange={(page) => setPage(page)}
+                                        />
+                                    </div>
+                                }
+                                classNames={{
+                                    wrapper: "min-h-[222px]",
+                                }}
+                            >
+                                <TableHeader columns={columns}>
+                                    {(column) => (
+                                        <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
+                                            {column.name}
+                                        </TableColumn>
+                                    )}
+                                </TableHeader>
+                                <TableBody items={items} emptyContent={"No se encontraron propiedades"}>
+                                    {(item) => (
+                                        <TableRow key={item.id}>
+                                            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </div>
                 </div>
 
