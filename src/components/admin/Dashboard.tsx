@@ -509,6 +509,7 @@ const RentalAlerts = () => {
                                         {alerts.map((alert: any) => {
                                             const remainingDays = Math.ceil((new Date(alert.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                                             const isExpired = remainingDays < 0;
+                                            const daysAgo = Math.abs(remainingDays);
 
                                             return (
                                                 <Card key={alert.id} className={`border ${isExpired ? 'border-danger-200' : 'border-warning-200'}`}>
@@ -519,10 +520,10 @@ const RentalAlerts = () => {
                                                                 <p className="text-sm text-gray-600 mt-1">Inquilino: {alert.tenant_name}</p>
                                                                 <div className="flex items-center gap-2 mt-2 flex-wrap">
                                                                     <Chip size="sm" color={isExpired ? "danger" : "warning"} variant="flat">
-                                                                        {isExpired ? `Vencido hace ${Math.abs(remainingDays)} días` : `${remainingDays} días restantes`}
+                                                                        {isExpired ? `Vencido hace ${daysAgo} día${daysAgo !== 1 ? 's' : ''}` : `${remainingDays} día${remainingDays !== 1 ? 's' : ''} restante${remainingDays !== 1 ? 's' : ''}`}
                                                                     </Chip>
                                                                     <Chip size="sm" color={isExpired ? "danger" : "warning"} variant="dot">
-                                                                        Finaliza: {new Date(alert.end_date).toLocaleDateString()}
+                                                                        {isExpired ? "Finalizó: " : "Finaliza: "} {new Date(alert.end_date).toLocaleDateString()}
                                                                     </Chip>
                                                                 </div>
                                                             </div>

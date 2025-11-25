@@ -111,15 +111,46 @@ export default function Rentals() {
                     active: "Activo",
                     pending: "Pendiente",
                     completed: "Completado",
-                    cancelled: "Cancelado"
+                    cancelled: "Cancelado",
+                    near_expiration: "Próximo a Vencer",
+                    expired: "Vencido",
+                    terminated: "Terminado"
                 };
+
+                // Check if status needs update based on date (visual only)
+                let displayStatus = rental.status;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Reset to start of day
+
+                const endDate = new Date(rental.end_date);
+                endDate.setHours(0, 0, 0, 0); // Reset to start of day
+
+                // Debug log
+                console.log('Rental:', rental.properties?.title, 'Status:', rental.status, 'End:', rental.end_date, 'Today:', today.toISOString().split('T')[0], 'Expired?', endDate < today);
+
+                if (rental.status === 'active' || rental.status === 'near_expiration') {
+                    if (endDate < today) {
+                        displayStatus = 'expired';
+                    }
+                }
+
+                const colorMap = {
+                    active: "success",
+                    pending: "warning",
+                    completed: "default",
+                    cancelled: "danger",
+                    near_expiration: "warning",
+                    expired: "danger",
+                    terminated: "default"
+                };
+
                 return (
                     <Chip
-                        color={rental.status === 'active' ? 'success' : rental.status === 'pending' ? 'warning' : 'default'}
+                        color={colorMap[displayStatus] || 'default'}
                         size="sm"
                         variant="flat"
                     >
-                        {statusMap[rental.status] || rental.status}
+                        {statusMap[displayStatus] || displayStatus}
                     </Chip>
                 );
             case "actions":

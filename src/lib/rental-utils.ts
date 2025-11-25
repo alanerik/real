@@ -83,7 +83,6 @@ export const getRentalProgress = (startDate: string, endDate: string): number =>
 
     const totalDuration = end.getTime() - start.getTime();
     const elapsed = today.getTime() - start.getTime();
-
     return Math.round((elapsed / totalDuration) * 100);
 };
 
@@ -95,9 +94,10 @@ export const determineRentalStatus = (
     endDate: string,
     currentStatus?: string
 ): string => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const today = new Date();
+    // Normalize dates to YYYY-MM-DD strings for comparison to avoid timezone issues
+    const startStr = startDate.split('T')[0];
+    const endStr = endDate.split('T')[0];
+    const todayStr = new Date().toISOString().split('T')[0];
 
     // If manually terminated or cancelled, keep that status
     if (currentStatus === 'terminated' || currentStatus === 'cancelled') {
@@ -105,16 +105,17 @@ export const determineRentalStatus = (
     }
 
     // If not started yet
-    if (start > today) {
+    if (startStr > todayStr) {
         return 'pending';
     }
 
-    // If already expired
-    if (end < today) {
+    // If already expired (end date is strictly before today)
+    if (endStr < todayStr) {
         return 'expired';
     }
 
     // If expiring soon (30 days or less)
+    // We still use the original function for days calculation as it handles the diff correctly
     const daysRemaining = getRemainingDays(endDate);
     if (daysRemaining <= 30) {
         return 'near_expiration';

@@ -163,20 +163,49 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
                                             ))}
                                         </Select>
 
-                                        <Select
-                                            label="Estado"
-                                            placeholder="Seleccionar estado"
-                                            selectedKeys={[formData.status]}
-                                            onChange={(e) => handleChange('status', e.target.value)}
-                                            isRequired
-                                        >
-                                            <SelectItem key="pending" value="pending">Pendiente</SelectItem>
-                                            <SelectItem key="active" value="active">Activo</SelectItem>
-                                            <SelectItem key="near_expiration" value="near_expiration">Próximo a Vencer</SelectItem>
-                                            <SelectItem key="expired" value="expired">Vencido</SelectItem>
-                                            <SelectItem key="terminated" value="terminated">Terminado</SelectItem>
-                                            <SelectItem key="cancelled" value="cancelled">Cancelado</SelectItem>
-                                        </Select>
+                                        <div className="space-y-2">
+                                            <Select
+                                                label="Estado"
+                                                placeholder="Seleccionar estado"
+                                                selectedKeys={[formData.status]}
+                                                onChange={(e) => handleChange('status', e.target.value)}
+                                                isRequired
+                                                description="Solo puedes cambiar manualmente a 'Terminado' o 'Cancelado'. Los demás estados se calculan automáticamente según las fechas."
+                                            >
+                                                {/* Read-only automatic states */}
+                                                <SelectItem key="pending" value="pending" isDisabled>
+                                                    Pendiente (Automático)
+                                                </SelectItem>
+                                                <SelectItem key="active" value="active" isDisabled>
+                                                    Activo (Automático)
+                                                </SelectItem>
+                                                <SelectItem key="near_expiration" value="near_expiration" isDisabled>
+                                                    Próximo a Vencer (Automático)
+                                                </SelectItem>
+                                                <SelectItem key="expired" value="expired" isDisabled>
+                                                    Vencido (Automático)
+                                                </SelectItem>
+
+                                                {/* Manual states */}
+                                                <SelectItem key="terminated" value="terminated">
+                                                    Terminado (Manual)
+                                                </SelectItem>
+                                                <SelectItem key="cancelled" value="cancelled">
+                                                    Cancelado (Manual)
+                                                </SelectItem>
+                                            </Select>
+
+                                            {(formData.status === 'pending' || formData.status === 'active' || formData.status === 'near_expiration' || formData.status === 'expired') && (
+                                                <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                                                    Estado actual: <strong>{
+                                                        formData.status === 'pending' ? 'Pendiente' :
+                                                            formData.status === 'active' ? 'Activo' :
+                                                                formData.status === 'near_expiration' ? 'Próximo a Vencer' :
+                                                                    'Vencido'
+                                                    }</strong> (calculado automáticamente según las fechas)
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </CardBody>
                             </Card>
