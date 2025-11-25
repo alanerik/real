@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Button, Chip, Tabs, Tab, Tooltip } from "@heroui/react";
 import { getRentals, deleteRental } from '../../lib/rentals';
+import { getAllProperties } from '../../lib/properties';
 import { sendTenantInvitation } from '../../lib/auth-tenant';
 import RentalCalendar from './RentalCalendar';
 import PaymentManager from './PaymentManager';
 
 export default function Rentals() {
     const [rentals, setRentals] = useState([]);
+    const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedRental, setSelectedRental] = useState(null);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
     useEffect(() => {
         loadRentals();
+        loadProperties();
     }, []);
 
     const loadRentals = async () => {
@@ -20,6 +23,11 @@ export default function Rentals() {
         const data = await getRentals();
         setRentals(data);
         setLoading(false);
+    };
+
+    const loadProperties = async () => {
+        const props = await getAllProperties();
+        setProperties(props);
     };
 
     const handleDelete = async (id) => {
@@ -241,7 +249,7 @@ export default function Rentals() {
                     </Table>
                 </Tab>
                 <Tab key="calendar" title="Calendario">
-                    <RentalCalendar rentals={rentals} />
+                    <RentalCalendar rentals={rentals} properties={properties} />
                 </Tab>
             </Tabs>
 

@@ -1,8 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardBody, Chip, Button, Popover, PopoverTrigger, PopoverContent } from "@heroui/react";
+import CalendarViewSelector from './CalendarViewSelector';
+import CalendarFilters from './CalendarFilters';
+import CalendarLegend from './CalendarLegend';
+import WeekView from './WeekView';
+import DayView from './DayView';
+import RentalTooltip from './RentalTooltip';
+import { determineRentalStatus } from '../../lib/rental-utils';
 
-export default function RentalCalendar({ rentals }) {
+export default function RentalCalendar({ rentals, properties = [] }) {
+    const [view, setView] = useState('month');
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [selectedProperty, setSelectedProperty] = useState('all');
+    const [selectedStatuses, setSelectedStatuses] = useState(new Set(['all']));
+    const [selectedTypes, setSelectedTypes] = useState(new Set(['all']));
+    const [showFilters, setShowFilters] = useState(false);
+
+    // Filter rentals based on selected filters
+    const filteredRentals = useMemo(() => {
+        return rentals.filter(rental => {
+            // Filter by property
+            if (selectedProperty !== 'all' && rental.property_id !== selectedProperty) {
+                return false;
+            }
+
+            // Filter by status
+            if (!selectedStatuses.has('all')) {
+                const status = determineRentalStatus(rental.status, rental.start_date, rental.end_date);
+                if (!selectedStatuses.has(status)) {
+                    return false;
+                }
+            }
+
+            // Filter by type
+            if (!selectedTypes.has('all') && !selectedTypes.has(rental.rental_type)) {
+                return false;
+            }
+
+            return true;
+        });
+    }, [rentals, selectedProperty, selectedStatuses, selectedTypes]);
+
+    const handleClearFilters = () => {
+        setSelectedProperty('all');
+        setSelectedStatuses(new Set(['all']));
+        setSelectedTypes(new Set(['all']));
+    };
 
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
@@ -15,7 +58,7 @@ export default function RentalCalendar({ rentals }) {
 
     const getRentalsForDay = (day) => {
         const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        return rentals.filter(rental => {
+        return filteredRentals.filter(rental => {
             return rental.start_date <= dateStr && rental.end_date >= dateStr;
         });
     };
@@ -28,20 +71,38 @@ export default function RentalCalendar({ rentals }) {
         setCurrentDate(new Date(currentYear, currentMonth - 1, 1));
     };
 
-    const renderRentalChip = (rental) => (
-        <Chip
-            key={rental.id}
-            size="sm"
-            color={rental.status === 'active' ? 'success' : rental.status === 'pending' ? 'warning' : 'default'}
-            className="w-full justify-start mb-1"
-        >
-            <span className="truncate text-xs">
-                {rental.properties?.title}
-            </span>
-        </Chip>
-    );
+    const getStatusColor = (status) => {
+        const colors = {
+            pending: 'primary',
+            active: 'success',
+            near_expiration: 'warning',
+            expired: 'danger',
+            terminated: 'default',
+            cancelled: 'default'
+        };
+        return colors[status] || 'default';
+    };
 
-    return (
+    const renderRentalChip = (rental) => {
+        const status = determineRentalStatus(rental.status, rental.start_date, rental.end_date);
+
+        return (
+            <RentalTooltip key={rental.id} rental={rental}>
+                <Chip
+                    size="sm"
+                    color={getStatusColor(status)}
+                    variant="flat"
+                    className="w-full justify-start mb-1 cursor-pointer"
+                >
+                    <span className="truncate text-xs">
+                        {rental.properties?.title}
+                    </span>
+                </Chip>
+            </RentalTooltip>
+        );
+    };
+
+    const renderMonthView = () => (
         <div className="bg-white p-3 sm:p-6 rounded-lg shadow">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                 <h2 className="text-base sm:text-xl font-bold capitalize">
@@ -103,6 +164,61 @@ export default function RentalCalendar({ rentals }) {
                     );
                 })}
             </div>
+        </div>
+    );
+
+    return (
+        <div className="space-y-4">
+            {/* View Selector */}
+            <div className="flex justify-between items-center">
+                <CalendarViewSelector view={view} onViewChange={setView} />
+                <Button
+                    size="sm"
+                    variant="flat"
+                    onPress={() => setShowFilters(!showFilters)}
+                >
+                    {showFilters ? '▲' : '▼'} Filtros
+                </Button>
+            </div>
+
+            {/* Filters */}
+            {showFilters && (
+                <CalendarFilters
+                    properties={properties}
+                    selectedProperty={selectedProperty}
+                    selectedStatuses={selectedStatuses}
+                    selectedTypes={selectedTypes}
+                    onPropertyChange={setSelectedProperty}
+                    onStatusChange={setSelectedStatuses}
+                    onTypeChange={setSelectedTypes}
+                    onClearFilters={handleClearFilters}
+                />
+            )}
+
+            {/* Legend */}
+            <CalendarLegend />
+
+            {/* Results count */}
+            <div className="text-sm text-gray-600">
+                Mostrando {filteredRentals.length} de {rentals.length} alquileres
+            </div>
+
+            {/* Views */}
+            {view === 'month' && renderMonthView()}
+            {view === 'week' && (
+                <WeekView
+                    rentals={filteredRentals}
+                    currentDate={currentDate}
+                    onDateChange={setCurrentDate}
+                />
+            )}
+            {view === 'day' && (
+                <DayView
+                    rentals={filteredRentals}
+                    currentDate={currentDate}
+                    onDateChange={setCurrentDate}
+                />
+            )}
         </div>
     );
 }
