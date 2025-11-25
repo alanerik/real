@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Button, Select, SelectItem, Textarea, DatePicker, Tabs, Tab, Checkbox, CheckboxGroup, Switch, Card, CardBody, Divider } from "@heroui/react";
+import { Input, Button, Select, SelectItem, Textarea, DatePicker, Tabs, Tab, Checkbox, CheckboxGroup, Switch, Card, CardBody, Divider, Alert } from "@heroui/react";
 import { createRental, updateRental, getRentalById } from '../../lib/rentals';
 import { getAllProperties } from '../../lib/properties';
 import { parseDate, getLocalTimeZone } from "@internationalized/date";
@@ -196,14 +196,16 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
                                             </Select>
 
                                             {(formData.status === 'pending' || formData.status === 'active' || formData.status === 'near_expiration' || formData.status === 'expired') && (
-                                                <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
-                                                    Estado actual: <strong>{
-                                                        formData.status === 'pending' ? 'Pendiente' :
+                                                <Alert
+                                                    color="primary"
+                                                    variant="flat"
+                                                    title="Estado Automático"
+                                                    description={`Estado actual: ${formData.status === 'pending' ? 'Pendiente' :
                                                             formData.status === 'active' ? 'Activo' :
                                                                 formData.status === 'near_expiration' ? 'Próximo a Vencer' :
                                                                     'Vencido'
-                                                    }</strong> (calculado automáticamente según las fechas)
-                                                </p>
+                                                        } (calculado automáticamente según las fechas)`}
+                                                />
                                             )}
                                         </div>
                                     </div>
