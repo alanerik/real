@@ -20,7 +20,9 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
-    useDisclosure
+    useDisclosure,
+    RadioGroup,
+    Radio
 } from "@heroui/react";
 import { getAttachments, uploadAttachment, deleteAttachment, getAttachmentUrl, getRentalById } from '../../lib/rentals';
 import { generateContractPDF } from '../../utils/generateContractPDF';
@@ -39,7 +41,9 @@ export default function DocumentManager({ rentalId }) {
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [rentalData, setRentalData] = useState(null);
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isOpen: isUploadOpen, onOpen: onUploadOpen, onClose: onUploadClose } = useDisclosure();
+    const { isOpen: isContractOpen, onOpen: onContractOpen, onClose: onContractClose } = useDisclosure();
+    const [contractType, setContractType] = useState('annual');
 
     // Upload Form State
     const [selectedFile, setSelectedFile] = useState(null);
@@ -70,8 +74,13 @@ export default function DocumentManager({ rentalId }) {
 
     const handleGenerateContract = () => {
         if (!rentalData) return;
+        onContractOpen();
+    };
+
+    const confirmGenerateContract = () => {
         try {
-            generateContractPDF(rentalData, rentalData.properties);
+            generateContractPDF(rentalData, rentalData.properties, contractType);
+            onContractClose();
         } catch (error) {
             alert(error.message);
         }
@@ -85,7 +94,8 @@ export default function DocumentManager({ rentalId }) {
                 return;
             }
             setSelectedFile(file);
-            onOpen();
+            setSelectedFile(file);
+            onUploadOpen();
         }
     };
 
@@ -101,7 +111,7 @@ export default function DocumentManager({ rentalId }) {
             });
 
             loadDocuments();
-            onClose();
+            onUploadClose();
             setSelectedFile(null);
             setUploadForm({
                 category: 'other',
@@ -240,7 +250,7 @@ export default function DocumentManager({ rentalId }) {
             </Table>
 
             {/* Upload Modal */}
-            <Modal isOpen={isOpen} onClose={onClose}>
+            <Modal isOpen={isUploadOpen} onClose={onUploadClose}>
                 <ModalContent>
                     {(onClose) => (
                         <>
@@ -285,6 +295,42 @@ export default function DocumentManager({ rentalId }) {
                                 </Button>
                                 <Button color="primary" onPress={handleUpload} isLoading={uploading}>
                                     Guardar
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+
+            {/* Contract Type Modal */}
+            <Modal isOpen={isContractOpen} onClose={onContractClose}>
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader>Generar Contrato PDF</ModalHeader>
+                            <ModalBody>
+                                <p className="text-sm text-gray-600 mb-4">
+                                    Selecciona el tipo de contrato que deseas generar para <strong>{rentalData?.tenant_name}</strong>.
+                                </p>
+                                <RadioGroup
+                                    label="Tipo de Contrato"
+                                    value={contractType}
+                                    onValueChange={setContractType}
+                                >
+                                    <Radio value="annual" description="Contrato de vivienda permanente por 3 años (Ley de Alquileres)">
+                                        Vivienda Permanente
+                                    </Radio>
+                                    <Radio value="vacation" description="Alquiler temporario con fines turísticos (Máx 3 meses)">
+                                        Alquiler Temporario / Vacacional
+                                    </Radio>
+                                </RadioGroup>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button color="danger" variant="light" onPress={onClose}>
+                                    Cancelar
+                                </Button>
+                                <Button color="primary" onPress={confirmGenerateContract} startContent={<FileIcon />}>
+                                    Generar PDF
                                 </Button>
                             </ModalFooter>
                         </>

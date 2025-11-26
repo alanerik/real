@@ -108,9 +108,12 @@ export async function createRental(rental: Rental) {
 }
 
 export async function updateRental(id: string, rental: Partial<Rental>) {
+    // Remove joined fields that shouldn't be sent to the DB
+    const { properties, payments, paymentStatus, ...updateData } = rental as any;
+
     const { data, error } = await supabase
         .from('rentals')
-        .update(rental)
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();

@@ -12,12 +12,13 @@ const formatDate = (dateString) => {
     });
 };
 
+
 const formatCurrency = (amount) => {
     if (!amount) return '_______________';
     return `$${Number(amount).toLocaleString('es-AR')}`;
 };
 
-export const generateContractPDF = (rental, property) => {
+export const generateContractPDF = (rental, property, type = 'annual') => {
     if (!rental || !property) {
         throw new Error('Faltan datos del alquiler o propiedad para generar el contrato');
     }
@@ -28,13 +29,130 @@ export const generateContractPDF = (rental, property) => {
         year: 'numeric'
     });
 
+    const getAnnualContractHTML = () => `
+    <div class="header">
+        CONTRATO DE LOCACIÓN DE VIVIENDA (ANUAL)
+    </div>
+    
+    <div class="section">
+        En la ciudad de ____________________, a los ${new Date().getDate()} días del mes de ${new Date().toLocaleDateString('es-AR', { month: 'long' })} de ${new Date().getFullYear()}, entre las partes:
+    </div>
+    
+    <div class="section">
+        <span class="highlight">EL LOCADOR:</span> __________________________________________________, DNI N° ____________________, con domicilio en __________________________________________________.
+    </div>
+    
+    <div class="section">
+        <span class="highlight">EL LOCATARIO:</span> <span class="highlight">${rental.tenant_name}</span>, DNI N° ____________________, con domicilio en __________________________________________________.
+    </div>
+    
+    <div class="section">
+        Se conviene celebrar el presente Contrato de Locación de Vivienda Permanente, sujeto a las siguientes cláusulas:
+    </div>
+    
+    <div class="section">
+        <div class="section-title">PRIMERA: OBJETO</div>
+        EL LOCADOR cede en locación a EL LOCATARIO, y este acepta, el inmueble sito en <span class="highlight">${property.address || property.title}</span>, que será destinado exclusivamente a vivienda familiar permanente.
+    </div>
+    
+    <div class="section">
+        <div class="section-title">SEGUNDA: PLAZO</div>
+        El plazo de la locación se estipula en <span class="highlight">36 (treinta y seis) meses</span>, comenzando el día <span class="highlight">${formatDate(rental.start_date)}</span> y finalizando el día <span class="highlight">${formatDate(rental.end_date)}</span>.
+    </div>
+    
+    <div class="section">
+        <div class="section-title">TERCERA: PRECIO Y AJUSTE</div>
+        El precio inicial de la locación se fija en la suma de <span class="highlight">${formatCurrency(rental.total_amount)}</span> mensuales. Este monto se ajustará anualmente según el Índice de Contratos de Locación (ICL) publicado por el BCRA.
+    </div>
+    
+    <div class="section">
+        <div class="section-title">CUARTA: GARANTÍA</div>
+        En garantía del fiel cumplimiento de las obligaciones, EL LOCATARIO presenta: ________________________________________________________________.
+    </div>
+    
+    <div class="section">
+        <div class="section-title">QUINTA: OBLIGACIONES Y SERVICIOS</div>
+        EL LOCATARIO asume el pago de:
+        <ul>
+            <li>Servicios de luz, gas, agua y desagües cloacales.</li>
+            <li>Expensas ordinarias.</li>
+            <li>Tasas e impuestos municipales.</li>
+        </ul>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">SEXTA: RESCISIÓN ANTICIPADA</div>
+        EL LOCATARIO podrá rescindir el contrato transcurridos los seis primeros meses, notificando con un mes de antelación. Si la rescisión es en el primer año, abonará una indemnización de un mes y medio de alquiler; si es después, de un mes.
+    </div>
+    `;
+
+    const getVacationContractHTML = () => `
+    <div class="header">
+        CONTRATO DE ALQUILER TEMPORARIO / VACACIONAL
+    </div>
+    
+    <div class="section">
+        En la ciudad de ____________________, a los ${new Date().getDate()} días del mes de ${new Date().toLocaleDateString('es-AR', { month: 'long' })} de ${new Date().getFullYear()}, entre las partes:
+    </div>
+    
+    <div class="section">
+        <span class="highlight">EL LOCADOR:</span> __________________________________________________, DNI N° ____________________.
+    </div>
+    
+    <div class="section">
+        <span class="highlight">EL HUÉSPED:</span> <span class="highlight">${rental.tenant_name}</span>, DNI N° ____________________, con domicilio en __________________________________________________.
+    </div>
+    
+    <div class="section">
+        Se conviene celebrar el presente Contrato de Alquiler Temporario con fines turísticos, sujeto a las siguientes cláusulas:
+    </div>
+    
+    <div class="section">
+        <div class="section-title">PRIMERA: OBJETO</div>
+        EL LOCADOR cede el uso y goce temporal del inmueble sito en <span class="highlight">${property.address || property.title}</span>, amueblado y equipado según inventario anexo.
+    </div>
+    
+    <div class="section">
+        <div class="section-title">SEGUNDA: PLAZO IMPRORROGABLE</div>
+        El plazo es improrrogable, desde el día <span class="highlight">${formatDate(rental.start_date)}</span> a las ____ hs, hasta el día <span class="highlight">${formatDate(rental.end_date)}</span> a las ____ hs. La permanencia indebida devengará una multa diaria de USD 100.
+    </div>
+    
+    <div class="section">
+        <div class="section-title">TERCERA: PRECIO TOTAL</div>
+        El precio total y único por todo el período se fija en <span class="highlight">${formatCurrency(rental.total_amount)}</span>, que se abona en su totalidad antes del ingreso.
+    </div>
+    
+    <div class="section">
+        <div class="section-title">CUARTA: DEPÓSITO DE GARANTÍA</div>
+        EL HUÉSPED entrega en este acto la suma de ____________________ en concepto de depósito de garantía, que será devuelto al finalizar la locación previa verificación del estado del inmueble e inventario.
+    </div>
+    
+    <div class="section">
+        <div class="section-title">QUINTA: SERVICIOS E INVENTARIO</div>
+        El precio incluye los servicios de luz, gas, agua, TV por cable e Internet. EL HUÉSPED declara recibir el inmueble y los muebles en perfecto estado de conservación y funcionamiento.
+    </div>
+    
+    <div class="section">
+        <div class="section-title">SEXTA: PROHIBICIONES</div>
+        Queda prohibido:
+        <ul>
+            <li>Alojar a más personas que las pactadas (Máximo: ____ personas).</li>
+            <li>Cambiar el destino de vivienda turística.</li>
+            <li>Realizar fiestas o ruidos molestos.</li>
+            <li>Subarrendar la propiedad.</li>
+        </ul>
+    </div>
+    `;
+
+    const contentHTML = type === 'vacation' ? getVacationContractHTML() : getAnnualContractHTML();
+
     // Contract HTML Template
     const html = `
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Contrato de Alquiler - ${property.title}</title>
+    <title>Contrato - ${property.title}</title>
     <style>
         @media print {
             @page {
@@ -95,14 +213,6 @@ export const generateContractPDF = (rental, property) => {
             text-align: center;
         }
         
-        .footer {
-            margin-top: 50px;
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-            page-break-before: always;
-        }
-        
         ul {
             list-style-type: none;
             padding-left: 20px;
@@ -119,71 +229,15 @@ export const generateContractPDF = (rental, property) => {
     </style>
 </head>
 <body>
-    <div class="header">
-        CONTRATO DE LOCACIÓN DE INMUEBLE
+    ${contentHTML}
+    
+    <div class="section">
+        <div class="section-title">JURISDICCIÓN</div>
+        Para todos los efectos legales, las partes se someten a la jurisdicción de los Tribunales Ordinarios de ____________________.
     </div>
     
     <div class="section">
-        En la ciudad de ____________________, a los ${new Date().getDate()} días del mes de ${new Date().toLocaleDateString('es-AR', { month: 'long' })} de ${new Date().getFullYear()}, entre las partes:
-    </div>
-    
-    <div class="section">
-        <span class="highlight">EL LOCADOR:</span> __________________________________________________, DNI N° ____________________, con domicilio en __________________________________________________.
-    </div>
-    
-    <div class="section">
-        <span class="highlight">EL LOCATARIO:</span> <span class="highlight">${rental.tenant_name}</span>, DNI N° ____________________, con domicilio en __________________________________________________.
-    </div>
-    
-    <div class="section">
-        Se conviene celebrar el presente Contrato de Locación, sujeto a las siguientes cláusulas y condiciones:
-    </div>
-    
-    <div class="section">
-        <div class="section-title">PRIMERA: OBJETO</div>
-        EL LOCADOR cede en locación a EL LOCATARIO, y este acepta, el inmueble sito en <span class="highlight">${property.address || property.title}</span>, que será destinado exclusivamente a vivienda familiar.
-    </div>
-    
-    <div class="section">
-        <div class="section-title">SEGUNDA: PLAZO</div>
-        El plazo de la locación se estipula en ____________________ meses, comenzando el día <span class="highlight">${formatDate(rental.start_date)}</span> y finalizando el día <span class="highlight">${formatDate(rental.end_date)}</span>.
-    </div>
-    
-    <div class="section">
-        <div class="section-title">TERCERA: PRECIO</div>
-        El precio de la locación se fija en la suma de <span class="highlight">${formatCurrency(rental.total_amount)}</span> mensuales, pagaderos por mes adelantado del 1 al 10 de cada mes.
-    </div>
-    
-    <div class="section">
-        <div class="section-title">CUARTA: GARANTÍA</div>
-        En garantía del fiel cumplimiento de las obligaciones contraídas en el presente contrato, EL LOCATARIO entrega en este acto:
-        <br><br>
-        _________________________________________________________________________________
-    </div>
-    
-    <div class="section">
-        <div class="section-title">QUINTA: OBLIGACIONES</div>
-        EL LOCATARIO se obliga a:
-        <ul>
-            <li>Pagar puntualmente el alquiler y los servicios.</li>
-            <li>Mantener el inmueble en buen estado de conservación.</li>
-            <li>No realizar reformas sin autorización expresa del LOCADOR.</li>
-            <li>Respetar el reglamento de copropiedad si lo hubiere.</li>
-        </ul>
-    </div>
-    
-    <div class="section">
-        <div class="section-title">SEXTA: RESCISIÓN</div>
-        EL LOCATARIO podrá rescindir el contrato transcurridos los seis primeros meses de vigencia, debiendo notificar al LOCADOR con una antelación mínima de un mes.
-    </div>
-    
-    <div class="section">
-        <div class="section-title">SÉPTIMA: JURISDICCIÓN</div>
-        Para todos los efectos legales derivados de este contrato, las partes se someten a la jurisdicción de los Tribunales Ordinarios de ____________________, renunciando a cualquier otro fuero o jurisdicción.
-    </div>
-    
-    <div class="section">
-        En prueba de conformidad, se firman dos ejemplares de un mismo tenor y a un solo efecto, en el lugar y fecha indicados en el encabezamiento.
+        En prueba de conformidad, se firman dos ejemplares de un mismo tenor y a un solo efecto.
     </div>
     
     <div class="signatures">
@@ -195,7 +249,7 @@ export const generateContractPDF = (rental, property) => {
         <div class="signature-box">
             <br><br>
             __________________________<br>
-            EL LOCATARIO<br>
+            ${type === 'vacation' ? 'EL HUÉSPED' : 'EL LOCATARIO'}<br>
             ${rental.tenant_name}
         </div>
     </div>
