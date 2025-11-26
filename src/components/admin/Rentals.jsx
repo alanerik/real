@@ -249,7 +249,7 @@ export default function Rentals() {
                     </Table>
                 </Tab>
                 <Tab key="calendar" title="Calendario">
-                    <RentalCalendar rentals={rentals} properties={properties} />
+                    <RentalCalendar rentals={rentals} properties={properties} onRentalsChange={loadRentals} />
                 </Tab>
             </Tabs>
 

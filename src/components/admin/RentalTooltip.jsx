@@ -7,8 +7,21 @@ export default function RentalTooltip({ rental, children }) {
     const endDate = new Date(rental.end_date);
     const remainingDays = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
 
-    // Determine payment status (simplified - would need actual payment data)
-    const paymentStatus = rental.payment_status || '✅ Al día';
+    // Payment status text and color
+    const getPaymentStatusInfo = (status) => {
+        const statusInfo = {
+            ok: { text: '✅ Pagos al día', color: 'text-green-600' },
+            upcoming: { text: '⚠️ Pago próximo (7 días)', color: 'text-yellow-600' },
+            overdue: { text: '❌ Pago atrasado', color: 'text-red-600' },
+            unknown: { text: 'ℹ️ Sin información de pagos', color: 'text-gray-500' }
+        };
+        return statusInfo[status] || statusInfo.unknown;
+    };
+
+    const paymentInfo = getPaymentStatusInfo(rental.paymentStatus);
+
+    // Get upcoming pending payments
+    const pendingPayments = rental.payments?.filter(p => p.status === 'pending').slice(0, 3) || [];
 
     const tooltipContent = (
         <div className="px-2 py-1 max-w-xs">
@@ -33,8 +46,21 @@ export default function RentalTooltip({ rental, children }) {
                 </div>
                 <div className="flex items-center gap-1">
                     <span>💳</span>
-                    <span>{paymentStatus}</span>
+                    <span className={paymentInfo.color}>{paymentInfo.text}</span>
                 </div>
+
+                {/* Show pending payments if any */}
+                {pendingPayments.length > 0 && (
+                    <div className="mt-2 pt-2 border-t border-gray-200">
+                        <div className="font-semibold mb-1">Próximos pagos:</div>
+                        {pendingPayments.map(payment => (
+                            <div key={payment.id} className="text-xs text-gray-600">
+                                ${payment.amount} - Vence: {payment.due_date}
+                            </div>
+                        ))}
+                    </div>
+                )}
+
                 <div className="text-gray-500 mt-2 pt-2 border-t border-gray-200">
                     {rental.start_date} → {rental.end_date}
                 </div>

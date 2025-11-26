@@ -6,15 +6,19 @@ import CalendarLegend from './CalendarLegend';
 import WeekView from './WeekView';
 import DayView from './DayView';
 import RentalTooltip from './RentalTooltip';
+import PaymentIndicator from './PaymentIndicator';
+import QuickCreateRentalModal from './QuickCreateRentalModal';
 import { determineRentalStatus } from '../../lib/rental-utils';
 
-export default function RentalCalendar({ rentals, properties = [] }) {
+export default function RentalCalendar({ rentals, properties = [], onRentalsChange }) {
     const [view, setView] = useState('month');
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedProperty, setSelectedProperty] = useState('all');
     const [selectedStatuses, setSelectedStatuses] = useState(new Set(['all']));
     const [selectedTypes, setSelectedTypes] = useState(new Set(['all']));
     const [showFilters, setShowFilters] = useState(false);
+    const [isQuickCreateOpen, setIsQuickCreateOpen] = useState(false);
+    const [quickCreateDate, setQuickCreateDate] = useState(null);
 
     // Filter rentals based on selected filters
     const filteredRentals = useMemo(() => {
@@ -94,12 +98,25 @@ export default function RentalCalendar({ rentals, properties = [] }) {
                     variant="flat"
                     className="w-full justify-start mb-1 cursor-pointer"
                 >
-                    <span className="truncate text-xs">
+                    <span className="truncate text-xs flex items-center gap-1">
                         {rental.properties?.title}
+                        <PaymentIndicator status={rental.paymentStatus} />
                     </span>
                 </Chip>
             </RentalTooltip>
         );
+    };
+
+    const handleDayClick = (day) => {
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        setQuickCreateDate(dateStr);
+        setIsQuickCreateOpen(true);
+    };
+
+    const handleQuickCreateSuccess = () => {
+        if (onRentalsChange) {
+            onRentalsChange();
+        }
     };
 
     const renderMonthView = () => (
@@ -132,32 +149,44 @@ export default function RentalCalendar({ rentals, properties = [] }) {
                     const hiddenCount = dayRentals.length - 2;
 
                     return (
-                        <div key={day} className="h-20 sm:h-32 border border-gray-200 rounded-lg p-1 sm:p-2 flex flex-col">
+                        <div
+                            key={day}
+                            className="h-20 sm:h-32 border border-gray-200 rounded-lg p-1 sm:p-2 flex flex-col hover:bg-gray-50 cursor-pointer transition-colors"
+                            onClick={() => dayRentals.length === 0 && handleDayClick(day)}
+                        >
                             <div className="text-right text-xs sm:text-sm font-medium text-gray-700 mb-1">{day}</div>
                             <div className="flex-1 overflow-hidden">
-                                {visibleRentals.map(renderRentalChip)}
-                                {hiddenCount > 0 && (
-                                    <Popover placement="bottom">
-                                        <PopoverTrigger>
-                                            <Chip
-                                                size="sm"
-                                                variant="flat"
-                                                className="w-full justify-center cursor-pointer bg-gray-100 hover:bg-gray-200"
-                                            >
-                                                <span className="text-xs font-medium text-gray-600">
-                                                    +{hiddenCount} más
-                                                </span>
-                                            </Chip>
-                                        </PopoverTrigger>
-                                        <PopoverContent>
-                                            <div className="px-1 py-2 w-48">
-                                                <div className="text-small font-bold mb-2">Alquileres del día {day}</div>
-                                                <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
-                                                    {dayRentals.map(renderRentalChip)}
-                                                </div>
-                                            </div>
-                                        </PopoverContent>
-                                    </Popover>
+                                {dayRentals.length === 0 ? (
+                                    <div className="flex items-center justify-center h-full text-xs text-gray-400">
+                                        + Crear
+                                    </div>
+                                ) : (
+                                    <>
+                                        {visibleRentals.map(renderRentalChip)}
+                                        {hiddenCount > 0 && (
+                                            <Popover placement="bottom">
+                                                <PopoverTrigger>
+                                                    <Chip
+                                                        size="sm"
+                                                        variant="flat"
+                                                        className="w-full justify-center cursor-pointer bg-gray-100 hover:bg-gray-200"
+                                                    >
+                                                        <span className="text-xs font-medium text-gray-600">
+                                                            +{hiddenCount} más
+                                                        </span>
+                                                    </Chip>
+                                                </PopoverTrigger>
+                                                <PopoverContent>
+                                                    <div className="px-1 py-2 w-48">
+                                                        <div className="text-small font-bold mb-2">Alquileres del día {day}</div>
+                                                        <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
+                                                            {dayRentals.map(renderRentalChip)}
+                                                        </div>
+                                                    </div>
+                                                </PopoverContent>
+                                            </Popover>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -219,6 +248,16 @@ export default function RentalCalendar({ rentals, properties = [] }) {
                     onDateChange={setCurrentDate}
                 />
             )}
+
+            {/* Quick Create Modal */}
+            <QuickCreateRentalModal
+                isOpen={isQuickCreateOpen}
+                onClose={() => setIsQuickCreateOpen(false)}
+                initialDate={quickCreateDate}
+                properties={properties}
+                rentals={rentals}
+                onSuccess={handleQuickCreateSuccess}
+            />
         </div>
     );
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Button, Select, SelectItem, Textarea, DatePicker, Tabs, Tab, Checkbox, CheckboxGroup, Switch, Card, CardBody, Divider, Alert } from "@heroui/react";
-import { createRental, updateRental, getRentalById } from '../../lib/rentals';
+import { createRental, updateRental, getRentalById, getRentals } from '../../lib/rentals';
 import { getAllProperties } from '../../lib/properties';
 import { parseDate, getLocalTimeZone } from "@internationalized/date";
 import { AVAILABLE_SERVICES, RENTAL_TYPES } from '../../lib/rental-utils';
@@ -14,6 +14,8 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
     const [rentalId, setRentalId] = useState(initialRentalId);
     const [loading, setLoading] = useState(false);
     const [properties, setProperties] = useState([]);
+    const [allRentals, setAllRentals] = useState([]);
+    const [conflict, setConflict] = useState(null);
     const [formData, setFormData] = useState({
         property_id: '',
         tenant_name: '',
@@ -37,14 +39,58 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
 
     useEffect(() => {
         loadProperties();
+        loadAllRentals();
         if (rentalId) {
             loadRental(rentalId);
         }
     }, [rentalId]);
 
+    useEffect(() => {
+        if (formData.property_id && formData.start_date && formData.end_date) {
+            checkAvailability();
+        } else {
+            setConflict(null);
+        }
+    }, [formData.property_id, formData.start_date, formData.end_date]);
+
     const loadProperties = async () => {
         const props = await getAllProperties();
         setProperties(props);
+    };
+
+    const loadAllRentals = async () => {
+        const rentals = await getRentals();
+        setAllRentals(rentals);
+    };
+
+    const checkAvailability = () => {
+        const startDate = formData.start_date.toString();
+        const endDate = formData.end_date.toString();
+
+        const conflicts = allRentals.filter(rental => {
+            if (rentalId && rental.id === rentalId) return false;
+            if (rental.property_id !== formData.property_id) return false;
+            if (rental.status === 'cancelled' || rental.status === 'terminated') return false;
+
+            return (
+                (startDate >= rental.start_date && startDate <= rental.end_date) ||
+                (endDate >= rental.start_date && endDate <= rental.end_date) ||
+                (startDate <= rental.start_date && endDate >= rental.end_date)
+            );
+        });
+
+        if (conflicts.length > 0) {
+            const conflictingRental = conflicts[0];
+            const nextAvailable = new Date(conflictingRental.end_date);
+            nextAvailable.setDate(nextAvailable.getDate() + 1);
+
+            setConflict({
+                rental: conflictingRental,
+                nextAvailable: nextAvailable.toISOString().split('T')[0]
+            });
+        } else {
+            setConflict(null);
+        }
     };
 
     const loadRental = async (id) => {
@@ -64,6 +110,11 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
     };
 
     const saveRental = async (shouldRedirect = false) => {
+        if (conflict && !rentalId) {
+            alert('No puedes crear un alquiler para una propiedad que ya está ocupada en esas fechas.');
+            return;
+        }
+
         setLoading(true);
         try {
             const dataToSave = {
@@ -201,9 +252,9 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
                                                     variant="flat"
                                                     title="Estado Automático"
                                                     description={`Estado actual: ${formData.status === 'pending' ? 'Pendiente' :
-                                                            formData.status === 'active' ? 'Activo' :
-                                                                formData.status === 'near_expiration' ? 'Próximo a Vencer' :
-                                                                    'Vencido'
+                                                        formData.status === 'active' ? 'Activo' :
+                                                            formData.status === 'near_expiration' ? 'Próximo a Vencer' :
+                                                                'Vencido'
                                                         } (calculado automáticamente según las fechas)`}
                                                 />
                                             )}
@@ -279,6 +330,34 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
                                             onValueChange={(val) => handleChange('total_amount', val)}
                                         />
                                     </div>
+
+                                    {/* Conflict Alert */}
+                                    {conflict && (
+                                        <Alert
+                                            color="danger"
+                                            title="⚠️ Propiedad No Disponible"
+                                            variant="flat"
+                                        >
+                                            <div className="space-y-2">
+                                                <p className="text-sm">
+                                                    Esta propiedad ya está alquilada del <strong>{conflict.rental.start_date}</strong> al <strong>{conflict.rental.end_date}</strong>
+                                                </p>
+                                                <p className="text-sm">
+                                                    Inquilino actual: <strong>{conflict.rental.tenant_name}</strong>
+                                                </p>
+                                                <div className="flex gap-2 mt-2">
+                                                    <Button
+                                                        size="sm"
+                                                        color="primary"
+                                                        variant="flat"
+                                                        onPress={() => handleChange('start_date', parseDate(conflict.nextAvailable))}
+                                                    >
+                                                        Usar fecha disponible: {conflict.nextAvailable}
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </Alert>
+                                    )}
                                 </CardBody>
                             </Card>
 

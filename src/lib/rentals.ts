@@ -25,6 +25,12 @@ export async function getRentals() {
             properties (
                 title,
                 slug
+            ),
+            payments (
+                id,
+                amount,
+                due_date,
+                status
             )
         `)
         .order('start_date', { ascending: false });
@@ -34,7 +40,36 @@ export async function getRentals() {
         return [];
     }
 
-    return data;
+    // Calculate payment status for each rental
+    return data.map(rental => ({
+        ...rental,
+        paymentStatus: calculatePaymentStatus(rental.payments || [])
+    }));
+}
+
+function calculatePaymentStatus(payments: any[]) {
+    if (!payments || payments.length === 0) return 'unknown';
+
+    const now = new Date();
+
+    // Check for overdue payments
+    const overdue = payments.some(p =>
+        p.status === 'pending' && new Date(p.due_date) < now
+    );
+
+    if (overdue) return 'overdue';
+
+    // Check for upcoming payments (within 7 days)
+    const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const upcoming = payments.some(p =>
+        p.status === 'pending' &&
+        new Date(p.due_date) > now &&
+        new Date(p.due_date) < sevenDaysFromNow
+    );
+
+    if (upcoming) return 'upcoming';
+
+    return 'ok';
 }
 
 export async function getRentalById(id: string) {
