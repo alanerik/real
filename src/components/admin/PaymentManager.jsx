@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getPaymentsByRental, createPayment, updatePaymentStatus, deletePayment } from '../../lib/payments';
 import { showToast } from '../ToastManager';
+import { exportToCSV, exportToPDF } from '../../utils/exportPayments';
 import {
     Modal,
     ModalContent,
@@ -21,7 +22,11 @@ import {
     Input,
     Select,
     SelectItem,
-    Textarea
+    Textarea,
+    Dropdown,
+    DropdownTrigger,
+    DropdownMenu,
+    DropdownItem
 } from "@heroui/react";
 
 const statusColorMap = {
@@ -137,6 +142,33 @@ export default function PaymentManager({ rental, isOpen, onClose }) {
         }
     };
 
+    const handleExport = (type) => {
+        try {
+            if (type === 'csv') {
+                exportToCSV(payments, rental);
+                showToast({
+                    title: 'Exportación exitosa',
+                    description: 'El archivo CSV se ha descargado',
+                    color: 'success'
+                });
+            } else if (type === 'pdf') {
+                exportToPDF(payments, rental);
+                showToast({
+                    title: 'Abriendo vista de impresión',
+                    description: 'Selecciona "Guardar como PDF" en el diálogo',
+                    color: 'success'
+                });
+            }
+        } catch (error) {
+            console.error('Error exporting:', error);
+            showToast({
+                title: 'Error al exportar',
+                description: error.message,
+                color: 'danger'
+            });
+        }
+    };
+
     const formatDate = (dateString) => {
         if (!dateString) return '-';
         return new Date(dateString).toLocaleDateString('es-AR');
@@ -212,9 +244,34 @@ export default function PaymentManager({ rental, isOpen, onClose }) {
                             </ModalHeader>
                             <ModalBody>
                                 <div className="space-y-4">
-                                    <Button color="primary" onPress={onFormOpen} className="w-full">
-                                        + Registrar Nuevo Pago
-                                    </Button>
+                                    <div className="flex gap-2">
+                                        <Button color="primary" onPress={onFormOpen} className="flex-1">
+                                            + Registrar Nuevo Pago
+                                        </Button>
+
+                                        <Dropdown>
+                                            <DropdownTrigger>
+                                                <Button
+                                                    color="default"
+                                                    variant="bordered"
+                                                    isDisabled={payments.length === 0}
+                                                >
+                                                    Exportar ▼
+                                                </Button>
+                                            </DropdownTrigger>
+                                            <DropdownMenu
+                                                aria-label="Opciones de exportación"
+                                                onAction={(key) => handleExport(key)}
+                                            >
+                                                <DropdownItem key="csv">
+                                                    📊 CSV (Excel)
+                                                </DropdownItem>
+                                                <DropdownItem key="pdf">
+                                                    📄 Imprimir PDF
+                                                </DropdownItem>
+                                            </DropdownMenu>
+                                        </Dropdown>
+                                    </div>
 
                                     {loading ? (
                                         <div className="text-center py-8">Cargando...</div>

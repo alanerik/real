@@ -1,23 +1,27 @@
 import { useState, useEffect } from 'react';
 import { createMaintenanceTicket } from '../../../lib/maintenance';
 import { getAllProperties } from '../../../lib/properties';
+import { getProviders } from '../../../lib/providers';
 import { showToast } from '../../ToastManager';
 import { Form, Input, Select, SelectItem, Textarea, Button } from "@heroui/react";
 
 export default function MaintenanceTicketForm({ onSuccess }) {
     const [loading, setLoading] = useState(false);
     const [properties, setProperties] = useState([]);
+    const [providers, setProviders] = useState([]);
     const [formData, setFormData] = useState({
         property_id: '',
         title: '',
         description: '',
         priority: 'medium',
         cost: 0,
-        status: 'pending'
+        status: 'pending',
+        assigned_provider_id: null
     });
 
     useEffect(() => {
         loadProperties();
+        loadProviders();
     }, []);
 
     const loadProperties = async () => {
@@ -28,6 +32,20 @@ export default function MaintenanceTicketForm({ onSuccess }) {
             console.error('Error loading properties:', error);
             showToast({
                 title: 'Error al cargar propiedades',
+                description: error.message || 'Intenta recargar la página',
+                color: 'danger'
+            });
+        }
+    };
+
+    const loadProviders = async () => {
+        try {
+            const data = await getProviders();
+            setProviders(data || []);
+        } catch (error) {
+            console.error('Error loading providers:', error);
+            showToast({
+                title: 'Error al cargar proveedores',
                 description: error.message || 'Intenta recargar la página',
                 color: 'danger'
             });
@@ -76,7 +94,8 @@ export default function MaintenanceTicketForm({ onSuccess }) {
                 description: '',
                 priority: 'medium',
                 cost: 0,
-                status: 'pending'
+                status: 'pending',
+                assigned_provider_id: null
             });
             if (onSuccess) onSuccess();
         } catch (error) {
@@ -148,6 +167,26 @@ export default function MaintenanceTicketForm({ onSuccess }) {
                         min={0}
                     />
                 </div>
+
+                <Select
+                    label="Responsable / Técnico"
+                    placeholder="Sin asignar (opcional)"
+                    selectedKeys={formData.assigned_provider_id ? [String(formData.assigned_provider_id)] : []}
+                    onChange={(e) => {
+                        handleSelectChange("assigned_provider_id", e.target.value || null);
+                    }}
+                    description="Puedes asignar un técnico ahora o después"
+                >
+                    {providers.map((provider) => (
+                        <SelectItem
+                            key={String(provider.id)}
+                            value={String(provider.id)}
+                            textValue={`${provider.name} - ${provider.trade.replace('_', ' ')}`}
+                        >
+                            {provider.name} - {provider.trade.replace('_', ' ')}
+                        </SelectItem>
+                    ))}
+                </Select>
 
                 <Button
                     type="submit"
