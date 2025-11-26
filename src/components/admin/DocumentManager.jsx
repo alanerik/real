@@ -199,17 +199,18 @@ export default function DocumentManager({ rentalId }) {
 
     return (
         <div className="space-y-6">
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 flex justify-between items-center">
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h3 className="text-lg font-semibold">Documentos Adjuntos</h3>
                     <p className="text-sm text-gray-500">Gestiona contratos y documentación del alquiler.</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <Button
                         color="secondary"
                         variant="flat"
                         onPress={handleGenerateContract}
                         startContent={<FileIcon className="text-lg" />}
+                        className="w-full sm:w-auto"
                     >
                         Generar Contrato PDF
                     </Button>
@@ -226,6 +227,7 @@ export default function DocumentManager({ rentalId }) {
                         color="primary"
                         onPress={() => document.getElementById('file-upload').click()}
                         startContent={<UploadIcon className="text-lg" />}
+                        className="w-full sm:w-auto"
                     >
                         Subir Documento
                     </Button>
