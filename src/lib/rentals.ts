@@ -234,6 +234,9 @@ export interface Attachment {
     file_name: string;
     file_path: string;
     file_type: string;
+    category?: string;
+    description?: string;
+    visible_to_tenant?: boolean;
     created_at?: string;
 }
 
@@ -252,7 +255,32 @@ export async function getAttachments(rentalId: string) {
     return data;
 }
 
-export async function uploadAttachment(file: File, rentalId: string) {
+interface UploadOptions {
+    category?: string;
+    description?: string;
+    visibleToTenant?: boolean;
+}
+
+export async function uploadAttachment(file: File, rentalId: string, options: UploadOptions = {}) {
+    // File validation
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+    const ALLOWED_TYPES = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'image/jpeg',
+        'image/png'
+    ];
+
+    if (file.size > MAX_SIZE) {
+        throw new Error('El archivo excede el tamaño máximo de 10MB');
+    }
+
+    // Check file type (optional: strict check)
+    // if (!ALLOWED_TYPES.includes(file.type)) {
+    //    throw new Error('Tipo de archivo no permitido');
+    // }
+
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random()}.${fileExt}`;
     const filePath = `${rentalId}/${fileName}`;
@@ -272,7 +300,10 @@ export async function uploadAttachment(file: File, rentalId: string) {
         rental_id: rentalId,
         file_name: file.name,
         file_path: filePath,
-        file_type: file.type
+        file_type: file.type,
+        category: options.category || 'other',
+        description: options.description || '',
+        visible_to_tenant: options.visibleToTenant ?? true
     };
 
     const { data, error: dbError } = await supabase
@@ -283,6 +314,8 @@ export async function uploadAttachment(file: File, rentalId: string) {
 
     if (dbError) {
         console.error('Error creating attachment record:', dbError);
+        // Clean up storage if DB insert fails
+        await supabase.storage.from('rental-documents').remove([filePath]);
         throw dbError;
     }
 

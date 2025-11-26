@@ -264,10 +264,10 @@ export default function PaymentManager({ rental, isOpen, onClose }) {
                                                 onAction={(key) => handleExport(key)}
                                             >
                                                 <DropdownItem key="csv">
-                                                    📊 CSV (Excel)
+                                                    CSV (Excel)
                                                 </DropdownItem>
                                                 <DropdownItem key="pdf">
-                                                    📄 Imprimir PDF
+                                                    Imprimir PDF
                                                 </DropdownItem>
                                             </DropdownMenu>
                                         </Dropdown>
