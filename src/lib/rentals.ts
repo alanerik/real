@@ -75,7 +75,12 @@ function calculatePaymentStatus(payments: any[]) {
 export async function getRentalById(id: string) {
     const { data, error } = await supabase
         .from('rentals')
-        .select('*')
+        .select(`
+            *,
+            properties (
+                *
+            )
+        `)
         .eq('id', id)
         .single();
 
