@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { createSupabaseError } from './errors';
+import { createSupabaseError, ValidationError } from './errors';
 import { logger } from './logger';
 
 export interface Rental {
@@ -305,16 +305,30 @@ export async function uploadAttachment(file: File, rentalId: string, options: Up
         'image/png'
     ];
 
+    const ALLOWED_EXTENSIONS = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+
+    // Validate file size
     if (file.size > MAX_SIZE) {
-        throw new Error('El archivo excede el tamaño máximo de 10MB');
+        throw new ValidationError('El archivo excede el tamaño máximo de 10MB', 'file');
     }
 
-    // Check file type (optional: strict check)
-    // if (!ALLOWED_TYPES.includes(file.type)) {
-    //    throw new Error('Tipo de archivo no permitido');
-    // }
+    // Validate MIME type
+    if (!ALLOWED_TYPES.includes(file.type)) {
+        throw new ValidationError(
+            `Tipo de archivo no permitido. Formatos aceptados: PDF, DOC, DOCX, JPG, PNG`,
+            'file'
+        );
+    }
 
-    const fileExt = file.name.split('.').pop();
+    // Validate file extension (double-check for security)
+    const fileExt = file.name.split('.').pop()?.toLowerCase();
+    if (!fileExt || !ALLOWED_EXTENSIONS.includes(fileExt)) {
+        throw new ValidationError(
+            `Extensión de archivo no permitida. Extensiones aceptadas: ${ALLOWED_EXTENSIONS.join(', ')}`,
+            'file'
+        );
+    }
+
     const fileName = `${Math.random()}.${fileExt}`;
     const filePath = `${rentalId}/${fileName}`;
 
