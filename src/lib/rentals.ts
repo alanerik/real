@@ -19,6 +19,12 @@ export interface Rental {
     };
 }
 
+// Type for rentals with joined data from database queries
+type RentalWithJoins = Rental & {
+    payments?: PaymentStatus[];
+    paymentStatus?: string;
+};
+
 interface PaymentStatus {
     id: string;
     amount: number;
@@ -124,7 +130,7 @@ export async function updateRental(id: string, rental: Partial<Rental>) {
     logger.supabase('UPDATE', 'rentals', { id });
 
     // Remove joined fields that shouldn't be sent to the DB
-    const { properties, payments, paymentStatus, ...updateData } = rental as any;
+    const { properties, payments, paymentStatus, ...updateData } = rental as RentalWithJoins;
 
     const { data, error } = await supabase
         .from('rentals')

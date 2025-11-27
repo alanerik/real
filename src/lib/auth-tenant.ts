@@ -1,4 +1,6 @@
 import { supabase } from './supabase';
+import { createSupabaseError } from './errors';
+import { logger } from './logger';
 
 /**
  * Get the current tenant's rental information
@@ -27,8 +29,8 @@ export const getTenantRental = async () => {
         .single();
 
     if (error) {
-        console.error('Error fetching tenant rental:', error);
-        throw error;
+        logger.error('Error fetching tenant rental', error);
+        throw createSupabaseError(error, 'getTenantRental', 'rentals');
     }
 
     return data;
@@ -59,8 +61,8 @@ export const linkTenantToRental = async (rentalId: string, userId: string) => {
         .single();
 
     if (error) {
-        console.error('Error linking tenant to rental:', error);
-        throw error;
+        logger.error('Error linking tenant to rental', error);
+        throw createSupabaseError(error, 'linkTenantToRental', 'rentals');
     }
 
     return data;
@@ -78,8 +80,8 @@ export const sendTenantInvitation = async (rentalId: string, email: string, prop
         .eq('id', rentalId);
 
     if (updateError) {
-        console.error('Error updating rental with tenant email:', updateError);
-        throw updateError;
+        logger.error('Error updating rental with tenant email', updateError);
+        throw createSupabaseError(updateError, 'sendTenantInvitation', 'rentals');
     }
 
     // Generate the invitation link
@@ -114,7 +116,7 @@ export const sendTenantInvitation = async (rentalId: string, email: string, prop
             data: result
         };
     } catch (error) {
-        console.error('Error sending invitation email:', error);
+        logger.error('Error sending invitation email', error);
         // Return the invitation link so it can be copied manually
         // Try to get the fallback link from the error object if it was parsed from the response
         const fallbackLink = (error as any)?.fallbackLink || inviteUrl;
@@ -140,8 +142,8 @@ export const getRentalByEmail = async (email: string) => {
         .single();
 
     if (error) {
-        console.error('Error fetching rental by email:', error);
-        throw error;
+        logger.error('Error fetching rental by email', error);
+        throw createSupabaseError(error, 'getRentalByEmail', 'rentals');
     }
 
     return data;
