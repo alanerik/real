@@ -145,6 +145,7 @@ export default function DocumentManager({ rentalId }) {
     const columns = [
         { name: "DOCUMENTO", uid: "name" },
         { name: "CATEGORÍA", uid: "category" },
+        { name: "ORIGEN", uid: "origin" },
         { name: "VISIBILIDAD", uid: "visibility" },
         { name: "FECHA", uid: "date" },
         { name: "ACCIONES", uid: "actions" },
@@ -171,6 +172,16 @@ export default function DocumentManager({ rentalId }) {
                 return (
                     <Chip size="sm" variant="flat" color="primary">
                         {getCategoryLabel(doc.category)}
+                    </Chip>
+                );
+            case "origin":
+                return doc.uploaded_by_tenant ? (
+                    <Chip size="sm" color="secondary" variant="flat" startContent={<span>📤</span>}>
+                        Inquilino
+                    </Chip>
+                ) : (
+                    <Chip size="sm" color="default" variant="flat" startContent={<span>👤</span>}>
+                        Admin
                     </Chip>
                 );
             case "visibility":

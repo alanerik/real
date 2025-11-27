@@ -19,7 +19,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
   });
 
-  // 🔒 SECURITY: Verify admin authentication
+
   const authHeader = request.headers.get('Authorization');
   if (!authHeader) {
     return new Response(JSON.stringify({

@@ -275,6 +275,7 @@ export interface Attachment {
     category?: string;
     description?: string;
     visible_to_tenant?: boolean;
+    uploaded_by_tenant?: boolean;
     created_at?: string;
 }
 
@@ -298,6 +299,7 @@ interface UploadOptions {
     category?: string;
     description?: string;
     visibleToTenant?: boolean;
+    uploadedByTenant?: boolean;
 }
 
 export async function uploadAttachment(file: File, rentalId: string, options: UploadOptions = {}) {
@@ -357,7 +359,8 @@ export async function uploadAttachment(file: File, rentalId: string, options: Up
         file_type: file.type,
         category: options.category || 'other',
         description: options.description || '',
-        visible_to_tenant: options.visibleToTenant ?? true
+        visible_to_tenant: options.visibleToTenant ?? true,
+        uploaded_by_tenant: options.uploadedByTenant ?? false
     };
 
     const { data, error: dbError } = await supabase

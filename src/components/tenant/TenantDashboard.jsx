@@ -5,6 +5,7 @@ import { showToast } from '../ToastManager';
 import MyContract from './MyContract';
 import PaymentHistory from './PaymentHistory';
 import ReportIssue from './ReportIssue';
+import TenantDocuments from './TenantDocuments';
 
 export default function TenantDashboard() {
     const [rental, setRental] = useState(null);
@@ -84,6 +85,12 @@ export default function TenantDashboard() {
                 <Tab key="payments" title="Pagos">
                     <div className="mt-4">
                         <PaymentHistory rentalId={rental.id} />
+                    </div>
+                </Tab>
+
+                <Tab key="documents" title="Documentos">
+                    <div className="mt-4">
+                        <TenantDocuments rental={rental} />
                     </div>
                 </Tab>
 
