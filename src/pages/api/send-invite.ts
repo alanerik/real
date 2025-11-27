@@ -19,6 +19,23 @@ export const POST: APIRoute = async ({ request }) => {
     }
   });
 
+  // 🔒 SECURITY: Verify admin authentication
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader) {
+    return new Response(JSON.stringify({
+      error: 'Unauthorized: Missing authentication token',
+    }), { status: 401 });
+  }
+
+  const token = authHeader.replace('Bearer ', '');
+  const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+
+  if (authError || !user) {
+    return new Response(JSON.stringify({
+      error: 'Unauthorized: Invalid or expired token',
+    }), { status: 401 });
+  }
+
   const getSiteUrl = () => {
     if (import.meta.env.PUBLIC_SITE_URL) return import.meta.env.PUBLIC_SITE_URL;
     if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;

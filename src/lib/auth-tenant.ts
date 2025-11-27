@@ -89,10 +89,18 @@ export const sendTenantInvitation = async (rentalId: string, email: string, prop
 
     // Call the API to send the email
     try {
+        // Get the current session token to authenticate the request
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!session) {
+            throw new Error('No active session. Please log in again.');
+        }
+
         const response = await fetch('/api/send-invite', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`,
             },
             body: JSON.stringify({
                 email,
