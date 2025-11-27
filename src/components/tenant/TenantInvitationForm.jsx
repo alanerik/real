@@ -27,23 +27,6 @@ export default function TenantInvitationForm() {
     }, []);
 
     const checkSupabaseSession = async () => {
-        try {
-            // Supabase automatically handles the tokens from the URL hash
-            const { data: { session }, error } = await supabase.auth.getSession();
-
-            if (error) {
-                console.error('Error getting session:', error);
-                return;
-            }
-
-            if (session?.user) {
-                console.log('User session found from invite:', session.user.email);
-                setEmail(session.user.email);
-                checkInvitation(session.user.email);
-            }
-        } catch (error) {
-            console.error('Error checking Supabase session:', error);
-        }
     };
 
     const checkInvitation = async (email) => {
@@ -51,7 +34,7 @@ export default function TenantInvitationForm() {
             const rental = await getRentalByEmail(email);
             setRentalInfo(rental);
         } catch (error) {
-            console.error('Error checking invitation:', error);
+            // Error is shown to user via toast below
             showToast({
                 title: 'Invitación no válida',
                 description: 'No se encontró una invitación para este email',
@@ -112,7 +95,7 @@ export default function TenantInvitationForm() {
                 window.location.href = '/tenant/dashboard';
             }, 1500);
         } catch (error) {
-            console.error('Error creating account:', error);
+            // Error is shown to user via toast below
             showToast({
                 title: 'Error al crear cuenta',
                 description: error.message || 'Intenta nuevamente',

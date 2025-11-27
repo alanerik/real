@@ -1,20 +1,34 @@
 import { supabase } from './supabase';
+import { createSupabaseError } from './errors';
+import { logger } from './logger';
+
+interface ServiceProvider {
+    id?: string;
+    name: string;
+    trade: string;
+    phone: string;
+    email?: string;
+    created_at?: string;
+}
 
 export const getProviders = async () => {
+    logger.supabase('SELECT ALL', 'service_providers');
+
     const { data, error } = await supabase
         .from('service_providers')
         .select('*')
         .order('name', { ascending: true });
 
     if (error) {
-        console.error('Error fetching providers:', error);
-        throw error;
+        throw createSupabaseError(error, 'getProviders', 'service_providers');
     }
 
     return data;
 };
 
-export const createProvider = async (provider) => {
+export const createProvider = async (provider: Partial<ServiceProvider>) => {
+    logger.supabase('INSERT', 'service_providers', { name: provider.name });
+
     const { data, error } = await supabase
         .from('service_providers')
         .insert([provider])
@@ -22,14 +36,16 @@ export const createProvider = async (provider) => {
         .single();
 
     if (error) {
-        console.error('Error creating provider:', error);
-        throw error;
+        throw createSupabaseError(error, 'createProvider', 'service_providers');
     }
 
+    logger.info('Service provider created successfully', { id: data.id, name: data.name });
     return data;
 };
 
-export const updateProvider = async (id, provider) => {
+export const updateProvider = async (id: string, provider: Partial<ServiceProvider>) => {
+    logger.supabase('UPDATE', 'service_providers', { id });
+
     const { data, error } = await supabase
         .from('service_providers')
         .update(provider)
@@ -38,23 +54,25 @@ export const updateProvider = async (id, provider) => {
         .single();
 
     if (error) {
-        console.error('Error updating provider:', error);
-        throw error;
+        throw createSupabaseError(error, 'updateProvider', 'service_providers');
     }
 
+    logger.info('Service provider updated successfully', { id });
     return data;
 };
 
-export const deleteProvider = async (id) => {
+export const deleteProvider = async (id: string) => {
+    logger.supabase('DELETE', 'service_providers', { id });
+
     const { error } = await supabase
         .from('service_providers')
         .delete()
         .eq('id', id);
 
     if (error) {
-        console.error('Error deleting provider:', error);
-        throw error;
+        throw createSupabaseError(error, 'deleteProvider', 'service_providers');
     }
 
+    logger.info('Service provider deleted successfully', { id });
     return true;
 };

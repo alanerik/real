@@ -1,20 +1,57 @@
 import { supabase } from './supabase';
+import { createSupabaseError } from './errors';
+import { logger } from './logger';
+
+interface DbProperty {
+    id: string;
+    slug: string;
+    title: string;
+    description: string | null;
+    price: number;
+    currency: string;
+    city: string;
+    operation: string;
+    property_type: string;
+    bedrooms: number;
+    bathrooms: number;
+    ambientes: number;
+    area: number;
+    image_url: string | null;
+    features: string[];
+    total_area: number;
+    covered_area: number;
+    semi_covered_area: number;
+    land_area: number;
+    status: string;
+    garage: boolean;
+    antiquity: number;
+    expenses: number;
+    created_at: string;
+    gallery_images: string[] | null;
+    is_brand_new: boolean;
+    is_featured: boolean;
+    latitud: number | null;
+    longitud: number | null;
+}
 
 export async function getAllProperties() {
+    logger.supabase('SELECT ALL', 'properties');
+
     const { data, error } = await supabase
         .from('properties')
         .select('*')
         .order('created_at', { ascending: false });
 
     if (error) {
-        console.error('Error fetching properties:', error);
-        return [];
+        throw createSupabaseError(error, 'getAllProperties', 'properties');
     }
 
     return data.map(mapProperty);
 }
 
 export async function getPropertyBySlug(slug: string) {
+    logger.supabase('SELECT BY SLUG', 'properties', { slug });
+
     const { data, error } = await supabase
         .from('properties')
         .select('*')
@@ -22,14 +59,15 @@ export async function getPropertyBySlug(slug: string) {
         .single();
 
     if (error) {
-        console.error('Error fetching property:', error);
-        return null;
+        throw createSupabaseError(error, 'getPropertyBySlug', 'properties');
     }
 
     return mapProperty(data);
 }
 
 export async function getLatestProperties(limit = 3) {
+    logger.supabase('SELECT LATEST', 'properties', { limit });
+
     const { data, error } = await supabase
         .from('properties')
         .select('*')
@@ -37,14 +75,15 @@ export async function getLatestProperties(limit = 3) {
         .limit(limit);
 
     if (error) {
-        console.error('Error fetching latest properties:', error);
-        return [];
+        throw createSupabaseError(error, 'getLatestProperties', 'properties');
     }
 
     return data.map(mapProperty);
 }
 
 export async function getFeaturedProperties(limit = 4) {
+    logger.supabase('SELECT FEATURED', 'properties', { limit });
+
     const { data, error } = await supabase
         .from('properties')
         .select('*')
@@ -53,14 +92,13 @@ export async function getFeaturedProperties(limit = 4) {
         .limit(limit);
 
     if (error) {
-        console.error('Error fetching featured properties:', error);
-        return [];
+        throw createSupabaseError(error, 'getFeaturedProperties', 'properties');
     }
 
     return data.map(mapProperty);
 }
 
-function mapProperty(dbProp: any) {
+function mapProperty(dbProp: DbProperty) {
     return {
         id: dbProp.id,
         slug: dbProp.slug,
@@ -101,6 +139,8 @@ function mapProperty(dbProp: any) {
 export async function getPropertiesBySlugs(slugs: string[]) {
     if (!slugs || slugs.length === 0) return [];
 
+    logger.supabase('SELECT BY SLUGS', 'properties', { count: slugs.length });
+
     const { data, error } = await supabase
         .from('properties')
         .select('*')
@@ -108,8 +148,7 @@ export async function getPropertiesBySlugs(slugs: string[]) {
         .order('created_at', { ascending: false });
 
     if (error) {
-        console.error('Error fetching properties by slugs:', error);
-        return [];
+        throw createSupabaseError(error, 'getPropertiesBySlugs', 'properties');
     }
 
     return data.map(mapProperty);

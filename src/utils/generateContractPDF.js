@@ -1,33 +1,24 @@
 /**
  * Generate Rental Contract PDF using native browser Print API
  * Creates a formatted HTML document and triggers the print dialog
+ * 
+ * SECURITY: All user inputs are sanitized to prevent XSS attacks
  */
 
-const formatDate = (dateString) => {
-    if (!dateString) return '_______________';
-    return new Date(dateString).toLocaleDateString('es-AR', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    });
-};
-
-
-const formatCurrency = (amount) => {
-    if (!amount) return '_______________';
-    return `$${Number(amount).toLocaleString('es-AR')}`;
-};
+import { escapeHtml, formatDateSafe, formatCurrencySafe } from './sanitize.ts';
 
 export const generateContractPDF = (rental, property, type = 'annual') => {
     if (!rental || !property) {
         throw new Error('Faltan datos del alquiler o propiedad para generar el contrato');
     }
 
-    const today = new Date().toLocaleDateString('es-AR', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    });
+    // Sanitize all user-provided data to prevent XSS
+    const safeTenantName = escapeHtml(rental.tenant_name);
+    const safePropertyAddress = escapeHtml(property.address || property.title);
+    const safePropertyTitle = escapeHtml(property.title);
+    const safeStartDate = formatDateSafe(rental.start_date);
+    const safeEndDate = formatDateSafe(rental.end_date);
+    const safeAmount = formatCurrencySafe(rental.total_amount);
 
     const getAnnualContractHTML = () => `
     <div class="header">
@@ -43,7 +34,7 @@ export const generateContractPDF = (rental, property, type = 'annual') => {
     </div>
     
     <div class="section">
-        <span class="highlight">EL LOCATARIO:</span> <span class="highlight">${rental.tenant_name}</span>, DNI N° ____________________, con domicilio en __________________________________________________.
+        <span class="highlight">EL LOCATARIO:</span> <span class="highlight">${safeTenantName}</span>, DNI N° ____________________, con domicilio en __________________________________________________.
     </div>
     
     <div class="section">
@@ -52,17 +43,17 @@ export const generateContractPDF = (rental, property, type = 'annual') => {
     
     <div class="section">
         <div class="section-title">PRIMERA: OBJETO</div>
-        EL LOCADOR cede en locación a EL LOCATARIO, y este acepta, el inmueble sito en <span class="highlight">${property.address || property.title}</span>, que será destinado exclusivamente a vivienda familiar permanente.
+        EL LOCADOR cede en locación a EL LOCATARIO, y este acepta, el inmueble sito en <span class="highlight">${safePropertyAddress}</span>, que será destinado exclusivamente a vivienda familiar permanente.
     </div>
     
     <div class="section">
         <div class="section-title">SEGUNDA: PLAZO</div>
-        El plazo de la locación se estipula en <span class="highlight">36 (treinta y seis) meses</span>, comenzando el día <span class="highlight">${formatDate(rental.start_date)}</span> y finalizando el día <span class="highlight">${formatDate(rental.end_date)}</span>.
+        El plazo de la locación se estipula en <span class="highlight">36 (treinta y seis) meses</span>, comenzando el día <span class="highlight">${safeStartDate}</span> y finalizando el día <span class="highlight">${safeEndDate}</span>.
     </div>
     
     <div class="section">
         <div class="section-title">TERCERA: PRECIO Y AJUSTE</div>
-        El precio inicial de la locación se fija en la suma de <span class="highlight">${formatCurrency(rental.total_amount)}</span> mensuales. Este monto se ajustará anualmente según el Índice de Contratos de Locación (ICL) publicado por el BCRA.
+        El precio inicial de la locación se fija en la suma de <span class="highlight">${safeAmount}</span> mensuales. Este monto se ajustará anualmente según el Índice de Contratos de Locación (ICL) publicado por el BCRA.
     </div>
     
     <div class="section">
@@ -100,7 +91,7 @@ export const generateContractPDF = (rental, property, type = 'annual') => {
     </div>
     
     <div class="section">
-        <span class="highlight">EL HUÉSPED:</span> <span class="highlight">${rental.tenant_name}</span>, DNI N° ____________________, con domicilio en __________________________________________________.
+        <span class="highlight">EL HUÉSPED:</span> <span class="highlight">${safeTenantName}</span>, DNI N° ____________________, con domicilio en __________________________________________________.
     </div>
     
     <div class="section">
@@ -109,17 +100,17 @@ export const generateContractPDF = (rental, property, type = 'annual') => {
     
     <div class="section">
         <div class="section-title">PRIMERA: OBJETO</div>
-        EL LOCADOR cede el uso y goce temporal del inmueble sito en <span class="highlight">${property.address || property.title}</span>, amueblado y equipado según inventario anexo.
+        EL LOCADOR cede el uso y goce temporal del inmueble sito en <span class="highlight">${safePropertyAddress}</span>, amueblado y equipado según inventario anexo.
     </div>
     
     <div class="section">
         <div class="section-title">SEGUNDA: PLAZO IMPRORROGABLE</div>
-        El plazo es improrrogable, desde el día <span class="highlight">${formatDate(rental.start_date)}</span> a las ____ hs, hasta el día <span class="highlight">${formatDate(rental.end_date)}</span> a las ____ hs. La permanencia indebida devengará una multa diaria de USD 100.
+        El plazo es improrrogable, desde el día <span class="highlight">${safeStartDate}</span> a las ____ hs, hasta el día <span class="highlight">${safeEndDate}</span> a las ____ hs. La permanencia indebida devengará una multa diaria de USD 100.
     </div>
     
     <div class="section">
         <div class="section-title">TERCERA: PRECIO TOTAL</div>
-        El precio total y único por todo el período se fija en <span class="highlight">${formatCurrency(rental.total_amount)}</span>, que se abona en su totalidad antes del ingreso.
+        El precio total y único por todo el período se fija en <span class="highlight">${safeAmount}</span>, que se abona en su totalidad antes del ingreso.
     </div>
     
     <div class="section">
@@ -152,7 +143,7 @@ export const generateContractPDF = (rental, property, type = 'annual') => {
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Contrato - ${property.title}</title>
+    <title>Contrato - ${safePropertyTitle}</title>
     <style>
         @media print {
             @page {
@@ -250,7 +241,7 @@ export const generateContractPDF = (rental, property, type = 'annual') => {
             <br><br>
             __________________________<br>
             ${type === 'vacation' ? 'EL HUÉSPED' : 'EL LOCATARIO'}<br>
-            ${rental.tenant_name}
+            ${safeTenantName}
         </div>
     </div>
     

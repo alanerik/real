@@ -1,4 +1,6 @@
 import { supabase } from './supabase';
+import { createSupabaseError } from './errors';
+import { logger } from './logger';
 
 export interface Rental {
     id?: string;
@@ -17,7 +19,16 @@ export interface Rental {
     };
 }
 
+interface PaymentStatus {
+    id: string;
+    amount: number;
+    due_date: string;
+    status: string;
+}
+
 export async function getRentals() {
+    logger.supabase('SELECT', 'rentals');
+
     const { data, error } = await supabase
         .from('rentals')
         .select(`
@@ -36,8 +47,7 @@ export async function getRentals() {
         .order('start_date', { ascending: false });
 
     if (error) {
-        console.error('Error fetching rentals:', error);
-        return [];
+        throw createSupabaseError(error, 'getRentals', 'rentals');
     }
 
     // Calculate payment status for each rental
@@ -47,7 +57,7 @@ export async function getRentals() {
     }));
 }
 
-function calculatePaymentStatus(payments: any[]) {
+function calculatePaymentStatus(payments: PaymentStatus[]): string {
     if (!payments || payments.length === 0) return 'unknown';
 
     const now = new Date();
@@ -73,6 +83,8 @@ function calculatePaymentStatus(payments: any[]) {
 }
 
 export async function getRentalById(id: string) {
+    logger.supabase('SELECT BY ID', 'rentals', { id });
+
     const { data, error } = await supabase
         .from('rentals')
         .select(`
@@ -85,14 +97,15 @@ export async function getRentalById(id: string) {
         .single();
 
     if (error) {
-        console.error('Error fetching rental:', error);
-        return null;
+        throw createSupabaseError(error, 'getRentalById', 'rentals');
     }
 
     return data;
 }
 
 export async function createRental(rental: Rental) {
+    logger.supabase('INSERT', 'rentals', { property_id: rental.property_id });
+
     const { data, error } = await supabase
         .from('rentals')
         .insert([rental])
@@ -100,14 +113,16 @@ export async function createRental(rental: Rental) {
         .single();
 
     if (error) {
-        console.error('Error creating rental:', error);
-        throw error;
+        throw createSupabaseError(error, 'createRental', 'rentals');
     }
 
+    logger.info('Rental created successfully', { id: data.id });
     return data;
 }
 
 export async function updateRental(id: string, rental: Partial<Rental>) {
+    logger.supabase('UPDATE', 'rentals', { id });
+
     // Remove joined fields that shouldn't be sent to the DB
     const { properties, payments, paymentStatus, ...updateData } = rental as any;
 
@@ -119,29 +134,32 @@ export async function updateRental(id: string, rental: Partial<Rental>) {
         .single();
 
     if (error) {
-        console.error('Error updating rental:', error);
-        throw error;
+        throw createSupabaseError(error, 'updateRental', 'rentals');
     }
 
+    logger.info('Rental updated successfully', { id });
     return data;
 }
 
 export async function deleteRental(id: string) {
+    logger.supabase('DELETE', 'rentals', { id });
+
     const { error } = await supabase
         .from('rentals')
         .delete()
         .eq('id', id);
 
     if (error) {
-        console.error('Error deleting rental:', error);
-        throw error;
+        throw createSupabaseError(error, 'deleteRental', 'rentals');
     }
 
+    logger.info('Rental deleted successfully', { id });
     return true;
 }
 
 export async function getActiveRentals() {
     const today = new Date().toISOString().split('T')[0];
+    logger.supabase('SELECT ACTIVE', 'rentals', { today });
 
     const { data, error } = await supabase
         .from('rentals')
@@ -157,8 +175,7 @@ export async function getActiveRentals() {
         .order('end_date', { ascending: true });
 
     if (error) {
-        console.error('Error fetching active rentals:', error);
-        return [];
+        throw createSupabaseError(error, 'getActiveRentals', 'rentals');
     }
 
     return data;
@@ -176,6 +193,8 @@ export interface Payment {
 }
 
 export async function getPayments(rentalId: string) {
+    logger.supabase('SELECT PAYMENTS', 'payments', { rentalId });
+
     const { data, error } = await supabase
         .from('payments')
         .select('*')
@@ -183,14 +202,15 @@ export async function getPayments(rentalId: string) {
         .order('date', { ascending: false });
 
     if (error) {
-        console.error('Error fetching payments:', error);
-        return [];
+        throw createSupabaseError(error, 'getPayments', 'payments');
     }
 
     return data;
 }
 
 export async function createPayment(payment: Payment) {
+    logger.supabase('INSERT', 'payments', { rental_id: payment.rental_id });
+
     const { data, error } = await supabase
         .from('payments')
         .insert([payment])
@@ -198,14 +218,16 @@ export async function createPayment(payment: Payment) {
         .single();
 
     if (error) {
-        console.error('Error creating payment:', error);
-        throw error;
+        throw createSupabaseError(error, 'createPayment', 'payments');
     }
 
+    logger.info('Payment created successfully', { id: data.id });
     return data;
 }
 
 export async function updatePayment(id: string, payment: Partial<Payment>) {
+    logger.supabase('UPDATE', 'payments', { id });
+
     const { data, error } = await supabase
         .from('payments')
         .update(payment)
@@ -214,24 +236,26 @@ export async function updatePayment(id: string, payment: Partial<Payment>) {
         .single();
 
     if (error) {
-        console.error('Error updating payment:', error);
-        throw error;
+        throw createSupabaseError(error, 'updatePayment', 'payments');
     }
 
+    logger.info('Payment updated successfully', { id });
     return data;
 }
 
 export async function deletePayment(id: string) {
+    logger.supabase('DELETE', 'payments', { id });
+
     const { error } = await supabase
         .from('payments')
         .delete()
         .eq('id', id);
 
     if (error) {
-        console.error('Error deleting payment:', error);
-        throw error;
+        throw createSupabaseError(error, 'deletePayment', 'payments');
     }
 
+    logger.info('Payment deleted successfully', { id });
     return true;
 }
 
@@ -249,6 +273,8 @@ export interface Attachment {
 }
 
 export async function getAttachments(rentalId: string) {
+    logger.supabase('SELECT ATTACHMENTS', 'rental_attachments', { rentalId });
+
     const { data, error } = await supabase
         .from('rental_attachments')
         .select('*')
@@ -256,8 +282,7 @@ export async function getAttachments(rentalId: string) {
         .order('created_at', { ascending: false });
 
     if (error) {
-        console.error('Error fetching attachments:', error);
-        return [];
+        throw createSupabaseError(error, 'getAttachments', 'rental_attachments');
     }
 
     return data;
@@ -293,14 +318,15 @@ export async function uploadAttachment(file: File, rentalId: string, options: Up
     const fileName = `${Math.random()}.${fileExt}`;
     const filePath = `${rentalId}/${fileName}`;
 
+    logger.supabase('UPLOAD', 'rental-documents', { fileName, size: file.size });
+
     // Upload to Storage
     const { error: uploadError } = await supabase.storage
         .from('rental-documents')
         .upload(filePath, file);
 
     if (uploadError) {
-        console.error('Error uploading file:', uploadError);
-        throw uploadError;
+        throw createSupabaseError(uploadError, 'uploadAttachment', 'rental-documents');
     }
 
     // Create record in DB
@@ -321,24 +347,25 @@ export async function uploadAttachment(file: File, rentalId: string, options: Up
         .single();
 
     if (dbError) {
-        console.error('Error creating attachment record:', dbError);
         // Clean up storage if DB insert fails
         await supabase.storage.from('rental-documents').remove([filePath]);
-        throw dbError;
+        throw createSupabaseError(dbError, 'uploadAttachment', 'rental_attachments');
     }
 
+    logger.info('Attachment uploaded successfully', { id: data.id, fileName: file.name });
     return data;
 }
 
 export async function deleteAttachment(id: string, filePath: string) {
+    logger.supabase('DELETE', 'rental_attachments', { id });
+
     // Delete from Storage
     const { error: storageError } = await supabase.storage
         .from('rental-documents')
         .remove([filePath]);
 
     if (storageError) {
-        console.error('Error deleting file from storage:', storageError);
-        throw storageError;
+        throw createSupabaseError(storageError, 'deleteAttachment', 'rental-documents');
     }
 
     // Delete from DB
@@ -348,10 +375,10 @@ export async function deleteAttachment(id: string, filePath: string) {
         .eq('id', id);
 
     if (dbError) {
-        console.error('Error deleting attachment record:', dbError);
-        throw dbError;
+        throw createSupabaseError(dbError, 'deleteAttachment', 'rental_attachments');
     }
 
+    logger.info('Attachment deleted successfully', { id });
     return true;
 }
 

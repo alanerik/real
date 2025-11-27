@@ -133,9 +133,6 @@ export default function Rentals() {
                 const endDate = new Date(rental.end_date);
                 endDate.setHours(0, 0, 0, 0); // Reset to start of day
 
-                // Debug log
-                console.log('Rental:', rental.properties?.title, 'Status:', rental.status, 'End:', rental.end_date, 'Today:', today.toISOString().split('T')[0], 'Expired?', endDate < today);
-
                 if (rental.status === 'active' || rental.status === 'near_expiration') {
                     if (endDate < today) {
                         displayStatus = 'expired';
