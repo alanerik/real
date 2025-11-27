@@ -5,10 +5,12 @@ import { logger } from './logger';
 interface MaintenanceTicket {
   id?: string;
   property_id: string;
+  rental_id?: string;
   title: string;
   description: string;
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   priority: 'low' | 'medium' | 'high' | 'urgent';
+  category?: string;
   assigned_provider_id?: string;
   created_at?: string;
   updated_at?: string;
@@ -27,7 +29,29 @@ export const createMaintenanceTicket = async (ticket: Partial<MaintenanceTicket>
     throw createSupabaseError(error, 'createMaintenanceTicket', 'maintenance_tickets');
   }
 
-  logger.info('Maintenance ticket created successfully', { id: data.id });
+  logger.info('Maintenance ticket created', { id: data.id });
+
+  // Auto-log activity
+  if (ticket.rental_id) {
+    try {
+      const { logActivity, ActivityTypes } = await import('./activity');
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+
+      await logActivity({
+        rental_id: ticket.rental_id,
+        user_id: userId,
+        activity_type: ActivityTypes.TICKET_CREATED,
+        description: `Ticket reportado: ${ticket.title}`,
+        metadata: {
+          priority: ticket.priority,
+          category: ticket.category
+        }
+      });
+    } catch (logError) {
+      logger.error('Failed to log ticket activity', { error: logError });
+    }
+  }
+
   return data;
 };
 

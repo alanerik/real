@@ -6,6 +6,8 @@ import { parseDate, getLocalTimeZone } from "@internationalized/date";
 import { AVAILABLE_SERVICES, RENTAL_TYPES } from '../../lib/rental-utils';
 import PaymentTab from './PaymentTab';
 import DocumentManager from './DocumentManager';
+import RenewalManagement from './RenewalManagement';
+import ActivityTimeline from '../tenant/ActivityTimeline';
 
 /**
  * @param {{ rentalId?: string | null }} props
@@ -510,6 +512,24 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
                                 <DocumentManager rentalId={rentalId} />
                             ) : (
                                 <p className="text-gray-500">Guarda el alquiler primero para gestionar documentos.</p>
+                            )}
+                        </div>
+                    </Tab>
+                    <Tab key="renewals" title="Renovaciones" isDisabled={!rentalId}>
+                        <div className="mt-4">
+                            {rentalId ? (
+                                <RenewalManagement rentalId={rentalId} />
+                            ) : (
+                                <p className="text-gray-500">Guarda el alquiler primero para gestionar renovaciones.</p>
+                            )}
+                        </div>
+                    </Tab>
+                    <Tab key="activity" title="Actividad" isDisabled={!rentalId}>
+                        <div className="mt-4">
+                            {rentalId ? (
+                                <ActivityTimeline rentalId={rentalId} />
+                            ) : (
+                                <p className="text-gray-500">Guarda el alquiler primero para ver la actividad.</p>
                             )}
                         </div>
                     </Tab>

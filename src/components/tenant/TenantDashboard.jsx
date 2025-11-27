@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Tabs, Tab, Card, CardBody } from "@heroui/react";
+import { Tabs, Tab, Card, CardBody, Button, useDisclosure } from "@heroui/react";
 import { getTenantRental } from '../../lib/auth-tenant';
 import { getPaymentsByRental } from '../../lib/payments';
 import { getTicketsByProperty } from '../../lib/maintenance';
 import { getAttachments } from '../../lib/rentals';
+import { canRequestRenewal, getPendingRenewalRequest, getDaysUntilExpiration } from '../../lib/renewals';
 import { showToast } from '../ToastManager';
 import MyContract from './MyContract';
 import PaymentHistory from './PaymentHistory';
 import ReportIssue from './ReportIssue';
 import TenantDocuments from './TenantDocuments';
+import ActivityTimeline from './ActivityTimeline';
+import RenewalRequestModal from './RenewalRequestModal';
 import {
     NextPaymentWidget,
     MaintenanceStatusWidget,
@@ -26,6 +29,12 @@ export default function TenantDashboard() {
     const [tickets, setTickets] = useState([]);
     const [hasReceipt, setHasReceipt] = useState(false);
     const [loadingWidgets, setLoadingWidgets] = useState(true);
+
+    // Renewal state
+    const [canRenew, setCanRenew] = useState(false);
+    const [renewalRequest, setRenewalRequest] = useState(null);
+    const [daysUntilExpiration, setDaysUntilExpiration] = useState(0);
+    const { isOpen: isRenewalOpen, onOpen: onRenewalOpen, onClose: onRenewalClose } = useDisclosure();
 
     useEffect(() => {
         loadData();
@@ -52,10 +61,11 @@ export default function TenantDashboard() {
         try {
             setLoadingWidgets(true);
 
-            const [paymentsData, ticketsData, attachmentsData] = await Promise.all([
+            const [paymentsData, ticketsData, attachmentsData, pendingRenewal] = await Promise.all([
                 getPaymentsByRental(rentalData.id).catch(() => []),
                 getTicketsByProperty(rentalData.property_id).catch(() => []),
-                getAttachments(rentalData.id).catch(() => [])
+                getAttachments(rentalData.id).catch(() => []),
+                getPendingRenewalRequest(rentalData.id).catch(() => null)
             ]);
 
             const pendingPayments = paymentsData
@@ -71,6 +81,12 @@ export default function TenantDashboard() {
             }
 
             setTickets(ticketsData || []);
+
+            // Check renewal eligibility
+            const renewalCheck = canRequestRenewal(rentalData, pendingRenewal);
+            setCanRenew(renewalCheck.can);
+            setRenewalRequest(pendingRenewal);
+            setDaysUntilExpiration(getDaysUntilExpiration(rentalData.end_date));
         } catch (error) {
             console.error('Error loading widget data:', error);
         } finally {
@@ -108,6 +124,21 @@ export default function TenantDashboard() {
         );
     }
 
+    const getRenewalStatusInfo = () => {
+        if (renewalRequest) {
+            if (renewalRequest.status === 'pending') {
+                return { color: 'warning', text: '⏳ Solicitud Pendiente' };
+            } else if (renewalRequest.status === 'approved') {
+                return { color: 'success', text: '✅ Renovación Aprobada' };
+            } else if (renewalRequest.status === 'rejected') {
+                return { color: 'danger', text: '❌ Renovación Rechazada' };
+            }
+        }
+        return null;
+    };
+
+    const renewalStatus = getRenewalStatusInfo();
+
     return (
         <div className="space-y-6">
             <Card className="bg-gradient-to-r from-primary-50 to-primary-100">
@@ -120,6 +151,39 @@ export default function TenantDashboard() {
                     </p>
                 </CardBody>
             </Card>
+
+            {/* Renewal Widget */}
+            {(canRenew || renewalRequest) && (
+                <Card className={`border-2 ${renewalStatus?.color === 'warning' ? 'border-warning bg-warning-50' :
+                        renewalStatus?.color === 'success' ? 'border-success bg-success-50' :
+                            renewalStatus?.color === 'danger' ? 'border-danger bg-danger-50' :
+                                'border-primary bg-primary-50'
+                    }`}>
+                    <CardBody className="p-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="text-lg font-bold">
+                                    {renewalStatus ? renewalStatus.text : '🔄 Renovación de Contrato'}
+                                </h3>
+                                <p className="text-sm mt-1">
+                                    {renewalRequest ?
+                                        `Duración: ${renewalRequest.requested_duration_months} meses | $${renewalRequest.proposed_amount.toLocaleString()}/mes` :
+                                        `Tu contrato vence en ${daysUntilExpiration} días`
+                                    }
+                                </p>
+                                {renewalRequest?.admin_response && (
+                                    <p className="text-sm mt-2 italic">"{renewalRequest.admin_response}"</p>
+                                )}
+                            </div>
+                            {canRenew && (
+                                <Button color="success" onPress={onRenewalOpen}>
+                                    Solicitar Renovación
+                                </Button>
+                            )}
+                        </div>
+                    </CardBody>
+                </Card>
+            )}
 
             {loadingWidgets ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -173,12 +237,25 @@ export default function TenantDashboard() {
                     </div>
                 </Tab>
 
+                <Tab key="activity" title="Actividad">
+                    <div className="mt-4">
+                        <ActivityTimeline rentalId={rental.id} />
+                    </div>
+                </Tab>
+
                 <Tab key="report" title="Reportar Problema">
                     <div className="mt-4">
                         <ReportIssue rental={rental} />
                     </div>
                 </Tab>
             </Tabs>
+
+            {/* Renewal Request Modal */}
+            <RenewalRequestModal
+                isOpen={isRenewalOpen}
+                onClose={onRenewalClose}
+                rental={rental}
+            />
         </div>
     );
 }

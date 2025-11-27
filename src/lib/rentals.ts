@@ -395,6 +395,33 @@ export async function uploadAttachment(file: File, rentalId: string, options: Up
     }
 
     logger.info('Attachment uploaded successfully', { id: data.id, fileName: file.name });
+
+    // Auto-log activity
+    try {
+        const { logActivity, ActivityTypes } = await import('./activity');
+        const userId = (await supabase.auth.getUser()).data.user?.id;
+
+        await logActivity({
+            rental_id: rentalId,
+            user_id: userId,
+            activity_type: options.paymentId ? ActivityTypes.PAYMENT_UPLOADED :
+                options.uploadedByTenant ? ActivityTypes.DOCUMENT_UPLOADED : ActivityTypes.DOCUMENT_SHARED,
+            description: options.paymentId ?
+                'Comprobante de pago subido' :
+                options.uploadedByTenant ?
+                    `Documento subido: ${file.name}` :
+                    `Documento compartido: ${file.name}`,
+            metadata: {
+                file_name: file.name,
+                category: options.category,
+                file_type: file.type
+            }
+        });
+    } catch (logError) {
+        // Don't fail upload if logging fails
+        logger.error('Failed to log upload activity', { error: logError });
+    }
+
     return data;
 }
 
