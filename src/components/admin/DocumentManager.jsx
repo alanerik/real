@@ -155,7 +155,7 @@ export default function DocumentManager({ rentalId }) {
         switch (columnKey) {
             case "name":
                 return (
-                    <div className="flex flex-col">
+                    <div className="flex flex-col gap-1">
                         <Link
                             isExternal
                             href={getAttachmentUrl(doc.file_path)}
@@ -165,6 +165,11 @@ export default function DocumentManager({ rentalId }) {
                         </Link>
                         {doc.description && (
                             <span className="text-xs text-gray-500">{doc.description}</span>
+                        )}
+                        {doc.payment_id && (
+                            <Chip size="sm" color="success" variant="dot">
+                                Comprobante de pago
+                            </Chip>
                         )}
                     </div>
                 );

@@ -276,6 +276,7 @@ export interface Attachment {
     description?: string;
     visible_to_tenant?: boolean;
     uploaded_by_tenant?: boolean;
+    payment_id?: string;
     created_at?: string;
 }
 
@@ -295,11 +296,28 @@ export async function getAttachments(rentalId: string) {
     return data;
 }
 
+export async function getAttachmentsByPayment(paymentId: string) {
+    logger.supabase('SELECT ATTACHMENTS BY PAYMENT', 'rental_attachments', { paymentId });
+
+    const { data, error } = await supabase
+        .from('rental_attachments')
+        .select('*')
+        .eq('payment_id', paymentId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        throw createSupabaseError(error, 'getAttachmentsByPayment', 'rental_attachments');
+    }
+
+    return data;
+}
+
 interface UploadOptions {
     category?: string;
     description?: string;
     visibleToTenant?: boolean;
     uploadedByTenant?: boolean;
+    paymentId?: string;
 }
 
 export async function uploadAttachment(file: File, rentalId: string, options: UploadOptions = {}) {
@@ -360,7 +378,8 @@ export async function uploadAttachment(file: File, rentalId: string, options: Up
         category: options.category || 'other',
         description: options.description || '',
         visible_to_tenant: options.visibleToTenant ?? true,
-        uploaded_by_tenant: options.uploadedByTenant ?? false
+        uploaded_by_tenant: options.uploadedByTenant ?? false,
+        payment_id: options.paymentId
     };
 
     const { data, error: dbError } = await supabase

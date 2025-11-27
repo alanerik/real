@@ -121,3 +121,19 @@ export const assignProviderToTicket = async (ticketId: string, providerId: strin
   logger.info('Provider assigned to ticket', { ticketId, providerId });
   return data;
 };
+
+export const getTicketsByProperty = async (propertyId: string) => {
+  logger.supabase('SELECT BY PROPERTY', 'maintenance_tickets', { propertyId });
+
+  const { data, error } = await supabase
+    .from('maintenance_tickets')
+    .select('*')
+    .eq('property_id', propertyId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    throw createSupabaseError(error, 'getTicketsByProperty', 'maintenance_tickets');
+  }
+
+  return data;
+};
