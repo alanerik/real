@@ -174,8 +174,13 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
             </div>
 
             <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
-
-                <Tabs aria-label="Opciones de Alquiler">
+                <Tabs
+                    aria-label="Opciones de Alquiler"
+                    classNames={{
+                        base: "w-full",
+                        tabList: "overflow-x-auto flex-nowrap w-full"
+                    }}
+                >
                     <Tab key="general" title="General">
                         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
                             {/* Basic Information */}

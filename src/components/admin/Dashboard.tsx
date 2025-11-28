@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import {
     Table,
     TableHeader,
@@ -27,105 +27,190 @@ import {
     Badge,
 } from "@heroui/react";
 import { supabase } from "../../lib/supabase";
+import { showToast } from "../ToastManager";
+import StatsCard from "./StatsCard";
+import NavigationItems from "./NavigationItems";
+import { STATUS_COLOR_MAP, STATUS_OPTIONS, COLUMNS } from "../../constants/property";
+import type { Property, User as UserType, RentalAlert, StatsData } from "../../types/dashboard";
 
-const statusColorMap = {
-    available: "success",
-    reserved: "warning",
-    sold: "danger",
-};
+interface DashboardProps {
+    alertsOnly?: boolean;
+}
 
-const statusOptions = [
-    { name: "Disponible", uid: "available" },
-    { name: "Reservado", uid: "reserved" },
-    { name: "Vendido", uid: "sold" },
-];
-
-const columns = [
-    { name: "PROPIEDAD", uid: "title" },
-    { name: "PRECIO", uid: "price" },
-    { name: "ESTADO", uid: "status" },
-    { name: "ACCIONES", uid: "actions" },
-];
-
-export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean }) {
-    const [properties, setProperties] = useState([]);
+export default function Dashboard({ alertsOnly = false }: DashboardProps) {
+    const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const [filterValue, setFilterValue] = useState("");
     const [page, setPage] = useState(1);
-    const [currentUser, setCurrentUser] = useState<any>(null);
+    const [currentUser, setCurrentUser] = useState<UserType | null>(null);
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+    const isMounted = useRef(true);
     const rowsPerPage = 10;
 
+    // Cleanup on unmount
     useEffect(() => {
-        loadProperties();
-        checkUser();
+        return () => {
+            isMounted.current = false;
+        };
     }, []);
 
-    async function checkUser() {
-        const { data: { user } } = await supabase.auth.getUser();
-        setCurrentUser(user);
-    }
+    // Check user authentication
+    const checkUser = useCallback(async (): Promise<void> => {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
 
-    async function loadProperties() {
-        setLoading(true);
-        const { data, error } = await supabase
-            .from("properties")
-            .select("*")
-            .order("created_at", { ascending: false });
+            if (!isMounted.current) return;
 
-        if (error) {
-            console.error("Error loading properties:", error);
-        } else {
-            setProperties(data || []);
+            if (!user) {
+                // Redirect to login if not authenticated
+                window.location.href = "/admin/login";
+                return;
+            }
+
+            setCurrentUser(user);
+        } catch (error) {
+            console.error("Error checking user:", error);
+            if (isMounted.current) {
+                showToast({
+                    title: "Error al verificar autenticación",
+                    color: "danger"
+                });
+            }
+        } finally {
+            if (isMounted.current) {
+                setIsCheckingAuth(false);
+            }
         }
-        setLoading(false);
-    }
+    }, []);
 
-    const handleStatusChange = async (id, newStatus) => {
+    // Load properties with error handling
+    const loadProperties = useCallback(async (): Promise<void> => {
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from("properties")
+                .select("*")
+                .order("created_at", { ascending: false });
+
+            if (!isMounted.current) return;
+
+            if (error) {
+                console.error("Error loading properties:", error);
+                showToast({
+                    title: "Error al cargar propiedades",
+                    color: "danger"
+                });
+                setProperties([]);
+            } else {
+                setProperties(data || []);
+            }
+        } catch (error) {
+            console.error("Unexpected error loading properties:", error);
+            if (isMounted.current) {
+                showToast({
+                    title: "Error inesperado al cargar propiedades",
+                    color: "danger"
+                });
+            }
+        } finally {
+            if (isMounted.current) {
+                setLoading(false);
+            }
+        }
+    }, []);
+
+    // Initialize data
+    useEffect(() => {
+        checkUser();
+        loadProperties();
+    }, [checkUser, loadProperties]);
+
+    // Reset page when filter changes
+    useEffect(() => {
+        setPage(1);
+    }, [filterValue]);
+
+    // Handle status change with optimistic update
+    const handleStatusChange = useCallback(async (id: number, newStatus: string): Promise<void> => {
+        // Store old state for rollback
+        const previousProperties = [...properties];
+
         // Optimistic update
         setProperties((prev) =>
-            prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
+            prev.map((p) => (p.id === id ? { ...p, status: newStatus as any } : p))
         );
 
-        const { error } = await supabase
-            .from("properties")
-            .update({ status: newStatus })
-            .eq("id", id);
+        try {
+            const { error } = await supabase
+                .from("properties")
+                .update({ status: newStatus })
+                .eq("id", id);
 
-        if (error) {
+            if (error) throw error;
+
+            if (isMounted.current) {
+                showToast({
+                    title: "Estado actualizado correctamente",
+                    color: "success"
+                });
+            }
+        } catch (error) {
             console.error("Error updating status:", error);
-            alert("Error al actualizar el estado");
-            loadProperties(); // Revert on error
+
+            if (isMounted.current) {
+                // Rollback to previous state
+                setProperties(previousProperties);
+                showToast({
+                    title: "Error al actualizar el estado",
+                    color: "danger"
+                });
+            }
         }
-    };
-
-    const handleDelete = async (id) => {
-        if (!confirm("¿Estás seguro de que quieres eliminar esta propiedad?")) return;
-
-        const { error } = await supabase.from("properties").delete().eq("id", id);
-
-        if (error) {
-            alert("Error al eliminar: " + error.message);
-        } else {
-            setProperties((prev) => prev.filter((p) => p.id !== id));
-        }
-    };
-
-    const handleLogout = async () => {
-        await supabase.auth.signOut();
-        window.location.href = "/admin/login";
-    };
-
-    // Stats
-    const stats = useMemo(() => {
-        return {
-            total: properties.length,
-            available: properties.filter((p) => p.status === "available" || !p.status).length,
-            reserved: properties.filter((p) => p.status === "reserved").length,
-            sold: properties.filter((p) => p.status === "sold").length,
-        };
     }, [properties]);
 
-    // Filter and Pagination
+    // Handle delete with confirmation
+    const handleDelete = useCallback(async (id: number): Promise<void> => {
+        if (!confirm("¿Estás seguro de que quieres eliminar esta propiedad?")) return;
+
+        try {
+            const { error } = await supabase.from("properties").delete().eq("id", id);
+
+            if (error) throw error;
+
+            if (isMounted.current) {
+                setProperties((prev) => prev.filter((p) => p.id !== id));
+                showToast({
+                    title: "Propiedad eliminada correctamente",
+                    color: "success"
+                });
+            }
+        } catch (error: any) {
+            console.error("Error deleting property:", error);
+            if (isMounted.current) {
+                showToast({
+                    title: "Error al eliminar",
+                    description: error.message || 'Error desconocido',
+                    color: "danger"
+                });
+            }
+        }
+    }, []);
+
+    // Handle logout
+    const handleLogout = useCallback(async (): Promise<void> => {
+        await supabase.auth.signOut();
+        window.location.href = "/admin/login";
+    }, []);
+
+    // Calculate stats
+    const stats: StatsData = useMemo(() => ({
+        total: properties.length,
+        available: properties.filter((p) => p.status === "available" || !p.status).length,
+        reserved: properties.filter((p) => p.status === "reserved").length,
+        sold: properties.filter((p) => p.status === "sold").length,
+    }), [properties]);
+
+    // Filter items
     const filteredItems = useMemo(() => {
         let filtered = [...properties];
 
@@ -139,15 +224,16 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
         return filtered;
     }, [properties, filterValue]);
 
+    // Paginate items
     const items = useMemo(() => {
         const start = (page - 1) * rowsPerPage;
         const end = start + rowsPerPage;
-
         return filteredItems.slice(start, end);
     }, [page, filteredItems]);
 
-    const renderCell = React.useCallback((property, columnKey) => {
-        const cellValue = property[columnKey];
+    // Render table cell
+    const renderCell = useCallback((property: Property, columnKey: string): React.ReactNode => {
+        const cellValue = property[columnKey as keyof Property];
 
         switch (columnKey) {
             case "title":
@@ -155,7 +241,7 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
                     <User
                         avatarProps={{ radius: "lg", src: property.image_url || "/images/placeholder-property.webp" }}
                         description={property.city}
-                        name={cellValue}
+                        name={property.title}
                     >
                         {property.city}
                     </User>
@@ -177,19 +263,19 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
                         <DropdownTrigger>
                             <Chip
                                 className="capitalize cursor-pointer"
-                                color={statusColorMap[property.status] || "default"}
+                                color={STATUS_COLOR_MAP[property.status || 'available'] || "default"}
                                 size="sm"
                                 variant="flat"
                             >
-                                {statusOptions.find(o => o.uid === property.status)?.name || "Desconocido"}
+                                {STATUS_OPTIONS.find(o => o.uid === property.status)?.name || "Desconocido"}
                             </Chip>
                         </DropdownTrigger>
                         <DropdownMenu
                             aria-label="Cambiar estado"
-                            onAction={(key) => handleStatusChange(property.id, key)}
+                            onAction={(key) => handleStatusChange(property.id, key as string)}
                         >
-                            {statusOptions.map((status) => (
-                                <DropdownItem key={status.uid} color={statusColorMap[status.uid]}>
+                            {STATUS_OPTIONS.map((status) => (
+                                <DropdownItem key={status.uid} color={STATUS_COLOR_MAP[status.uid]}>
                                     {status.name}
                                 </DropdownItem>
                             ))}
@@ -200,7 +286,11 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
                 return (
                     <div className="relative flex items-center gap-2">
                         <Tooltip content="Editar">
-                            <a href={`/admin/properties/${property.id}`} className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                            <a
+                                href={`/admin/properties/${property.id}`}
+                                className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                                aria-label={`Editar propiedad ${property.title}`}
+                            >
                                 <EditIcon />
                             </a>
                         </Tooltip>
@@ -208,6 +298,10 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
                             <span
                                 className="text-lg text-danger cursor-pointer active:opacity-50"
                                 onClick={() => handleDelete(property.id)}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`Eliminar propiedad ${property.title}`}
+                                onKeyDown={(e) => e.key === 'Enter' && handleDelete(property.id)}
                             >
                                 <DeleteIcon />
                             </span>
@@ -215,9 +309,20 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
                     </div>
                 );
             default:
-                return cellValue;
+                return cellValue as React.ReactNode;
         }
-    }, []);
+    }, [handleStatusChange, handleDelete]);
+
+    // Show loading while checking authentication
+    if (isCheckingAuth) {
+        return (
+            <HeroUIProvider>
+                <div className="min-h-screen flex items-center justify-center">
+                    <p className="text-lg text-default-500">Verificando autenticación...</p>
+                </div>
+            </HeroUIProvider>
+        );
+    }
 
     // If alertsOnly, just render the alerts component
     if (alertsOnly) {
@@ -227,33 +332,6 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
             </HeroUIProvider>
         );
     }
-
-    const NavigationItems = ({ isMobile = false }) => (
-        <>
-            <Tooltip content="Nueva Propiedad" placement={isMobile ? "top" : "right"}>
-                <Button isIconOnly variant="light" as="a" href="/admin/properties/new" className="text-default-500 hover:text-primary">
-                    <PlusIcon className="w-6 h-6" />
-                </Button>
-            </Tooltip>
-            <Tooltip content="Gestionar Alquileres" placement={isMobile ? "top" : "right"}>
-                <Button isIconOnly variant="light" as="a" href="/admin/rentals" className="text-default-500 hover:text-secondary">
-                    <KeyIcon className="w-6 h-6" />
-                </Button>
-            </Tooltip>
-            <Tooltip content="Mantenimiento" placement={isMobile ? "top" : "right"}>
-                <Button isIconOnly variant="light" as="a" href="/admin/maintenance" className="text-default-500 hover:text-warning">
-                    <WrenchIcon className="w-6 h-6" />
-                </Button>
-            </Tooltip>
-            <div className={isMobile ? "" : "mt-auto"}>
-                <Tooltip content="Cerrar Sesión" placement={isMobile ? "top" : "right"}>
-                    <Button isIconOnly variant="light" onPress={handleLogout} className="text-default-500 hover:text-danger">
-                        <LogOutIcon className="w-6 h-6" />
-                    </Button>
-                </Tooltip>
-            </div>
-        </>
-    );
 
     return (
         <HeroUIProvider>
@@ -290,6 +368,7 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
                                 startContent={<SearchIcon />}
                                 value={filterValue}
                                 onValueChange={setFilterValue}
+                                aria-label="Buscar propiedades"
                             />
                             <RentalAlerts />
                         </div>
@@ -298,7 +377,7 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
                     <div className="flex flex-col sm:flex-row gap-6">
                         {/* Desktop Sidebar */}
                         <div className="hidden sm:flex flex-col items-center py-6 px-2 bg-white/80 dark:bg-black/20 backdrop-blur-md shadow-lg rounded-2xl h-[calc(100vh-8rem)] sticky top-6 w-16 gap-6 z-40">
-                            <NavigationItems />
+                            <NavigationItems handleLogout={handleLogout} />
                         </div>
 
                         {/* Main Content */}
@@ -321,6 +400,7 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
                                     startContent={<SearchIcon />}
                                     value={filterValue}
                                     onValueChange={setFilterValue}
+                                    aria-label="Buscar propiedades"
                                 />
                             </div>
 
@@ -344,17 +424,17 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
                                     wrapper: "min-h-[222px]",
                                 }}
                             >
-                                <TableHeader columns={columns}>
+                                <TableHeader columns={COLUMNS}>
                                     {(column) => (
                                         <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
                                             {column.name}
                                         </TableColumn>
                                     )}
                                 </TableHeader>
-                                <TableBody items={items} emptyContent={"No se encontraron propiedades"}>
+                                <TableBody items={items} emptyContent={"No se encontraron propiedades"} isLoading={loading}>
                                     {(item) => (
                                         <TableRow key={item.id}>
-                                            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                                            {(columnKey) => <TableCell>{renderCell(item, columnKey as string)}</TableCell>}
                                         </TableRow>
                                     )}
                                 </TableBody>
@@ -365,26 +445,15 @@ export default function Dashboard({ alertsOnly = false }: { alertsOnly?: boolean
 
                 {/* Mobile Bottom Navigation */}
                 <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-black/90 backdrop-blur-lg border-t border-default-200 z-50 px-6 py-3 flex justify-between items-center rounded-t-2xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-                    <NavigationItems isMobile={true} />
+                    <NavigationItems isMobile={true} handleLogout={handleLogout} />
                 </div>
             </div>
         </HeroUIProvider>
     );
 }
 
-const StatsCard = ({ title, value, color }) => (
-    <Card className="w-full border-none shadow-md">
-        <CardBody className="flex flex-row items-center justify-between p-4">
-            <div>
-                <p className="text-xs sm:text-sm text-default-500 font-medium uppercase">{title}</p>
-                <h4 className={`text-xl sm:text-2xl font-bold text-${color}`}>{value}</h4>
-            </div>
-        </CardBody>
-    </Card>
-);
-
 // Icons
-const EditIcon = (props) => (
+const EditIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 20 20" width="1em" {...props}>
         <path d="M11.05 3.00002L4.20835 10.2417C3.95002 10.5167 3.70002 11.0584 3.65002 11.4334L3.34169 14.1334C3.23335 15.1084 3.93335 15.775 4.90002 15.6084L7.58335 15.15C7.95835 15.0834 8.48335 14.8084 8.74168 14.525L15.5834 7.28335C16.7667 6.03335 17.3 4.60835 15.4583 2.86668C13.625 1.14168 12.2334 1.75002 11.05 3.00002Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="1.5" />
         <path d="M9.90833 4.20831C10.2667 6.50831 12.1333 8.26665 14.45 8.49998" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="1.5" />
@@ -392,7 +461,7 @@ const EditIcon = (props) => (
     </svg>
 );
 
-const DeleteIcon = (props) => (
+const DeleteIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 20 20" width="1em" {...props}>
         <path d="M17.5 4.98332C14.725 4.70832 11.9333 4.56665 9.15 4.56665C7.5 4.56665 5.85 4.64998 4.2 4.81665L2.5 4.98332" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
         <path d="M7.08331 4.14169L7.26665 3.05002C7.4 2.24169 7.5 1.64169 8.94165 1.64169H11.0583C12.5 1.64169 12.6083 2.29169 12.7333 3.05835L12.9166 4.14169" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -402,69 +471,70 @@ const DeleteIcon = (props) => (
     </svg>
 );
 
-const SearchIcon = (props) => (
+const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
         <path d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
         <path d="M22 22L20 20" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
     </svg>
 );
 
-const PlusIcon = (props: any) => (
-    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
-        <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
-            <path d="M6 12h12" />
-            <path d="M12 18V6" />
-        </g>
-    </svg>
-);
-
-const KeyIcon = (props: any) => (
-    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
-        <path d="M14 14l6-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-        <path d="M20 10V4h-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-        <path d="M9 20a5 5 0 1 0 0-10 5 5 0 0 0 0 10z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-    </svg>
-);
-
-const WrenchIcon = (props: any) => (
-    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
-        <path d="M14.5 2l-5 5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-        <path d="M19.5 7l-5 5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-        <path d="M21 3l-4 4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-        <path d="M11 11L3 19c-1.1 1.1-1.1 2.9 0 4s2.9 1.1 4 0l8-8" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-    </svg>
-);
-
-const LogOutIcon = (props: any) => (
-    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-        <path d="M16 17l5-5-5-5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-        <path d="M21 12H9" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-    </svg>
-);
-
-const RentalAlerts = () => {
-    const [alerts, setAlerts] = useState([]);
+// Rental Alerts Component
+const RentalAlerts: React.FC = () => {
+    const [alerts, setAlerts] = useState<RentalAlert[]>([]);
     const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const isMounted = useRef(true);
+
+    useEffect(() => {
+        return () => {
+            isMounted.current = false;
+        };
+    }, []);
+
+    const loadAlerts = useCallback(async (): Promise<void> => {
+        setIsLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('rentals')
+                .select('*, properties(title)')
+                .in('status', ['near_expiration', 'expired'])
+                .order('end_date', { ascending: true });
+
+            if (!isMounted.current) return;
+
+            if (error) {
+                console.error('Error loading rental alerts:', error);
+                showToast({
+                    title: "Error al cargar alertas",
+                    color: "danger"
+                });
+                setAlerts([]);
+            } else {
+                setAlerts(data || []);
+            }
+        } catch (error) {
+            console.error('Unexpected error loading alerts:', error);
+            if (isMounted.current) {
+                setAlerts([]);
+            }
+        } finally {
+            if (isMounted.current) {
+                setIsLoading(false);
+            }
+        }
+    }, []);
 
     useEffect(() => {
         loadAlerts();
-    }, []);
+    }, [loadAlerts]);
 
-    const loadAlerts = async () => {
-        const { data, error } = await supabase
-            .from('rentals')
-            .select('*, properties(title)')
-            .in('status', ['near_expiration', 'expired'])
-            .order('end_date', { ascending: true });
-
-        if (error) {
-            console.error('Error loading rental alerts:', error);
-            setAlerts([]);
-        } else {
-            setAlerts(data || []);
+    // Refresh alerts when modal opens
+    const handleOpenChange = useCallback((open: boolean) => {
+        setIsOpen(open);
+        if (open) {
+            loadAlerts();
         }
-    };
+    }, [loadAlerts]);
 
     const hasAlerts = alerts.length > 0;
 
@@ -482,6 +552,7 @@ const RentalAlerts = () => {
                         variant="light"
                         onPress={() => setIsOpen(true)}
                         className={hasAlerts ? "text-warning-600" : "text-default-400"}
+                        aria-label="Ver alertas de alquileres"
                     >
                         <BellIcon className={hasAlerts ? "animate-pulse" : ""} />
                     </Button>
@@ -490,7 +561,7 @@ const RentalAlerts = () => {
 
             <Modal
                 isOpen={isOpen}
-                onOpenChange={setIsOpen}
+                onOpenChange={handleOpenChange}
                 size="2xl"
                 scrollBehavior="inside"
             >
@@ -504,9 +575,13 @@ const RentalAlerts = () => {
                                 Alertas de Alquileres ({alerts.length})
                             </ModalHeader>
                             <ModalBody>
-                                {hasAlerts ? (
+                                {isLoading ? (
+                                    <div className="text-center py-8">
+                                        <p className="text-default-500">Cargando alertas...</p>
+                                    </div>
+                                ) : hasAlerts ? (
                                     <div className="flex flex-col gap-3">
-                                        {alerts.map((alert: any) => {
+                                        {alerts.map((alert) => {
                                             const remainingDays = Math.ceil((new Date(alert.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                                             const isExpired = remainingDays < 0;
                                             const daysAgo = Math.abs(remainingDays);
@@ -563,7 +638,7 @@ const RentalAlerts = () => {
     );
 };
 
-const BellIcon = ({ className = "" }: { className?: string }) => (
+const BellIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
     <svg className={`w-5 h-5 ${className}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
     </svg>
