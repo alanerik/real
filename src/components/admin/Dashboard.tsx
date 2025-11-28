@@ -407,19 +407,6 @@ export default function Dashboard({ alertsOnly = false }: DashboardProps) {
                             {/* Table */}
                             <Table
                                 aria-label="Tabla de propiedades"
-                                bottomContent={
-                                    <div className="flex w-full justify-center">
-                                        <Pagination
-                                            isCompact
-                                            showControls
-                                            showShadow
-                                            color="primary"
-                                            page={page}
-                                            total={Math.ceil(filteredItems.length / rowsPerPage) || 1}
-                                            onChange={(page) => setPage(page)}
-                                        />
-                                    </div>
-                                }
                                 classNames={{
                                     wrapper: "min-h-[222px]",
                                 }}
@@ -439,6 +426,19 @@ export default function Dashboard({ alertsOnly = false }: DashboardProps) {
                                     )}
                                 </TableBody>
                             </Table>
+
+                            {/* Pagination - Outside table to prevent horizontal scroll */}
+                            <div className="flex w-full justify-center mt-4">
+                                <Pagination
+                                    isCompact
+                                    showControls
+                                    showShadow
+
+                                    page={page}
+                                    total={Math.ceil(filteredItems.length / rowsPerPage) || 1}
+                                    onChange={(page) => setPage(page)}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
