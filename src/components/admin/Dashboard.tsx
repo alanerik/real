@@ -432,8 +432,8 @@ export default function Dashboard({ alertsOnly = false }: DashboardProps) {
                                 <Pagination
                                     isCompact
                                     showControls
-                                    showShadow
 
+                                    variant="flat"
                                     page={page}
                                     total={Math.ceil(filteredItems.length / rowsPerPage) || 1}
                                     onChange={(page) => setPage(page)}
