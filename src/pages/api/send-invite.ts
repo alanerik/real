@@ -1,6 +1,18 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
 
+// Simple logger for API routes (server-side)
+const logger = {
+  error: (message: string, error?: any) => {
+    if (import.meta.env.DEV) {
+      console.error(`❌ [API ERROR] ${message}`, error);
+    } else {
+      // In production, log only the message without sensitive details
+      console.error(`❌ [API ERROR] ${message}`);
+    }
+  }
+};
+
 export const POST: APIRoute = async ({ request }) => {
   const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
   const serviceRoleKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -67,13 +79,15 @@ export const POST: APIRoute = async ({ request }) => {
 
 
     if (error) {
-      console.error('Supabase Invite error:', error);
+      // Log detailed error server-side only
+      logger.error('Supabase Invite error', error);
 
       // Generate a fallback link for manual sharing
       const fallbackLink = `${siteUrl}/tenant/accept-invitation?email=${encodeURIComponent(email)}`;
 
+      // Return generic error message to client (security best practice)
       return new Response(JSON.stringify({
-        error: error.message,
+        error: 'No se pudo enviar la invitación. Por favor intenta de nuevo.',
         fallbackLink
       }), { status: 500 });
     }
@@ -86,7 +100,12 @@ export const POST: APIRoute = async ({ request }) => {
       inviteLink
     }), { status: 200 });
   } catch (error) {
-    console.error('Server error:', error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), { status: 500 });
+    // Log detailed error server-side only
+    logger.error('Server error in send-invite', error);
+
+    // Return generic error to client
+    return new Response(JSON.stringify({
+      error: 'Error del servidor. Por favor intenta de nuevo.'
+    }), { status: 500 });
   }
 };

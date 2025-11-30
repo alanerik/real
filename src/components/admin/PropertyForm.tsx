@@ -19,6 +19,7 @@ import { ThemeProvider } from "../../contexts/ThemeContext";
 import { ModalProvider } from "../../contexts/ModalContext";
 import { ModalRenderer } from "../ModalRenderer";
 import { showToast } from "../ToastManager";
+import { logger } from "../../lib/logger";
 
 interface PropertyFormProps {
     propertyId?: string;
@@ -71,7 +72,7 @@ function PropertyFormContent({ propertyId }: PropertyFormProps) {
             .single();
 
         if (error) {
-            console.error("Error loading property:", error);
+            logger.error("Error loading property", error);
         } else {
             setFormData({
                 ...data,
