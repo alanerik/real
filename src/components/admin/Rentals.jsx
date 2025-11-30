@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Button, Chip, Tabs, Tab, Tooltip } from "@heroui/react";
+import { HeroUIProvider } from "@heroui/react";
+import { ThemeProvider } from '../../contexts/ThemeContext';
+import { ModalProvider, useModal } from '../../contexts/ModalContext';
+import { ModalRenderer } from '../ModalRenderer';
 import { getRentals, deleteRental } from '../../lib/rentals';
 import { getAllProperties } from '../../lib/properties';
 import { sendTenantInvitation } from '../../lib/auth-tenant';
 import RentalCalendar from './RentalCalendar';
-import PaymentManager from './PaymentManager';
 
-export default function Rentals() {
+function RentalsContent() {
+    const { openModal } = useModal();
     const [rentals, setRentals] = useState([]);
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedRental, setSelectedRental] = useState(null);
-    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
     useEffect(() => {
         loadRentals();
@@ -175,8 +177,7 @@ export default function Rentals() {
                             <span
                                 className="text-lg text-success cursor-pointer active:opacity-50"
                                 onClick={() => {
-                                    setSelectedRental(rental);
-                                    setIsPaymentModalOpen(true);
+                                    openModal('paymentManager', { rental });
                                 }}
                             >
                                 <MoneyIcon />
@@ -250,16 +251,23 @@ export default function Rentals() {
                 </Tab>
             </Tabs>
 
-            {/* Payment Manager Modal */}
-            <PaymentManager
-                rental={selectedRental}
-                isOpen={isPaymentModalOpen}
-                onClose={() => {
-                    setIsPaymentModalOpen(false);
-                    setSelectedRental(null);
-                }}
-            />
+            {/* Centralized Modal Rendering */}
+            <ModalRenderer />
         </div>
+    );
+}
+
+// Wrap with ThemeProvider, ModalProvider, and HeroUIProvider
+export default function Rentals() {
+    return (
+        <ThemeProvider>
+            <ModalProvider>
+                <HeroUIProvider>
+                    <RentalsContent />
+                </HeroUIProvider>
+                <ModalRenderer />
+            </ModalProvider>
+        </ThemeProvider>
     );
 }
 

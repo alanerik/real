@@ -40,91 +40,83 @@ function DashboardContent({ alertsOnly = false }: DashboardProps) {
     // Show loading while checking authentication
     if (isCheckingAuth) {
         return (
-            <HeroUIProvider>
-                <div className="min-h-screen flex items-center justify-center">
-                    <p className="text-lg text-default-500">Verificando autenticación...</p>
-                </div>
-            </HeroUIProvider>
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-lg text-default-500">Verificando autenticación...</p>
+            </div>
         );
     }
 
     // If alertsOnly, just render the alerts component
     if (alertsOnly) {
-        return (
-            <ThemeProvider>
-                <HeroUIProvider>
-                    <RentalAlerts />
-                </HeroUIProvider>
-            </ThemeProvider>
-        );
+        return <RentalAlerts />;
     }
 
     // Calculate total pages for pagination
     const totalPages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
 
     return (
-        <ThemeProvider>
-            <HeroUIProvider>
-                <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20 sm:pb-0 flex transition-colors duration-200">
-                    <Sidebar
-                        isExpanded={isSidebarExpanded}
-                        onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
-                        handleLogout={handleLogout}
-                    />
+        <>
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20 sm:pb-0 flex transition-colors duration-200">
+                <Sidebar
+                    isExpanded={isSidebarExpanded}
+                    onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
+                    handleLogout={handleLogout}
+                />
 
-                    <div className="flex-1 flex flex-col min-w-0">
-                        <div className="w-full p-4 sm:p-6 flex flex-col gap-6">
-                            {/* Header */}
-                            <DashboardHeader
-                                currentUser={currentUser}
-                                filterValue={filterValue}
-                                onFilterChange={setFilterValue}
-                                onOpenProfile={() => openModal('profile', { currentUser })}
-                                onOpenSettings={() => openModal('settings')}
-                            />
+                <div className="flex-1 flex flex-col min-w-0">
+                    <div className="w-full p-4 sm:p-6 flex flex-col gap-6">
+                        {/* Header */}
+                        <DashboardHeader
+                            currentUser={currentUser}
+                            filterValue={filterValue}
+                            onFilterChange={setFilterValue}
+                            onOpenProfile={() => openModal('profile', { currentUser })}
+                            onOpenSettings={() => openModal('settings')}
+                        />
 
-                            <div className="flex flex-col gap-6 w-full">
-                                {/* Stats Cards */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    <StatsCard title="Total Propiedades" value={stats.total} color="primary" />
-                                    <StatsCard title="Disponibles" value={stats.available} color="success" />
-                                    <StatsCard title="Reservadas" value={stats.reserved} color="warning" />
-                                    <StatsCard title="Vendidas" value={stats.sold} color="danger" />
-                                </div>
-
-                                {/* Property Table */}
-                                <PropertyTable
-                                    items={paginatedItems}
-                                    loading={loading}
-                                    page={page}
-                                    totalPages={totalPages}
-                                    onPageChange={setPage}
-                                    onStatusChange={handleStatusChange}
-                                    onDelete={handleDelete}
-                                />
+                        <div className="flex flex-col gap-6 w-full">
+                            {/* Stats Cards */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <StatsCard title="Total Propiedades" value={stats.total} color="primary" />
+                                <StatsCard title="Disponibles" value={stats.available} color="success" />
+                                <StatsCard title="Reservadas" value={stats.reserved} color="warning" />
+                                <StatsCard title="Vendidas" value={stats.sold} color="danger" />
                             </div>
-                        </div>
-                    </div>
 
-                    {/* Mobile Bottom Navigation */}
-                    <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-black/90 backdrop-blur-lg border-t border-default-200 z-50 px-6 py-3 flex justify-between items-center rounded-t-2xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-                        <NavigationItems isMobile={true} handleLogout={handleLogout} />
+                            {/* Property Table */}
+                            <PropertyTable
+                                items={paginatedItems}
+                                loading={loading}
+                                page={page}
+                                totalPages={totalPages}
+                                onPageChange={setPage}
+                                onStatusChange={handleStatusChange}
+                                onDelete={handleDelete}
+                            />
+                        </div>
                     </div>
                 </div>
 
-                {/* Centralized Modal Rendering */}
-                <ModalRenderer />
-            </HeroUIProvider>
-        </ThemeProvider>
+                {/* Mobile Bottom Navigation */}
+                <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-black/90 backdrop-blur-lg border-t border-default-200 z-50 px-6 py-3 flex justify-between items-center rounded-t-2xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                    <NavigationItems isMobile={true} handleLogout={handleLogout} />
+                </div>
+            </div>
+
+            {/* Centralized Modal Rendering - OUTSIDE HeroUIProvider so it shares ThemeProvider context */}
+            <ModalRenderer />
+        </>
     );
 }
 
-// Wrap with ModalProvider
+// Wrap with ThemeProvider, ModalProvider, and HeroUIProvider in correct order
 export default function Dashboard(props: DashboardProps) {
     return (
         <ThemeProvider>
             <ModalProvider>
-                <DashboardContent {...props} />
+                <HeroUIProvider>
+                    <DashboardContent {...props} />
+                </HeroUIProvider>
             </ModalProvider>
         </ThemeProvider>
     );

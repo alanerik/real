@@ -4,8 +4,12 @@ import MaintenanceTicketList from './MaintenanceTicketList';
 import ProviderForm from './ProviderForm';
 import ProviderList from './ProviderList';
 import { Button, Tabs, Tab } from "@heroui/react";
+import { HeroUIProvider } from "@heroui/react";
+import { ThemeProvider } from '../../../contexts/ThemeContext';
+import { ModalProvider } from '../../../contexts/ModalContext';
+import { ModalRenderer } from '../../ModalRenderer';
 
-export default function MaintenanceManager() {
+function MaintenanceManagerContent() {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [showForm, setShowForm] = useState(false);
     const [selectedTab, setSelectedTab] = useState("tickets");
@@ -80,5 +84,18 @@ export default function MaintenanceManager() {
                 </Tab>
             </Tabs>
         </div>
+    );
+}
+
+export default function MaintenanceManager() {
+    return (
+        <ThemeProvider>
+            <ModalProvider>
+                <HeroUIProvider>
+                    <MaintenanceManagerContent />
+                </HeroUIProvider>
+                <ModalRenderer />
+            </ModalProvider>
+        </ThemeProvider>
     );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getMaintenanceTickets, updateMaintenanceTicketStatus, deleteMaintenanceTicket, assignProviderToTicket } from '../../../lib/maintenance';
 import { getProviders } from '../../../lib/providers';
 import { showToast } from '../../ToastManager';
+import { useModal } from '../../../contexts/ModalContext';
 import {
     Table,
     TableHeader,
@@ -15,13 +16,9 @@ import {
     Dropdown,
     DropdownTrigger,
     DropdownMenu,
-    DropdownItem,
-    Modal,
-    ModalContent,
-    ModalHeader,
-    ModalBody,
-    ModalFooter
+    DropdownItem
 } from "@heroui/react";
+
 const columns = [
     { name: "PROPIEDAD", uid: "property" },
     { name: "PROBLEMA", uid: "title" },
@@ -50,12 +47,12 @@ const statusOptions = [
     { name: "Resuelto", uid: "resolved" },
 ];
 
-export default function MaintenanceTicketList({ refreshTrigger }) {
+function MaintenanceTicketListContent({ refreshTrigger }) {
+    const { openModal, closeModal } = useModal();
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [providers, setProviders] = useState([]);
     const [selectedTicket, setSelectedTicket] = useState(null);
-    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
     const [selectedProvider, setSelectedProvider] = useState(null);
 
     useEffect(() => {
@@ -131,22 +128,29 @@ export default function MaintenanceTicketList({ refreshTrigger }) {
 
     const handleOpenAssignModal = (ticket) => {
         setSelectedTicket(ticket);
-        setSelectedProvider(ticket.service_providers?.id || null);
-        setIsAssignModalOpen(true);
+        const currentProvider = ticket.service_providers?.id || null;
+        setSelectedProvider(currentProvider);
+
+        openModal('assignProvider', {
+            selectedProvider: currentProvider,
+            providers,
+            onProviderSelect: setSelectedProvider,
+            onAssign: () => handleAssignProvider(ticket.id)
+        });
     };
 
-    const handleAssignProvider = async () => {
-        if (!selectedTicket) return;
+    const handleAssignProvider = async (ticketId) => {
+        if (!ticketId) return;
 
         try {
-            await assignProviderToTicket(selectedTicket.id, selectedProvider);
+            await assignProviderToTicket(ticketId, selectedProvider);
             showToast({
                 title: selectedProvider ? 'Proveedor asignado' : 'Asignación eliminada',
                 description: selectedProvider ? 'El proveedor ha sido asignado al ticket' : 'Se quitó el proveedor del ticket',
                 color: 'success'
             });
             loadTickets();
-            setIsAssignModalOpen(false);
+            closeModal('assignProvider');
             setSelectedTicket(null);
             setSelectedProvider(null);
         } catch (error) {
@@ -284,74 +288,11 @@ export default function MaintenanceTicketList({ refreshTrigger }) {
                 </TableBody>
             </Table>
 
-            <Modal
-                isOpen={isAssignModalOpen}
-                onClose={() => setIsAssignModalOpen(false)}
-                scrollBehavior="inside"
-                size="2xl"
-            >
-                <ModalContent>
-                    {(onClose) => (
-                        <>
-                            <ModalHeader className="flex flex-col gap-1">
-                                Asignar Proveedor
-                            </ModalHeader>
-                            <ModalBody>
-                                <p className="text-sm text-gray-600 mb-4">
-                                    Selecciona un proveedor para asignar a este ticket:
-                                </p>
-
-                                <div className="space-y-2">
-                                    <div
-                                        className={`p-3 border rounded-lg cursor-pointer transition-all ${selectedProvider === null
-                                            ? 'border-primary bg-primary-50'
-                                            : 'border-gray-200 hover:border-gray-300'
-                                            }`}
-                                        onClick={() => setSelectedProvider(null)}
-                                    >
-                                        <p className="text-sm font-medium">Sin asignar</p>
-                                        <p className="text-xs text-gray-500">Quitar asignación actual</p>
-                                    </div>
-
-                                    {providers.map((provider) => (
-                                        <div
-                                            key={provider.id}
-                                            className={`p-3 border rounded-lg cursor-pointer transition-all ${selectedProvider === provider.id
-                                                ? 'border-primary bg-primary-50'
-                                                : 'border-gray-200 hover:border-gray-300'
-                                                }`}
-                                            onClick={() => setSelectedProvider(provider.id)}
-                                        >
-                                            <div className="flex justify-between items-start">
-                                                <div>
-                                                    <p className="text-sm font-medium">{provider.name}</p>
-                                                    <p className="text-xs text-gray-500 capitalize">
-                                                        {provider.trade.replace('_', ' ')}
-                                                    </p>
-                                                </div>
-                                                <Chip size="sm" color="default" variant="flat">
-                                                    {provider.phone}
-                                                </Chip>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button color="default" variant="light" onPress={onClose}>
-                                    Cancelar
-                                </Button>
-                                <Button color="primary" onPress={handleAssignProvider}>
-                                    Asignar
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
         </>
     );
 }
+
+export default MaintenanceTicketListContent;
 
 const DeleteIcon = (props) => (
     <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 20 20" width="1em" {...props}>

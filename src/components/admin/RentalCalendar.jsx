@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardBody, Chip, Button, Popover, PopoverTrigger, PopoverContent } from "@heroui/react";
+import { ModalProvider, useModal } from '../../contexts/ModalContext';
+import { ModalRenderer } from '../ModalRenderer';
 import CalendarViewSelector from './CalendarViewSelector';
 import CalendarFilters from './CalendarFilters';
 import CalendarLegend from './CalendarLegend';
@@ -7,18 +9,16 @@ import WeekView from './WeekView';
 import DayView from './DayView';
 import RentalTooltip from './RentalTooltip';
 import PaymentIndicator from './PaymentIndicator';
-import QuickCreateRentalModal from './QuickCreateRentalModal';
 import { determineRentalStatus } from '../../lib/rental-utils';
 
-export default function RentalCalendar({ rentals, properties = [], onRentalsChange }) {
+function RentalCalendarContent({ rentals, properties = [], onRentalsChange }) {
+    const { openModal } = useModal();
     const [view, setView] = useState('month');
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedProperty, setSelectedProperty] = useState('all');
     const [selectedStatuses, setSelectedStatuses] = useState(new Set(['all']));
     const [selectedTypes, setSelectedTypes] = useState(new Set(['all']));
     const [showFilters, setShowFilters] = useState(false);
-    const [isQuickCreateOpen, setIsQuickCreateOpen] = useState(false);
-    const [quickCreateDate, setQuickCreateDate] = useState(null);
 
     // Filter rentals based on selected filters
     const filteredRentals = useMemo(() => {
@@ -109,8 +109,12 @@ export default function RentalCalendar({ rentals, properties = [], onRentalsChan
 
     const handleDayClick = (day) => {
         const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        setQuickCreateDate(dateStr);
-        setIsQuickCreateOpen(true);
+        openModal('quickCreateRental', {
+            initialDate: dateStr,
+            properties,
+            rentals,
+            onSuccess: handleQuickCreateSuccess
+        });
     };
 
     const handleQuickCreateSuccess = () => {
@@ -249,15 +253,17 @@ export default function RentalCalendar({ rentals, properties = [], onRentalsChan
                 />
             )}
 
-            {/* Quick Create Modal */}
-            <QuickCreateRentalModal
-                isOpen={isQuickCreateOpen}
-                onClose={() => setIsQuickCreateOpen(false)}
-                initialDate={quickCreateDate}
-                properties={properties}
-                rentals={rentals}
-                onSuccess={handleQuickCreateSuccess}
-            />
+            {/* Centralized Modal Rendering */}
+            <ModalRenderer />
         </div>
+    );
+}
+
+// Wrap with ModalProvider
+export default function RentalCalendar(props) {
+    return (
+        <ModalProvider>
+            <RentalCalendarContent {...props} />
+        </ModalProvider>
     );
 }

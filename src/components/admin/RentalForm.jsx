@@ -8,11 +8,15 @@ import PaymentTab from './PaymentTab';
 import DocumentManager from './DocumentManager';
 import RenewalManagement from './RenewalManagement';
 import ActivityTimeline from '../tenant/ActivityTimeline';
+import { ThemeProvider } from '../../contexts/ThemeContext';
+import { ModalProvider } from '../../contexts/ModalContext';
+import { ModalRenderer } from '../ModalRenderer';
+import { HeroUIProvider } from "@heroui/react";
 
 /**
  * @param {{ rentalId?: string | null }} props
  */
-export default function RentalForm({ rentalId: initialRentalId = null }) {
+function RentalFormContent({ rentalId: initialRentalId = null }) {
     const [rentalId, setRentalId] = useState(initialRentalId);
     const [loading, setLoading] = useState(false);
     const [properties, setProperties] = useState([]);
@@ -159,7 +163,7 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
     return (
         <div className="w-full space-y-4 sm:space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {rentalId ? 'Editar Alquiler' : 'Nuevo Alquiler'}
                 </h2>
                 <Button
@@ -173,7 +177,7 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
                 </Button>
             </div>
 
-            <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
                 <Tabs
                     aria-label="Opciones de Alquiler"
                     classNames={{
@@ -541,5 +545,18 @@ export default function RentalForm({ rentalId: initialRentalId = null }) {
                 </Tabs>
             </div>
         </div>
+    );
+}
+
+export default function RentalForm(props) {
+    return (
+        <ThemeProvider>
+            <ModalProvider>
+                <HeroUIProvider>
+                    <RentalFormContent {...props} />
+                </HeroUIProvider>
+                <ModalRenderer />
+            </ModalProvider>
+        </ThemeProvider>
     );
 }
