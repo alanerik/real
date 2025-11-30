@@ -11,6 +11,7 @@ import {
     SelectItem,
 } from "@heroui/react";
 import { showToast } from "../ToastManager";
+import { useTheme } from "../../contexts/ThemeContext";
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -18,7 +19,6 @@ interface SettingsModalProps {
 }
 
 interface Settings {
-    darkMode: boolean;
     currency: string;
     dateFormat: string;
     emailNotifications: boolean;
@@ -27,8 +27,8 @@ interface Settings {
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
+    const { theme, setTheme } = useTheme();
     const [settings, setSettings] = useState<Settings>({
-        darkMode: false,
         currency: "USD",
         dateFormat: "DD/MM/YYYY",
         emailNotifications: true,
@@ -40,33 +40,40 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
         // Load settings from localStorage
         const savedSettings = localStorage.getItem("userSettings");
         if (savedSettings) {
-            setSettings(JSON.parse(savedSettings));
+            const parsed = JSON.parse(savedSettings);
+            setSettings({
+                currency: parsed.currency || "USD",
+                dateFormat: parsed.dateFormat || "DD/MM/YYYY",
+                emailNotifications: parsed.emailNotifications ?? true,
+                timezone: parsed.timezone || "America/Argentina/Buenos_Aires",
+                interfaceDensity: parsed.interfaceDensity || "comfortable",
+            });
         }
     }, []);
 
     const handleSave = () => {
         // Save to localStorage
-        localStorage.setItem("userSettings", JSON.stringify(settings));
-
-        // Apply dark mode immediately
-        if (settings.darkMode) {
-            document.documentElement.classList.add("dark");
-        } else {
-            document.documentElement.classList.remove("dark");
+        const savedSettings = localStorage.getItem("userSettings");
+        let existingSettings = {};
+        if (savedSettings) {
+            existingSettings = JSON.parse(savedSettings);
         }
+
+        const updatedSettings = {
+            ...existingSettings,
+            ...settings,
+            darkMode: theme === 'dark',
+        };
+
+        localStorage.setItem("userSettings", JSON.stringify(updatedSettings));
 
         showToast({
             title: "Configuración guardada",
-            description: "Tus preferencias se han actualizado correctamente. Recargando...",
+            description: "Tus preferencias se han actualizado correctamente",
             color: "success"
         });
 
         onClose();
-
-        // Reload to apply all changes universally
-        setTimeout(() => {
-            window.location.reload();
-        }, 500);
     };
 
     return (
@@ -84,8 +91,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                                 <p className="text-sm text-default-500">Cambiar entre tema claro y oscuro</p>
                             </div>
                             <Switch
-                                isSelected={settings.darkMode}
-                                onValueChange={(value) => setSettings({ ...settings, darkMode: value })}
+                                isSelected={theme === 'dark'}
+                                onValueChange={(checked) => setTheme(checked ? 'dark' : 'light')}
                             />
                         </div>
 

@@ -21,7 +21,7 @@ const { title } = Astro.props;
         <title>{title} | RealState Admin</title>
         <ClientRouter />
         <script is:inline>
-            // Load dark mode immediately to prevent flash
+            // Initialize dark mode from localStorage before render to prevent FOUC
             const savedSettings = localStorage.getItem("userSettings");
             if (savedSettings) {
                 const settings = JSON.parse(savedSettings);
