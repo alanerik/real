@@ -30,6 +30,10 @@ import { supabase } from "../../lib/supabase";
 import { showToast } from "../ToastManager";
 import StatsCard from "./StatsCard";
 import NavigationItems from "./NavigationItems";
+import Sidebar from "./Sidebar";
+import UserMenu from "./UserMenu";
+import ProfileModal from "./ProfileModal";
+import SettingsModal from "./SettingsModal";
 import { STATUS_COLOR_MAP, STATUS_OPTIONS, COLUMNS } from "../../constants/property";
 import type { Property, User as UserType, RentalAlert, StatsData } from "../../types/dashboard";
 
@@ -44,6 +48,9 @@ export default function Dashboard({ alertsOnly = false }: DashboardProps) {
     const [page, setPage] = useState(1);
     const [currentUser, setCurrentUser] = useState<UserType | null>(null);
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const isMounted = useRef(true);
     const rowsPerPage = 10;
 
@@ -115,6 +122,19 @@ export default function Dashboard({ alertsOnly = false }: DashboardProps) {
         } finally {
             if (isMounted.current) {
                 setLoading(false);
+            }
+        }
+    }, []);
+
+    // Initialize dark mode from localStorage
+    useEffect(() => {
+        const savedSettings = localStorage.getItem("userSettings");
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            if (settings.darkMode) {
+                document.documentElement.classList.add("dark");
+            } else {
+                document.documentElement.classList.remove("dark");
             }
         }
     }, []);
@@ -214,24 +234,29 @@ export default function Dashboard({ alertsOnly = false }: DashboardProps) {
     const filteredItems = useMemo(() => {
         let filtered = [...properties];
 
-        if (filterValue) {
-            filtered = filtered.filter((item) =>
-                item.title.toLowerCase().includes(filterValue.toLowerCase()) ||
-                item.city?.toLowerCase().includes(filterValue.toLowerCase())
-            );
-        }
+        filtered = filtered.filter((item) =>
+            item.title.toLowerCase().includes(filterValue.toLowerCase()) ||
+            item.city?.toLowerCase().includes(filterValue.toLowerCase())
+        );
 
         return filtered;
     }, [properties, filterValue]);
 
-    // Paginate items
     const items = useMemo(() => {
         const start = (page - 1) * rowsPerPage;
         const end = start + rowsPerPage;
         return filteredItems.slice(start, end);
-    }, [page, filteredItems]);
+    }, [page, filteredItems, rowsPerPage]);
 
-    // Render table cell
+    // Navigation handlers
+    const handlePropertyClick = useCallback((id: number) => {
+        window.location.href = `/admin/properties/${id}`;
+    }, []);
+
+    const handleEdit = useCallback((property: Property) => {
+        window.location.href = `/admin/properties/${property.id}`;
+    }, []);
+
     const renderCell = useCallback((property: Property, columnKey: string): React.ReactNode => {
         const cellValue = property[columnKey as keyof Property];
 
@@ -249,12 +274,10 @@ export default function Dashboard({ alertsOnly = false }: DashboardProps) {
             case "price":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-sm capitalize">
+                        <p className="text-bold text-sm capitalize text-default-900">
                             {property.currency} {property.price?.toLocaleString()}
                         </p>
-                        <p className="text-bold text-xs capitalize text-default-400">
-                            {property.operation}
-                        </p>
+                        <p className="text-bold text-xs capitalize text-default-400">{property.operation}</p>
                     </div>
                 );
             case "status":
@@ -262,12 +285,12 @@ export default function Dashboard({ alertsOnly = false }: DashboardProps) {
                     <Dropdown>
                         <DropdownTrigger>
                             <Chip
-                                className="capitalize cursor-pointer"
-                                color={STATUS_COLOR_MAP[property.status || 'available'] || "default"}
+                                className="capitalize cursor-pointer transition-transform hover:scale-105"
+                                color={STATUS_COLOR_MAP[property.status] || "default"}
                                 size="sm"
                                 variant="flat"
                             >
-                                {STATUS_OPTIONS.find(o => o.uid === property.status)?.name || "Desconocido"}
+                                {STATUS_OPTIONS.find(o => o.uid === property.status)?.name || property.status}
                             </Chip>
                         </DropdownTrigger>
                         <DropdownMenu
@@ -294,7 +317,7 @@ export default function Dashboard({ alertsOnly = false }: DashboardProps) {
                                 <EditIcon />
                             </a>
                         </Tooltip>
-                        <Tooltip color="danger" content="Eliminar">
+                        <Tooltip content="Eliminar">
                             <span
                                 className="text-lg text-danger cursor-pointer active:opacity-50"
                                 onClick={() => handleDelete(property.id)}
@@ -335,53 +358,58 @@ export default function Dashboard({ alertsOnly = false }: DashboardProps) {
 
     return (
         <HeroUIProvider>
-            <div className="min-h-screen bg-transparent pb-20 sm:pb-0">
-                <div className="max-w-5xl mx-auto p-4 sm:p-6 flex flex-col gap-6">
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20 sm:pb-0 flex transition-colors duration-200">
+                <Sidebar
+                    isExpanded={isSidebarExpanded}
+                    onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
+                    handleLogout={handleLogout}
+                />
 
-                    {/* Header */}
-                    <div className="flex flex-row justify-between items-center w-full">
-                        {/* Desktop Left: Welcome */}
-                        <div className="hidden sm:block text-left">
-                            <h1 className="text-xl font-bold">
-                                Bienvenido, <span className="text-primary">{currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || "Usuario"}</span>
-                            </h1>
+                <div className="flex-1 flex flex-col min-w-0">
+                    <div className="w-full p-4 sm:p-6 flex flex-col gap-6">
+
+                        {/* Header */}
+                        <div className="flex flex-row justify-between items-center w-full">
+                            {/* Desktop Left: Welcome */}
+                            <div className="hidden sm:block text-left">
+                                <h1 className="text-xl font-bold">
+                                    Bienvenido, <span className="text-primary">{currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || "Usuario"}</span>
+                                </h1>
+                            </div>
+
+                            {/* Mobile Left: Welcome */}
+                            <div className="sm:hidden">
+                                <h1 className="text-xl font-bold">
+                                    Bienvenido, <span className="text-primary">{currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || "Usuario"}</span>
+                                </h1>
+                            </div>
+
+                            {/* Mobile Right: Alerts */}
+                            <div className="sm:hidden">
+                                <RentalAlerts />
+                            </div>
+
+                            {/* Desktop Right: Alerts + Search + User Menu */}
+                            <div className="hidden sm:flex items-center justify-end gap-4 flex-1 max-w-xl">
+                                <Input
+                                    isClearable
+                                    className="w-full"
+                                    placeholder="Buscar por nombre o ciudad..."
+                                    startContent={<SearchIcon />}
+                                    value={filterValue}
+                                    onValueChange={setFilterValue}
+                                    aria-label="Buscar propiedades"
+                                />
+                                <RentalAlerts />
+                                <UserMenu
+                                    currentUser={currentUser}
+                                    onOpenProfile={() => setIsProfileModalOpen(true)}
+                                    onOpenSettings={() => setIsSettingsModalOpen(true)}
+                                />
+                            </div>
                         </div>
 
-                        {/* Mobile Left: Welcome */}
-                        <div className="sm:hidden">
-                            <h1 className="text-xl font-bold">
-                                Bienvenido, <span className="text-primary">{currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || "Usuario"}</span>
-                            </h1>
-                        </div>
-
-                        {/* Mobile Right: Alerts */}
-                        <div className="sm:hidden">
-                            <RentalAlerts />
-                        </div>
-
-                        {/* Desktop Right: Alerts + Search */}
-                        <div className="hidden sm:flex items-center justify-end gap-4 flex-1 max-w-xl">
-                            <Input
-                                isClearable
-                                className="w-full"
-                                placeholder="Buscar por nombre o ciudad..."
-                                startContent={<SearchIcon />}
-                                value={filterValue}
-                                onValueChange={setFilterValue}
-                                aria-label="Buscar propiedades"
-                            />
-                            <RentalAlerts />
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-6">
-                        {/* Desktop Sidebar */}
-                        <div className="hidden sm:flex flex-col items-center py-6 px-2 bg-white/80 dark:bg-black/20 backdrop-blur-md shadow-lg rounded-2xl h-[calc(100vh-8rem)] sticky top-6 w-16 gap-6 z-40">
-                            <NavigationItems handleLogout={handleLogout} />
-                        </div>
-
-                        {/* Main Content */}
-                        <div className="flex-1 flex flex-col gap-6 w-full">
+                        <div className="flex flex-col gap-6 w-full">
 
                             {/* Stats Cards */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -448,6 +476,17 @@ export default function Dashboard({ alertsOnly = false }: DashboardProps) {
                     <NavigationItems isMobile={true} handleLogout={handleLogout} />
                 </div>
             </div>
+
+            {/* Modals */}
+            <ProfileModal
+                isOpen={isProfileModalOpen}
+                onClose={() => setIsProfileModalOpen(false)}
+                currentUser={currentUser}
+            />
+            <SettingsModal
+                isOpen={isSettingsModalOpen}
+                onClose={() => setIsSettingsModalOpen(false)}
+            />
         </HeroUIProvider>
     );
 }
@@ -470,6 +509,8 @@ const DeleteIcon = (props: React.SVGProps<SVGSVGElement>) => (
         <path d="M7.91669 10.4167H12.0834" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
     </svg>
 );
+
+
 
 const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
