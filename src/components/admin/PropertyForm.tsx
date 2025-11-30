@@ -170,10 +170,10 @@ function PropertyFormContent({ propertyId }: PropertyFormProps) {
                 }
             });
 
-        } catch (error: any) {
+        } catch (error) {
             showToast({
                 title: "Error al subir imagen",
-                description: error.message,
+                description: error instanceof Error ? error.message : 'Error desconocido al subir imagen',
                 color: "danger"
             });
         } finally {
@@ -235,7 +235,7 @@ function PropertyFormContent({ propertyId }: PropertyFormProps) {
         if (error) {
             showToast({
                 title: "Error al guardar",
-                description: error.message,
+                description: error instanceof Error ? error.message : 'Error desconocido al subir imagen',
                 color: "danger"
             });
         } else {
@@ -595,5 +595,7 @@ export default function PropertyForm(props: PropertyFormProps) {
         </ThemeProvider>
     );
 }
+
+
 
 
