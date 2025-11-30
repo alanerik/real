@@ -18,6 +18,7 @@ import LocationPicker from "./LocationPicker";
 import { ThemeProvider } from "../../contexts/ThemeContext";
 import { ModalProvider } from "../../contexts/ModalContext";
 import { ModalRenderer } from "../ModalRenderer";
+import { showToast } from "../ToastManager";
 
 interface PropertyFormProps {
     propertyId?: string;
@@ -169,7 +170,11 @@ function PropertyFormContent({ propertyId }: PropertyFormProps) {
             });
 
         } catch (error: any) {
-            alert(error.message);
+            showToast({
+                title: "Error al subir imagen",
+                description: error.message,
+                color: "danger"
+            });
         } finally {
             setUploading(false);
         }
@@ -227,9 +232,21 @@ function PropertyFormContent({ propertyId }: PropertyFormProps) {
         }
 
         if (error) {
-            alert("Error al guardar: " + error.message);
+            showToast({
+                title: "Error al guardar",
+                description: error.message,
+                color: "danger"
+            });
         } else {
-            window.location.href = "/admin/dashboard";
+            showToast({
+                title: propertyId ? "Propiedad actualizada" : "Propiedad creada",
+                description: "Los cambios se guardaron exitosamente",
+                color: "success"
+            });
+            // Opción: Redirigir después de 1.5s para que el usuario vea el toast
+            setTimeout(() => {
+                window.location.href = "/admin/dashboard";
+            }, 1500);
         }
         setLoading(false);
     };

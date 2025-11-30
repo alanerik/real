@@ -12,6 +12,7 @@ import { ThemeProvider } from '../../contexts/ThemeContext';
 import { ModalProvider } from '../../contexts/ModalContext';
 import { ModalRenderer } from '../ModalRenderer';
 import { HeroUIProvider } from "@heroui/react";
+import { showToast } from '../ToastManager';
 
 /**
  * @param {{ rentalId?: string | null }} props
@@ -117,7 +118,11 @@ function RentalFormContent({ rentalId: initialRentalId = null }) {
 
     const saveRental = async (shouldRedirect = false) => {
         if (conflict && !rentalId) {
-            alert('No puedes crear un alquiler para una propiedad que ya está ocupada en esas fechas.');
+            showToast({
+                title: 'Propiedad no disponible',
+                description: 'No puedes crear un alquiler para una propiedad que ya está ocupada en esas fechas.',
+                color: 'danger'
+            });
             return;
         }
 
@@ -143,14 +148,28 @@ function RentalFormContent({ rentalId: initialRentalId = null }) {
             }
 
             if (shouldRedirect) {
-                window.location.href = '/admin/rentals';
+                showToast({
+                    title: 'Alquiler guardado',
+                    description: 'Los cambios se guardaron exitosamente',
+                    color: 'success'
+                });
+                setTimeout(() => {
+                    window.location.href = '/admin/rentals';
+                }, 1500);
             } else {
-                // Optional: Show a toast here
-                // alert('Guardado correctamente. Ahora puedes agregar pagos y documentos.');
+                showToast({
+                    title: rentalId ? 'Alquiler actualizado' : 'Alquiler creado',
+                    description: rentalId ? 'Los cambios se guardaron' : 'Ahora puedes agregar pagos y documentos',
+                    color: 'success'
+                });
             }
         } catch (error) {
-            console.error('Error saving rental:', error);
-            alert('Error saving rental');
+            const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+            showToast({
+                title: 'Error al guardar',
+                description: errorMessage,
+                color: 'danger'
+            });
         } finally {
             setLoading(false);
         }

@@ -11,6 +11,7 @@ import {
     HeroUIProvider,
 } from "@heroui/react";
 import { supabase } from "../../lib/supabase";
+import { showToast } from "../ToastManager";
 
 export default function LoginForm() {
     const [email, setEmail] = useState("");
@@ -31,8 +32,17 @@ export default function LoginForm() {
 
             if (error) throw error;
 
-            // Redirect to dashboard
-            window.location.href = "/admin/dashboard";
+            // Show success toast before redirect
+            showToast({
+                title: "¡Bienvenido!",
+                description: "Inicio de sesión exitoso",
+                color: "success"
+            });
+
+            // Redirect after showing toast
+            setTimeout(() => {
+                window.location.href = "/admin/dashboard";
+            }, 1000);
         } catch (err: any) {
             setError(err.message || "Ocurrió un error durante el inicio de sesión");
         } finally {
