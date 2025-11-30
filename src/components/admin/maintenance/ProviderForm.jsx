@@ -93,8 +93,8 @@ export default function ProviderForm({ onSuccess, editingProvider }) {
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-200">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
                 {editingProvider ? 'Editar Proveedor' : 'Nuevo Proveedor'}
             </h2>
 

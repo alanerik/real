@@ -111,8 +111,8 @@ export default function MaintenanceTicketForm({ onSuccess }) {
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">Nuevo Ticket de Mantenimiento</h2>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-200">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Nuevo Ticket de Mantenimiento</h2>
 
             <Form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <Select

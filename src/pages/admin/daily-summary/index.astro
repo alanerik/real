@@ -1,12 +1,12 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import Rentals from "../../../components/admin/Rentals";
+import DailySummary from "../../../components/admin/DailySummary";
 ---
 
-<AdminLayout title="Gestión de Alquileres">
+<AdminLayout title="Resumen Diario">
     <div class="min-h-screen py-10">
-        <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Rentals client:only="react" />
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <DailySummary client:only="react" />
         </main>
     </div>
 </AdminLayout>

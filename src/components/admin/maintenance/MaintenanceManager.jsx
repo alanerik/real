@@ -25,7 +25,7 @@ export default function MaintenanceManager() {
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
                     {selectedTab === "tickets" ? "Tickets de Mantenimiento" : "Agenda de Oficios"}
                 </h2>
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
