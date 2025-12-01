@@ -72,6 +72,7 @@ function DashboardContent({ alertsOnly = false }: DashboardProps) {
                             onFilterChange={setFilterValue}
                             onOpenProfile={() => openModal('profile', { currentUser })}
                             onOpenSettings={() => openModal('settings')}
+                            handleLogout={handleLogout}
                         />
 
                         <div className="flex flex-col gap-6 w-full">
