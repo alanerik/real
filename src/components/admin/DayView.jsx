@@ -50,10 +50,10 @@ export default function DayView({ rentals, currentDate, onDateChange }) {
     };
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow dark:shadow-gray-900/30">
             {/* Header */}
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                     {currentDate.toLocaleDateString('es-ES', {
                         weekday: 'long',
                         year: 'numeric',
@@ -73,7 +73,7 @@ export default function DayView({ rentals, currentDate, onDateChange }) {
                 {dayRentals.length === 0 ? (
                     <Card>
                         <CardBody>
-                            <p className="text-center text-gray-500">No hay alquileres activos este día</p>
+                            <p className="text-center text-gray-500 dark:text-gray-400">No hay alquileres activos este día</p>
                         </CardBody>
                     </Card>
                 ) : (
@@ -95,8 +95,8 @@ export default function DayView({ rentals, currentDate, onDateChange }) {
                                         <div className="flex-1">
                                             <div className="flex items-start justify-between mb-2">
                                                 <div>
-                                                    <h4 className="text-lg font-bold">{rental.properties?.title}</h4>
-                                                    <p className="text-sm text-gray-600">{rental.tenant_name}</p>
+                                                    <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100">{rental.properties?.title}</h4>
+                                                    <p className="text-sm text-gray-600 dark:text-gray-400">{rental.tenant_name}</p>
                                                 </div>
                                                 <Chip
                                                     size="sm"
@@ -111,20 +111,20 @@ export default function DayView({ rentals, currentDate, onDateChange }) {
 
                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                                                 <div>
-                                                    <span className="text-gray-500">Contacto:</span>
-                                                    <p className="font-medium">{rental.tenant_contact}</p>
+                                                    <span className="text-gray-500 dark:text-gray-400">Contacto:</span>
+                                                    <p className="font-medium dark:text-gray-200">{rental.tenant_contact}</p>
                                                 </div>
                                                 <div>
-                                                    <span className="text-gray-500">Monto:</span>
-                                                    <p className="font-medium">${rental.total_amount || 0}/mes</p>
+                                                    <span className="text-gray-500 dark:text-gray-400">Monto:</span>
+                                                    <p className="font-medium dark:text-gray-200">${rental.total_amount || 0}/mes</p>
                                                 </div>
                                                 <div>
-                                                    <span className="text-gray-500">Inicio:</span>
-                                                    <p className="font-medium">{rental.start_date}</p>
+                                                    <span className="text-gray-500 dark:text-gray-400">Inicio:</span>
+                                                    <p className="font-medium dark:text-gray-200">{rental.start_date}</p>
                                                 </div>
                                                 <div>
-                                                    <span className="text-gray-500">Fin:</span>
-                                                    <p className="font-medium">{rental.end_date}</p>
+                                                    <span className="text-gray-500 dark:text-gray-400">Fin:</span>
+                                                    <p className="font-medium dark:text-gray-200">{rental.end_date}</p>
                                                 </div>
                                             </div>
 

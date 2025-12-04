@@ -12,6 +12,7 @@ export default function CalendarFilters({
     onClearFilters
 }) {
     const statuses = [
+        { key: 'all', label: 'Todos' },
         { key: 'pending', label: 'Pendiente' },
         { key: 'active', label: 'Activo' },
         { key: 'near_expiration', label: 'Próximo a Vencer' },
@@ -21,6 +22,7 @@ export default function CalendarFilters({
     ];
 
     const types = [
+        { key: 'all', label: 'Todos' },
         { key: 'long_term', label: 'Anual' },
         { key: 'temporary', label: 'Temporal' },
         { key: 'vacation', label: 'Vacacional' }
@@ -46,7 +48,7 @@ export default function CalendarFilters({
                         <Select
                             label="Propiedad"
                             placeholder="Todas las propiedades"
-                            selectedKeys={selectedProperty ? [selectedProperty] : ['all']}
+                            selectedKeys={selectedProperty === 'all' ? ['all'] : selectedProperty ? [selectedProperty] : ['all']}
                             onChange={(e) => onPropertyChange(e.target.value)}
                             size="sm"
                         >

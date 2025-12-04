@@ -55,10 +55,10 @@ export default function WeekView({ rentals, currentDate, onDateChange }) {
     };
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow dark:shadow-gray-900/30">
             {/* Header */}
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                     Semana del {weekStart.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
                 </h3>
                 <div className="flex gap-2">
@@ -77,7 +77,7 @@ export default function WeekView({ rentals, currentDate, onDateChange }) {
                     return (
                         <div key={idx} className="flex flex-col">
                             {/* Day Header */}
-                            <div className={`text-center p-2 rounded-t-lg ${isToday ? 'bg-primary text-white' : 'bg-gray-100'}`}>
+                            <div className={`text-center p-2 rounded-t-lg ${isToday ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>
                                 <div className="text-xs font-semibold">
                                     {day.toLocaleDateString('es-ES', { weekday: 'short' })}
                                 </div>
@@ -87,7 +87,7 @@ export default function WeekView({ rentals, currentDate, onDateChange }) {
                             </div>
 
                             {/* Rentals */}
-                            <div className="border border-t-0 rounded-b-lg p-2 min-h-[300px] space-y-2">
+                            <div className="border dark:border-gray-700 border-t-0 rounded-b-lg p-2 min-h-[300px] space-y-2 bg-white dark:bg-gray-800">
                                 {dayRentals.map(rental => {
                                     const status = determineRentalStatus(rental.status, rental.start_date, rental.end_date);
                                     return (

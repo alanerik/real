@@ -10,10 +10,10 @@ export default function RentalTooltip({ rental, children }) {
     // Payment status text and color
     const getPaymentStatusInfo = (status) => {
         const statusInfo = {
-            ok: { text: '✅ Pagos al día', color: 'text-green-600' },
-            upcoming: { text: '⚠️ Pago próximo (7 días)', color: 'text-yellow-600' },
-            overdue: { text: '❌ Pago atrasado', color: 'text-red-600' },
-            unknown: { text: 'ℹ️ Sin información de pagos', color: 'text-gray-500' }
+            ok: { text: 'Pagos al día', color: 'text-green-600' },
+            upcoming: { text: 'Pago próximo (7 días)', color: 'text-yellow-600' },
+            overdue: { text: 'Pago atrasado', color: 'text-red-600' },
+            unknown: { text: 'Sin información de pagos', color: 'text-gray-500' }
         };
         return statusInfo[status] || statusInfo.unknown;
     };
@@ -28,15 +28,15 @@ export default function RentalTooltip({ rental, children }) {
             <div className="text-sm font-bold mb-2">{rental.properties?.title}</div>
             <div className="text-xs space-y-1">
                 <div className="flex items-center gap-1">
-                    <span>👤</span>
+                    <span className="font-medium text-gray-600 dark:text-gray-400">Inquilino:</span>
                     <span>{rental.tenant_name}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                    <span>💰</span>
+                    <span className="font-medium text-gray-600 dark:text-gray-400">Monto:</span>
                     <span>${rental.total_amount || 0}/mes</span>
                 </div>
                 <div className="flex items-center gap-1">
-                    <span>📅</span>
+                    <span className="font-medium text-gray-600 dark:text-gray-400">Vencimiento:</span>
                     <span>
                         {remainingDays > 0
                             ? `${remainingDays} día${remainingDays !== 1 ? 's' : ''} restante${remainingDays !== 1 ? 's' : ''}`
@@ -45,7 +45,7 @@ export default function RentalTooltip({ rental, children }) {
                     </span>
                 </div>
                 <div className="flex items-center gap-1">
-                    <span>💳</span>
+                    <span className="font-medium text-gray-600 dark:text-gray-400">Estado:</span>
                     <span className={paymentInfo.color}>{paymentInfo.text}</span>
                 </div>
 

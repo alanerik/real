@@ -51,6 +51,48 @@ function RentalCalendarContent({ rentals, properties = [], onRentalsChange }) {
         setSelectedTypes(new Set(['all']));
     };
 
+    const handleStatusChange = (keys) => {
+        const keySet = new Set(keys);
+
+        // Si se seleccionó "all", solo mantener "all"
+        if (keySet.has('all') && !selectedStatuses.has('all')) {
+            setSelectedStatuses(new Set(['all']));
+        }
+        // Si hay selecciones y se acaba de agregar algo que no es "all", quitar "all"
+        else if (keySet.size > 0 && keySet.has('all') && keySet.size > 1) {
+            keySet.delete('all');
+            setSelectedStatuses(keySet);
+        }
+        // Si no hay selecciones, volver a "all"
+        else if (keySet.size === 0) {
+            setSelectedStatuses(new Set(['all']));
+        }
+        else {
+            setSelectedStatuses(keySet);
+        }
+    };
+
+    const handleTypeChange = (keys) => {
+        const keySet = new Set(keys);
+
+        // Si se seleccionó "all", solo mantener "all"
+        if (keySet.has('all') && !selectedTypes.has('all')) {
+            setSelectedTypes(new Set(['all']));
+        }
+        // Si hay selecciones y se acaba de agregar algo que no es "all", quitar "all"
+        else if (keySet.size > 0 && keySet.has('all') && keySet.size > 1) {
+            keySet.delete('all');
+            setSelectedTypes(keySet);
+        }
+        // Si no hay selecciones, volver a "all"
+        else if (keySet.size === 0) {
+            setSelectedTypes(new Set(['all']));
+        }
+        else {
+            setSelectedTypes(keySet);
+        }
+    };
+
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
 
@@ -124,9 +166,9 @@ function RentalCalendarContent({ rentals, properties = [], onRentalsChange }) {
     };
 
     const renderMonthView = () => (
-        <div className="bg-white p-3 sm:p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 p-3 sm:p-6 rounded-lg shadow dark:shadow-gray-900/30">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
-                <h2 className="text-base sm:text-xl font-bold capitalize">
+                <h2 className="text-base sm:text-xl font-bold capitalize text-gray-900 dark:text-gray-100">
                     {currentDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' })}
                 </h2>
                 <div className="flex gap-2 w-full sm:w-auto">
@@ -137,7 +179,7 @@ function RentalCalendarContent({ rentals, properties = [], onRentalsChange }) {
 
             <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
                 {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day, idx) => (
-                    <div key={day} className="text-center font-semibold text-gray-500 text-xs sm:text-sm py-1 sm:py-2">
+                    <div key={day} className="text-center font-semibold text-gray-500 dark:text-gray-400 text-xs sm:text-sm py-1 sm:py-2">
                         <span className="hidden sm:inline">{day}</span>
                         <span className="sm:hidden">{day.charAt(0)}</span>
                     </div>
@@ -145,7 +187,7 @@ function RentalCalendarContent({ rentals, properties = [], onRentalsChange }) {
             </div>
             <div className="grid grid-cols-7 gap-1 sm:gap-2">
                 {emptyDays.map(i => (
-                    <div key={`empty-${i}`} className="h-20 sm:h-32 bg-gray-50 rounded-lg"></div>
+                    <div key={`empty-${i}`} className="h-20 sm:h-32 bg-gray-50 dark:bg-gray-900 rounded-lg"></div>
                 ))}
                 {days.map(day => {
                     const dayRentals = getRentalsForDay(day);
@@ -155,13 +197,13 @@ function RentalCalendarContent({ rentals, properties = [], onRentalsChange }) {
                     return (
                         <div
                             key={day}
-                            className="h-20 sm:h-32 border border-gray-200 rounded-lg p-1 sm:p-2 flex flex-col hover:bg-gray-50 cursor-pointer transition-colors"
+                            className="h-20 sm:h-32 border border-gray-200 dark:border-gray-700 rounded-lg p-1 sm:p-2 flex flex-col hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors bg-white dark:bg-gray-800"
                             onClick={() => dayRentals.length === 0 && handleDayClick(day)}
                         >
-                            <div className="text-right text-xs sm:text-sm font-medium text-gray-700 mb-1">{day}</div>
+                            <div className="text-right text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{day}</div>
                             <div className="flex-1 overflow-hidden">
                                 {dayRentals.length === 0 ? (
-                                    <div className="flex items-center justify-center h-full text-xs text-gray-400">
+                                    <div className="flex items-center justify-center h-full text-xs text-gray-400 dark:text-gray-500">
                                         + Crear
                                     </div>
                                 ) : (
@@ -173,16 +215,16 @@ function RentalCalendarContent({ rentals, properties = [], onRentalsChange }) {
                                                     <Chip
                                                         size="sm"
                                                         variant="flat"
-                                                        className="w-full justify-center cursor-pointer bg-gray-100 hover:bg-gray-200"
+                                                        className="w-full justify-center cursor-pointer bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
                                                     >
-                                                        <span className="text-xs font-medium text-gray-600">
+                                                        <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
                                                             +{hiddenCount} más
                                                         </span>
                                                     </Chip>
                                                 </PopoverTrigger>
                                                 <PopoverContent>
-                                                    <div className="px-1 py-2 w-48">
-                                                        <div className="text-small font-bold mb-2">Alquileres del día {day}</div>
+                                                    <div className="px-1 py-2 w-48 dark:bg-gray-800">
+                                                        <div className="text-small font-bold mb-2 dark:text-gray-100">Alquileres del día {day}</div>
                                                         <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
                                                             {dayRentals.map(renderRentalChip)}
                                                         </div>
@@ -222,8 +264,8 @@ function RentalCalendarContent({ rentals, properties = [], onRentalsChange }) {
                     selectedStatuses={selectedStatuses}
                     selectedTypes={selectedTypes}
                     onPropertyChange={setSelectedProperty}
-                    onStatusChange={setSelectedStatuses}
-                    onTypeChange={setSelectedTypes}
+                    onStatusChange={handleStatusChange}
+                    onTypeChange={handleTypeChange}
                     onClearFilters={handleClearFilters}
                 />
             )}
@@ -232,7 +274,7 @@ function RentalCalendarContent({ rentals, properties = [], onRentalsChange }) {
             <CalendarLegend />
 
             {/* Results count */}
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
                 Mostrando {filteredRentals.length} de {rentals.length} alquileres
             </div>
 
