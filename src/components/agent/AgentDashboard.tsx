@@ -6,7 +6,8 @@ import {
     Chip,
     Spinner,
     Avatar,
-    Divider
+    Divider,
+    Button
 } from "@heroui/react";
 import { HeroUIProvider } from "@heroui/react";
 import { ThemeProvider } from '../../contexts/ThemeContext';
@@ -14,6 +15,7 @@ import { useAgentAuth } from '../../hooks/useAgentAuth';
 import { getAgentStats, type Agent } from '../../lib/agents';
 import { formatCurrency } from '../../lib/commissions';
 import AgentSidebar from './AgentSidebar';
+import MobileAgentSidebar from './MobileAgentSidebar';
 import CommissionAlert from './CommissionAlert';
 
 interface AgentStats {
@@ -22,11 +24,19 @@ interface AgentStats {
     commissions: { pending: number; paid: number; total: number };
 }
 
+// Hamburger icon needs to be defined before use
+const HamburgerIcon = (props: any) => (
+    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
+        <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+    </svg>
+);
+
 function AgentDashboardContent() {
     const { currentAgent, isCheckingAuth, handleLogout } = useAgentAuth();
     const [stats, setStats] = useState<AgentStats | null>(null);
     const [loadingStats, setLoadingStats] = useState(true);
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
     useEffect(() => {
         if (currentAgent) {
@@ -72,12 +82,33 @@ function AgentDashboardContent() {
 
     return (
         <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 p-4 gap-4">
-            {/* Sidebar */}
-            <AgentSidebar
-                isExpanded={isSidebarExpanded}
-                onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
+            {/* Mobile Hamburger Button */}
+            <Button
+                isIconOnly
+                variant="light"
+                className="fixed top-4 left-4 z-30 sm:hidden"
+                onPress={() => setIsMobileSidebarOpen(true)}
+                aria-label="Abrir menú"
+            >
+                <HamburgerIcon className="w-6 h-6 text-default-600" />
+            </Button>
+
+            {/* Mobile Sidebar */}
+            <MobileAgentSidebar
+                isOpen={isMobileSidebarOpen}
+                onClose={() => setIsMobileSidebarOpen(false)}
+                currentAgent={currentAgent}
                 handleLogout={handleLogout}
             />
+
+            {/* Desktop Sidebar */}
+            <div className="hidden sm:block">
+                <AgentSidebar
+                    isExpanded={isSidebarExpanded}
+                    onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
+                    handleLogout={handleLogout}
+                />
+            </div>
 
             {/* Main Content */}
             <div className="flex-1 max-w-6xl mx-auto">
