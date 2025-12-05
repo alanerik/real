@@ -1,0 +1,24 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import AgentManager from "../../../components/admin/agents/AgentManager";
+---
+
+<AdminLayout title="Gestión de Agentes">
+    <div class="min-h-screen py-10">
+        <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <AgentManager client:only="react" />
+        </main>
+    </div>
+</AdminLayout>
+
+<script>
+    import { supabase } from "../../../lib/supabase";
+
+    // Protect route - admin only
+    const {
+        data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+        window.location.href = "/admin/login";
+    }
+</script>

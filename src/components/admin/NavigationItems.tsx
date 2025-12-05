@@ -77,6 +77,20 @@ const NavigationItems: React.FC<NavigationItemsProps> = ({ isMobile = false, isE
                 undefined,
                 "warning"
             )}
+            {renderButton(
+                <AgentsIcon className="w-6 h-6" />,
+                "Gestionar Agentes",
+                "/admin/agents",
+                undefined,
+                "success"
+            )}
+            {renderButton(
+                <PendingIcon className="w-6 h-6" />,
+                "Propiedades Pendientes",
+                "/admin/pending-properties",
+                undefined,
+                "warning"
+            )}
             <div className={isMobile ? "" : "mt-auto w-full"}>
                 {renderButton(
                     <LogOutIcon className="w-6 h-6" />,
@@ -115,6 +129,20 @@ const WrenchIcon = (props: any) => (
     <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
         <path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6 -6a6 6 0 0 1 -8 -8l3.5 3.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+    </svg>
+);
+
+const AgentsIcon = (props: any) => (
+    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+        <circle cx="9" cy="7" r="4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+    </svg>
+);
+
+const PendingIcon = (props: any) => (
+    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
     </svg>
 );
 

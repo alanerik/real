@@ -1,0 +1,36 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import AgentPropertyList from "../../../components/agent/AgentPropertyList";
+---
+
+<AdminLayout title="Mis Propiedades - Agente">
+    <div class="min-h-screen">
+        <main>
+            <AgentPropertyList client:only="react" />
+        </main>
+    </div>
+</AdminLayout>
+
+<script>
+    import { supabase } from "../../../lib/supabase";
+    import { getAgentByUserId } from "../../../lib/agents";
+
+    const checkUser = async () => {
+        const {
+            data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!session) {
+            window.location.href = "/agent/login";
+            return;
+        }
+
+        const agent = await getAgentByUserId(session.user.id);
+        if (!agent) {
+            await supabase.auth.signOut();
+            window.location.href = "/agent/login";
+        }
+    };
+
+    checkUser();
+</script>
