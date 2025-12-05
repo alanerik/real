@@ -33,7 +33,7 @@ export default function AgentLoginForm() {
 
             // First try to find agent by user_id
             let agent = await getAgentByUserId(data.user.id);
-            
+
             // If not found by user_id, try to find by email and link
             if (!agent) {
                 const { data: agentByEmail, error: emailError } = await supabase
