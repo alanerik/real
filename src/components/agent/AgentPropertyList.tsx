@@ -12,10 +12,6 @@ import {
     Chip,
     Button,
     Input,
-    Dropdown,
-    DropdownTrigger,
-    DropdownMenu,
-    DropdownItem,
     Spinner,
     Pagination,
     Avatar
@@ -24,7 +20,8 @@ import { HeroUIProvider } from "@heroui/react";
 import { ThemeProvider } from '../../contexts/ThemeContext';
 import { useAgentAuth } from '../../hooks/useAgentAuth';
 import { supabase } from '../../lib/supabase';
-import AgentSidebar from './AgentSidebar';
+import { AgentLayout } from './AgentLayout';
+import { AgentDashboardHeader } from './AgentDashboardHeader';
 import { showToast } from '../ToastManager';
 
 interface Property {
@@ -60,7 +57,6 @@ function AgentPropertyListContent() {
     const { currentAgent, isCheckingAuth, handleLogout } = useAgentAuth();
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
-    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
     const [filterValue, setFilterValue] = useState("");
     const [page, setPage] = useState(1);
     const [showOnlyMine, setShowOnlyMine] = useState(false);
@@ -130,148 +126,148 @@ function AgentPropertyListContent() {
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 p-4 gap-4">
-            <AgentSidebar
-                isExpanded={isSidebarExpanded}
-                onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
-                handleLogout={handleLogout}
-            />
+        <AgentLayout currentAgent={currentAgent} handleLogout={handleLogout}>
+            {({ onOpenMobileSidebar, onOpenProfile, onOpenSettings }) => (
+                <>
+                    <AgentDashboardHeader
+                        currentAgent={currentAgent}
+                        onOpenProfile={onOpenProfile}
+                        onOpenSettings={onOpenSettings}
+                        onOpenMobileSidebar={onOpenMobileSidebar}
+                        title="Propiedades"
+                        subtitle={showOnlyMine ? 'Mostrando solo tus propiedades' : 'Mostrando todas las propiedades'}
+                    />
 
-            <div className="flex-1 max-w-6xl mx-auto">
-                <Card className="mb-6">
-                    <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                            <h1 className="text-2xl font-bold text-default-800">Propiedades</h1>
-                            <p className="text-default-500">
-                                {showOnlyMine ? 'Mostrando solo tus propiedades' : 'Mostrando todas las propiedades'}
-                            </p>
-                        </div>
-                        <div className="flex gap-2 w-full sm:w-auto">
-                            <Button
-                                variant={showOnlyMine ? "solid" : "bordered"}
-                                color="success"
-                                size="sm"
-                                onPress={() => setShowOnlyMine(!showOnlyMine)}
-                            >
-                                {showOnlyMine ? 'Mis Propiedades' : 'Todas'}
-                            </Button>
-                            <Button
-                                as="a"
-                                href="/agent/properties/new"
-                                color="success"
-                                className="bg-emerald-600"
-                                startContent={<PlusIcon className="w-4 h-4" />}
-                            >
-                                Nueva Propiedad
-                            </Button>
-                        </div>
-                    </CardHeader>
-                    <CardBody>
-                        <Input
-                            placeholder="Buscar por título o ciudad..."
-                            value={filterValue}
-                            onChange={(e) => setFilterValue(e.target.value)}
-                            className="max-w-md mb-4"
-                            startContent={<SearchIcon className="w-4 h-4 text-default-400" />}
-                        />
-
-                        <Table aria-label="Tabla de propiedades">
-                            <TableHeader>
-                                <TableColumn>PROPIEDAD</TableColumn>
-                                <TableColumn>AGENTE</TableColumn>
-                                <TableColumn>PRECIO</TableColumn>
-                                <TableColumn>ESTADO</TableColumn>
-                                <TableColumn>APROBACIÓN</TableColumn>
-                                <TableColumn>ACCIONES</TableColumn>
-                            </TableHeader>
-                            <TableBody
-                                isLoading={loading}
-                                loadingContent={<Spinner />}
-                                emptyContent="No hay propiedades"
-                            >
-                                {paginatedProperties.map((property) => (
-                                    <TableRow key={property.id}>
-                                        <TableCell>
-                                            <div className="flex items-center gap-3">
-                                                <Avatar
-                                                    src={property.image_url || undefined}
-                                                    name={property.title[0]}
-                                                    size="sm"
-                                                    radius="md"
-                                                />
-                                                <div>
-                                                    <p className="font-medium text-default-800">
-                                                        {property.title}
-                                                        {property.agent_id === currentAgent?.id && (
-                                                            <Chip size="sm" variant="flat" color="primary" className="ml-2">
-                                                                Tuya
-                                                            </Chip>
-                                                        )}
-                                                    </p>
-                                                    <p className="text-sm text-default-500">{property.city}</p>
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="text-default-600">
-                                                {property.agents?.name || 'Sin asignar'}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="font-semibold">
-                                                {formatPrice(property.price, property.currency)}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                size="sm"
-                                                color={STATUS_MAP[property.status]?.color || 'default'}
-                                                variant="flat"
-                                            >
-                                                {STATUS_MAP[property.status]?.label || property.status}
-                                            </Chip>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                size="sm"
-                                                color={APPROVAL_STATUS_MAP[property.approval_status]?.color || 'default'}
-                                                variant="flat"
-                                            >
-                                                {APPROVAL_STATUS_MAP[property.approval_status]?.label || property.approval_status}
-                                            </Chip>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    size="sm"
-                                                    variant="light"
-                                                    as="a"
-                                                    href={`/propiedades/${property.id}`}
-                                                    target="_blank"
-                                                >
-                                                    Ver
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-
-                        {totalPages > 1 && (
-                            <div className="flex justify-center mt-4">
-                                <Pagination
-                                    total={totalPages}
-                                    page={page}
-                                    onChange={setPage}
-                                    color="success"
+                    <Card className="mb-6">
+                        <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div className="w-full sm:w-auto flex-1">
+                                <Input
+                                    placeholder="Buscar por título o ciudad..."
+                                    value={filterValue}
+                                    onChange={(e) => setFilterValue(e.target.value)}
+                                    className="max-w-md"
+                                    startContent={<SearchIcon className="w-4 h-4 text-default-400" />}
                                 />
                             </div>
-                        )}
-                    </CardBody>
-                </Card>
-            </div>
-        </div>
+                            <div className="flex gap-2 w-full sm:w-auto">
+                                <Button
+                                    variant={showOnlyMine ? "solid" : "bordered"}
+                                    color="success"
+                                    size="sm"
+                                    onPress={() => setShowOnlyMine(!showOnlyMine)}
+                                >
+                                    {showOnlyMine ? 'Mis Propiedades' : 'Todas'}
+                                </Button>
+                                <Button
+                                    as="a"
+                                    href="/agent/properties/new"
+                                    color="success"
+                                    className="bg-emerald-600"
+                                    startContent={<PlusIcon className="w-4 h-4" />}
+                                >
+                                    Nueva Propiedad
+                                </Button>
+                            </div>
+                        </CardHeader>
+                        <CardBody>
+                            <Table aria-label="Tabla de propiedades">
+                                <TableHeader>
+                                    <TableColumn>PROPIEDAD</TableColumn>
+                                    <TableColumn>AGENTE</TableColumn>
+                                    <TableColumn>PRECIO</TableColumn>
+                                    <TableColumn>ESTADO</TableColumn>
+                                    <TableColumn>APROBACIÓN</TableColumn>
+                                    <TableColumn>ACCIONES</TableColumn>
+                                </TableHeader>
+                                <TableBody
+                                    isLoading={loading}
+                                    loadingContent={<Spinner />}
+                                    emptyContent="No hay propiedades"
+                                >
+                                    {paginatedProperties.map((property) => (
+                                        <TableRow key={property.id}>
+                                            <TableCell>
+                                                <div className="flex items-center gap-3">
+                                                    <Avatar
+                                                        src={property.image_url || undefined}
+                                                        name={property.title[0]}
+                                                        size="sm"
+                                                        radius="md"
+                                                    />
+                                                    <div>
+                                                        <p className="font-medium text-default-800">
+                                                            {property.title}
+                                                            {property.agent_id === currentAgent?.id && (
+                                                                <Chip size="sm" variant="flat" color="primary" className="ml-2">
+                                                                    Tuya
+                                                                </Chip>
+                                                            )}
+                                                        </p>
+                                                        <p className="text-sm text-default-500">{property.city}</p>
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <span className="text-default-600">
+                                                    {property.agents?.name || 'Sin asignar'}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell>
+                                                <span className="font-semibold">
+                                                    {formatPrice(property.price, property.currency)}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    size="sm"
+                                                    color={STATUS_MAP[property.status]?.color || 'default'}
+                                                    variant="flat"
+                                                >
+                                                    {STATUS_MAP[property.status]?.label || property.status}
+                                                </Chip>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    size="sm"
+                                                    color={APPROVAL_STATUS_MAP[property.approval_status]?.color || 'default'}
+                                                    variant="flat"
+                                                >
+                                                    {APPROVAL_STATUS_MAP[property.approval_status]?.label || property.approval_status}
+                                                </Chip>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="light"
+                                                        as="a"
+                                                        href={`/propiedades/${property.id}`}
+                                                        target="_blank"
+                                                    >
+                                                        Ver
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+
+                            {totalPages > 1 && (
+                                <div className="flex justify-center mt-4">
+                                    <Pagination
+                                        total={totalPages}
+                                        page={page}
+                                        onChange={setPage}
+                                        color="success"
+                                    />
+                                </div>
+                            )}
+                        </CardBody>
+                    </Card>
+                </>
+            )}
+        </AgentLayout>
     );
 }
 

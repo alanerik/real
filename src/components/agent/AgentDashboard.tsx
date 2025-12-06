@@ -5,17 +5,17 @@ import {
     CardHeader,
     Chip,
     Spinner,
-    Avatar,
     Divider,
-    Button
+    Listbox,
+    ListboxItem
 } from "@heroui/react";
 import { HeroUIProvider } from "@heroui/react";
 import { ThemeProvider } from '../../contexts/ThemeContext';
 import { useAgentAuth } from '../../hooks/useAgentAuth';
 import { getAgentStats, type Agent } from '../../lib/agents';
 import { formatCurrency } from '../../lib/commissions';
-import AgentSidebar from './AgentSidebar';
-import MobileAgentSidebar from './MobileAgentSidebar';
+import { AgentLayout } from './AgentLayout';
+import { AgentDashboardHeader } from './AgentDashboardHeader';
 import CommissionAlert from './CommissionAlert';
 
 interface AgentStats {
@@ -24,19 +24,10 @@ interface AgentStats {
     commissions: { pending: number; paid: number; total: number };
 }
 
-// Hamburger icon needs to be defined before use
-const HamburgerIcon = (props: any) => (
-    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
-        <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-    </svg>
-);
-
 function AgentDashboardContent() {
     const { currentAgent, isCheckingAuth, handleLogout } = useAgentAuth();
     const [stats, setStats] = useState<AgentStats | null>(null);
     const [loadingStats, setLoadingStats] = useState(true);
-    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
     useEffect(() => {
         if (currentAgent) {
@@ -81,158 +72,142 @@ function AgentDashboardContent() {
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 p-4 gap-4">
-            {/* Mobile Hamburger Button */}
-            <Button
-                isIconOnly
-                variant="light"
-                className="fixed top-4 left-4 z-30 sm:hidden"
-                onPress={() => setIsMobileSidebarOpen(true)}
-                aria-label="Abrir menú"
-            >
-                <HamburgerIcon className="w-6 h-6 text-default-600" />
-            </Button>
-
-            {/* Mobile Sidebar */}
-            <MobileAgentSidebar
-                isOpen={isMobileSidebarOpen}
-                onClose={() => setIsMobileSidebarOpen(false)}
-                currentAgent={currentAgent}
-                handleLogout={handleLogout}
-            />
-
-            {/* Desktop Sidebar */}
-            <div className="hidden sm:block">
-                <AgentSidebar
-                    isExpanded={isSidebarExpanded}
-                    onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
-                    handleLogout={handleLogout}
-                />
-            </div>
-
-            {/* Main Content */}
-            <div className="flex-1 max-w-6xl mx-auto">
-                {/* Header */}
-                <Card className="mb-6 bg-gradient-to-r from-emerald-500 to-teal-600">
-                    <CardBody className="py-8">
-                        <div className="flex items-center gap-4">
-                            <Avatar
-                                src={currentAgent.avatar_url || undefined}
-                                name={currentAgent.name}
-                                size="lg"
-                                className="ring-4 ring-white/30"
-                            />
-                            <div className="text-white">
-                                <h1 className="text-2xl font-bold">¡Bienvenido, {currentAgent.name}!</h1>
-                                <p className="text-emerald-100">Panel de Agente Inmobiliario</p>
-                                {currentAgent.license_number && (
-                                    <p className="text-emerald-200 text-sm mt-1">
-                                        Matrícula: {currentAgent.license_number}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                    </CardBody>
-                </Card>
-
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <StatsCard
-                        title="Propiedades"
-                        loading={loadingStats}
-                        stats={stats?.properties}
-                        icon={<PropertiesIcon className="w-8 h-8 text-emerald-500" />}
-                        renderContent={(data) => (
-                            <div className="space-y-2">
-                                <div className="text-3xl font-bold text-default-800">{data.total}</div>
-                                <div className="flex gap-2">
-                                    <Chip size="sm" color="success" variant="flat">{data.approved} Aprobadas</Chip>
-                                    <Chip size="sm" color="warning" variant="flat">{data.pending} Pendientes</Chip>
-                                </div>
-                            </div>
-                        )}
+        <AgentLayout currentAgent={currentAgent} handleLogout={handleLogout}>
+            {({ onOpenMobileSidebar, onOpenProfile, onOpenSettings }) => (
+                <>
+                    {/* Header */}
+                    <AgentDashboardHeader
+                        currentAgent={currentAgent}
+                        onOpenProfile={onOpenProfile}
+                        onOpenSettings={onOpenSettings}
+                        onOpenMobileSidebar={onOpenMobileSidebar}
                     />
 
-                    <StatsCard
-                        title="Leads"
-                        loading={loadingStats}
-                        stats={stats?.leads}
-                        icon={<LeadsIcon className="w-8 h-8 text-blue-500" />}
-                        renderContent={(data) => (
-                            <div className="space-y-2">
-                                <div className="text-3xl font-bold text-default-800">{data.total}</div>
-                                <div className="flex gap-2">
-                                    <Chip size="sm" color="primary" variant="flat">{data.new} Nuevos</Chip>
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <StatsCard
+                            title="Propiedades"
+                            loading={loadingStats}
+                            stats={stats?.properties}
+                            icon={<PropertiesIcon className="w-8 h-8 text-emerald-500" />}
+                            renderContent={(data) => (
+                                <div className="space-y-2">
+                                    <div className="text-3xl font-bold text-default-800">{data.total}</div>
+                                    <div className="flex gap-2">
+                                        <Chip size="sm" color="success" variant="flat">{data.approved} Aprobadas</Chip>
+                                        <Chip size="sm" color="warning" variant="flat">{data.pending} Pendientes</Chip>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    />
+                            )}
+                        />
 
-                    <StatsCard
-                        title="Comisiones"
-                        loading={loadingStats}
-                        stats={stats?.commissions}
-                        icon={<CommissionsIcon className="w-8 h-8 text-amber-500" />}
-                        renderContent={(data) => (
-                            <div className="space-y-2">
-                                <div className="text-3xl font-bold text-default-800">
-                                    {formatCurrency(data.total)}
+                        <StatsCard
+                            title="Leads"
+                            loading={loadingStats}
+                            stats={stats?.leads}
+                            icon={<LeadsIcon className="w-8 h-8 text-blue-500" />}
+                            renderContent={(data) => (
+                                <div className="space-y-2">
+                                    <div className="text-3xl font-bold text-default-800">{data.total}</div>
+                                    <div className="flex gap-2">
+                                        <Chip size="sm" color="primary" variant="flat">{data.new} Nuevos</Chip>
+                                    </div>
                                 </div>
-                                <div className="flex gap-2 flex-wrap">
-                                    <Chip size="sm" color="warning" variant="flat">
-                                        {formatCurrency(data.pending)} Pendiente
-                                    </Chip>
-                                    <Chip size="sm" color="success" variant="flat">
-                                        {formatCurrency(data.paid)} Cobrado
-                                    </Chip>
+                            )}
+                        />
+
+                        <StatsCard
+                            title="Comisiones"
+                            loading={loadingStats}
+                            stats={stats?.commissions}
+                            icon={<CommissionsIcon className="w-8 h-8 text-amber-500" />}
+                            renderContent={(data) => (
+                                <div className="space-y-2">
+                                    <div className="text-3xl font-bold text-default-800">
+                                        {formatCurrency(data.total)}
+                                    </div>
+                                    <div className="flex gap-2 flex-wrap">
+                                        <Chip size="sm" color="warning" variant="flat">
+                                            {formatCurrency(data.pending)} Pendiente
+                                        </Chip>
+                                        <Chip size="sm" color="success" variant="flat">
+                                            {formatCurrency(data.paid)} Cobrado
+                                        </Chip>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    />
-                </div>
+                            )}
+                        />
+                    </div>
 
-                {/* Commission Alert */}
-                <div className="mb-6">
-                    <CommissionAlert />
-                </div>
+                    {/* Commission Alert */}
+                    <div className="mb-6">
+                        <CommissionAlert />
+                    </div>
 
-                {/* Quick Actions */}
-                <Card className="mb-6">
-                    <CardHeader>
-                        <h3 className="text-lg font-semibold">Acciones Rápidas</h3>
-                    </CardHeader>
-                    <Divider />
-                    <CardBody>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <QuickActionCard
-                                href="/agent/properties/new"
-                                icon={<PlusIcon className="w-6 h-6" />}
-                                label="Nueva Propiedad"
-                                color="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300"
-                            />
-                            <QuickActionCard
-                                href="/agent/properties"
-                                icon={<PropertiesIcon className="w-6 h-6" />}
-                                label="Ver Propiedades"
-                                color="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                            />
-                            <QuickActionCard
-                                href="/agent/leads"
-                                icon={<LeadsIcon className="w-6 h-6" />}
-                                label="Mis Leads"
-                                color="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
-                            />
-                            <QuickActionCard
-                                href="/agent/commissions"
-                                icon={<CommissionsIcon className="w-6 h-6" />}
-                                label="Comisiones"
-                                color="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300"
-                            />
-                        </div>
-                    </CardBody>
-                </Card>
-            </div>
-        </div>
+                    {/* Quick Actions */}
+                    <Card className="mb-6">
+                        <CardHeader>
+                            <h3 className="text-lg font-semibold">Acciones Rápidas</h3>
+                        </CardHeader>
+                        <Divider />
+                        <CardBody className="p-0">
+                            <Listbox
+                                aria-label="Acciones rápidas"
+                                onAction={(key) => {
+                                    window.location.href = key as string;
+                                }}
+                                className="p-0"
+                            >
+                                <ListboxItem
+                                    key="/agent/properties/new"
+                                    startContent={
+                                        <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
+                                            <PlusIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                        </div>
+                                    }
+                                    description="Agregar una nueva propiedad al sistema"
+                                >
+                                    Nueva Propiedad
+                                </ListboxItem>
+                                <ListboxItem
+                                    key="/agent/properties"
+                                    startContent={
+                                        <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                                            <PropertiesIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                        </div>
+                                    }
+                                    description="Ver y gestionar tus propiedades"
+                                >
+                                    Mis Propiedades
+                                </ListboxItem>
+                                <ListboxItem
+                                    key="/agent/leads"
+                                    startContent={
+                                        <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
+                                            <LeadsIcon className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                                        </div>
+                                    }
+                                    description="Gestionar tus contactos y oportunidades"
+                                >
+                                    Mis Leads
+                                </ListboxItem>
+                                <ListboxItem
+                                    key="/agent/commissions"
+                                    startContent={
+                                        <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30">
+                                            <CommissionsIcon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                                        </div>
+                                    }
+                                    description="Ver el estado de tus comisiones"
+                                >
+                                    Comisiones
+                                </ListboxItem>
+                            </Listbox>
+                        </CardBody>
+                    </Card>
+                </>
+            )}
+        </AgentLayout>
     );
 }
 
@@ -263,27 +238,6 @@ function StatsCard({ title, loading, stats, icon, renderContent }: {
     );
 }
 
-// Quick Action Card
-function QuickActionCard({ href, icon, label, color }: {
-    href: string;
-    icon: React.ReactNode;
-    label: string;
-    color: string;
-}) {
-    return (
-        <a href={href}>
-            <Card
-                isPressable
-                className={`${color} hover:scale-105 transition-transform`}
-            >
-                <CardBody className="flex flex-col items-center justify-center p-6 gap-2">
-                    {icon}
-                    <span className="text-sm font-medium text-center">{label}</span>
-                </CardBody>
-            </Card>
-        </a>
-    );
-}
 
 // Icons
 const PropertiesIcon = (props: any) => (

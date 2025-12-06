@@ -11,7 +11,7 @@ import {
     TableCell,
     Chip,
     Spinner,
-    Divider
+    Button
 } from "@heroui/react";
 import { HeroUIProvider } from "@heroui/react";
 import { ThemeProvider } from '../../contexts/ThemeContext';
@@ -22,7 +22,8 @@ import {
     formatCurrency,
     type Commission
 } from '../../lib/commissions';
-import AgentSidebar from './AgentSidebar';
+import { AgentLayout } from './AgentLayout';
+import { AgentDashboardHeader } from './AgentDashboardHeader';
 import CommissionAlert from './CommissionAlert';
 
 function AgentCommissionsContent() {
@@ -30,7 +31,6 @@ function AgentCommissionsContent() {
     const [commissions, setCommissions] = useState<Commission[]>([]);
     const [summary, setSummary] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
     useEffect(() => {
         if (currentAgent) {
@@ -92,146 +92,188 @@ function AgentCommissionsContent() {
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 p-4 gap-4">
-            <AgentSidebar
-                isExpanded={isSidebarExpanded}
-                onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
-                handleLogout={handleLogout}
-            />
+        <AgentLayout currentAgent={currentAgent} handleLogout={handleLogout}>
+            {({ onOpenMobileSidebar, onOpenProfile, onOpenSettings }) => (
+                <>
+                    <AgentDashboardHeader
+                        currentAgent={currentAgent}
+                        onOpenProfile={onOpenProfile}
+                        onOpenSettings={onOpenSettings}
+                        onOpenMobileSidebar={onOpenMobileSidebar}
+                        title="Comisiones"
+                        subtitle="Gestiona y visualiza tus comisiones"
+                    />
 
-            <div className="flex-1 max-w-6xl mx-auto space-y-6">
-                {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="bg-gradient-to-br from-amber-500 to-orange-600">
-                        <CardBody className="text-white">
-                            <p className="text-amber-100 text-sm">Comisiones Pendientes</p>
-                            <p className="text-3xl font-bold mt-1">
-                                {loading ? '...' : formatCurrency(summary?.pending?.total || 0)}
-                            </p>
-                            <p className="text-amber-200 text-sm mt-1">
-                                {summary?.pending?.count || 0} ventas
-                            </p>
-                        </CardBody>
-                    </Card>
+                    <div className="space-y-6">
+                        {/* Summary Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <Card>
+                                <CardBody className="p-6">
+                                    <div className="flex items-start justify-between mb-2">
+                                        <p className="text-sm text-default-500">Comisiones Pendientes</p>
+                                        <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30">
+                                            <ClockIcon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                                        </div>
+                                    </div>
+                                    <p className="text-3xl font-bold text-default-800">
+                                        {loading ? '...' : formatCurrency(summary?.pending?.total || 0)}
+                                    </p>
+                                    <p className="text-sm text-default-400 mt-1">
+                                        {summary?.pending?.count || 0} ventas
+                                    </p>
+                                </CardBody>
+                            </Card>
 
-                    <Card className="bg-gradient-to-br from-emerald-500 to-green-600">
-                        <CardBody className="text-white">
-                            <p className="text-emerald-100 text-sm">Comisiones Cobradas</p>
-                            <p className="text-3xl font-bold mt-1">
-                                {loading ? '...' : formatCurrency(summary?.paid?.total || 0)}
-                            </p>
-                            <p className="text-emerald-200 text-sm mt-1">
-                                {summary?.paid?.count || 0} ventas
-                            </p>
-                        </CardBody>
-                    </Card>
+                            <Card>
+                                <CardBody className="p-6">
+                                    <div className="flex items-start justify-between mb-2">
+                                        <p className="text-sm text-default-500">Comisiones Cobradas</p>
+                                        <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
+                                            <CheckIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                        </div>
+                                    </div>
+                                    <p className="text-3xl font-bold text-default-800">
+                                        {loading ? '...' : formatCurrency(summary?.paid?.total || 0)}
+                                    </p>
+                                    <p className="text-sm text-default-400 mt-1">
+                                        {summary?.paid?.count || 0} ventas
+                                    </p>
+                                </CardBody>
+                            </Card>
 
-                    <Card className="bg-gradient-to-br from-blue-500 to-indigo-600">
-                        <CardBody className="text-white">
-                            <p className="text-blue-100 text-sm">Total Histórico</p>
-                            <p className="text-3xl font-bold mt-1">
-                                {loading ? '...' : formatCurrency(summary?.all?.total || 0)}
-                            </p>
-                            <p className="text-blue-200 text-sm mt-1">
-                                {summary?.all?.count || 0} operaciones
-                            </p>
-                        </CardBody>
-                    </Card>
-                </div>
-
-                {/* Commission Info Alert */}
-                <CommissionAlert />
-
-                {/* Commissions Table */}
-                <Card>
-                    <CardHeader>
-                        <div>
-                            <h1 className="text-2xl font-bold text-default-800">Historial de Comisiones</h1>
-                            <p className="text-default-500">Detalle de todas tus comisiones</p>
+                            <Card>
+                                <CardBody className="p-6">
+                                    <div className="flex items-start justify-between mb-2">
+                                        <p className="text-sm text-default-500">Total Histórico</p>
+                                        <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                                            <ChartIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                        </div>
+                                    </div>
+                                    <p className="text-3xl font-bold text-default-800">
+                                        {loading ? '...' : formatCurrency(summary?.all?.total || 0)}
+                                    </p>
+                                    <p className="text-sm text-default-400 mt-1">
+                                        {summary?.all?.count || 0} operaciones
+                                    </p>
+                                </CardBody>
+                            </Card>
                         </div>
-                    </CardHeader>
-                    <CardBody>
-                        <Table aria-label="Tabla de comisiones">
-                            <TableHeader>
-                                <TableColumn>PROPIEDAD</TableColumn>
-                                <TableColumn>VALOR VENTA</TableColumn>
-                                <TableColumn>MI ROL</TableColumn>
-                                <TableColumn>MI COMISIÓN</TableColumn>
-                                <TableColumn>ESTADO</TableColumn>
-                                <TableColumn>FECHA</TableColumn>
-                            </TableHeader>
-                            <TableBody
-                                isLoading={loading}
-                                loadingContent={<Spinner />}
-                                emptyContent="No hay comisiones registradas"
-                            >
-                                {commissions.map((commission) => (
-                                    <TableRow key={commission.id}>
-                                        <TableCell>
-                                            {commission.properties ? (
-                                                <div>
-                                                    <p className="font-medium">{commission.properties.title}</p>
-                                                    <p className="text-sm text-default-400">{commission.properties.city}</p>
-                                                </div>
-                                            ) : (
-                                                <span className="text-default-400">Propiedad eliminada</span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="font-semibold">
-                                                {formatCurrency(commission.sale_price)}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                size="sm"
-                                                variant="flat"
-                                                color={getMyRole(commission) === 'Captación + Venta' ? 'success' : 'primary'}
-                                            >
-                                                {getMyRole(commission)}
-                                            </Chip>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div>
-                                                <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                                                    {formatCurrency(getMyAmount(commission))}
-                                                </span>
-                                                <p className="text-xs text-default-400">
-                                                    {commission.capturing_agent_id === currentAgent?.id
-                                                        ? `${commission.capturing_share}%`
-                                                        : `${commission.selling_share}%`} del {commission.commission_rate}%
-                                                </p>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                size="sm"
-                                                color={commission.status === 'paid' ? 'success' : 'warning'}
-                                                variant="flat"
-                                            >
-                                                {commission.status === 'paid' ? 'Cobrada' : 'Pendiente'}
-                                            </Chip>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div>
-                                                <p className="text-sm">{formatDate(commission.created_at)}</p>
-                                                {commission.payment_date && (
-                                                    <p className="text-xs text-default-400">
-                                                        Pagada: {formatDate(commission.payment_date)}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </CardBody>
-                </Card>
-            </div>
-        </div>
+
+                        {/* Commission Info Alert */}
+                        <CommissionAlert />
+
+                        {/* Commissions Table */}
+                        <Card>
+                            <CardHeader>
+                                <div>
+                                    <h1 className="text-2xl font-bold text-default-800">Historial de Comisiones</h1>
+                                    <p className="text-default-500">Detalle de todas tus comisiones</p>
+                                </div>
+                            </CardHeader>
+                            <CardBody className="overflow-x-auto">
+                                <Table aria-label="Tabla de comisiones">
+                                    <TableHeader>
+                                        <TableColumn>PROPIEDAD</TableColumn>
+                                        <TableColumn>VALOR VENTA</TableColumn>
+                                        <TableColumn>MI ROL</TableColumn>
+                                        <TableColumn>MI COMISIÓN</TableColumn>
+                                        <TableColumn>ESTADO</TableColumn>
+                                        <TableColumn>FECHA</TableColumn>
+                                    </TableHeader>
+                                    <TableBody
+                                        isLoading={loading}
+                                        loadingContent={<Spinner />}
+                                        emptyContent="No hay comisiones registradas"
+                                    >
+                                        {commissions.map((commission) => (
+                                            <TableRow key={commission.id}>
+                                                <TableCell>
+                                                    {commission.properties ? (
+                                                        <div>
+                                                            <p className="font-medium">{commission.properties.title}</p>
+                                                            <p className="text-sm text-default-400">{commission.properties.city}</p>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-default-400">Propiedad eliminada</span>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="font-semibold">
+                                                        {formatCurrency(commission.sale_price)}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Chip
+                                                        size="sm"
+                                                        variant="flat"
+                                                        color={getMyRole(commission) === 'Captación + Venta' ? 'success' : 'primary'}
+                                                    >
+                                                        {getMyRole(commission)}
+                                                    </Chip>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div>
+                                                        <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                                                            {formatCurrency(getMyAmount(commission))}
+                                                        </span>
+                                                        <p className="text-xs text-default-400">
+                                                            {commission.capturing_agent_id === currentAgent?.id
+                                                                ? `${commission.capturing_share}%`
+                                                                : `${commission.selling_share}%`} del {commission.commission_rate}%
+                                                        </p>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Chip
+                                                        size="sm"
+                                                        color={commission.status === 'paid' ? 'success' : 'warning'}
+                                                        variant="flat"
+                                                    >
+                                                        {commission.status === 'paid' ? 'Cobrada' : 'Pendiente'}
+                                                    </Chip>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div>
+                                                        <p className="text-sm">{formatDate(commission.created_at)}</p>
+                                                        {commission.payment_date && (
+                                                            <p className="text-xs text-default-400">
+                                                                Pagada: {formatDate(commission.payment_date)}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </CardBody>
+                        </Card>
+                    </div>
+                </>
+            )}
+        </AgentLayout>
     );
 }
+
+// Icons
+const ClockIcon = (props: any) => (
+    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
+        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M12 6v6l4 2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+    </svg>
+);
+
+const CheckIcon = (props: any) => (
+    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
+        <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+    </svg>
+);
+
+const ChartIcon = (props: any) => (
+    <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>
+        <path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+    </svg>
+);
 
 export default function AgentCommissions() {
     return (
