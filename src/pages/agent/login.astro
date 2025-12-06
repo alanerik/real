@@ -1,61 +1,12 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
+import AgentLoginForm from "../../components/agent/AgentLoginForm";
 ---
 
 <AdminLayout title="Portal del Agente - Login">
     <div
-        class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+        class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-gray-900 dark:to-gray-800"
     >
-        <div class="max-w-md w-full">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-                <div class="text-center mb-8">
-                    <div
-                        class="mx-auto w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-full flex items-center justify-center mb-4"
-                    >
-                        <svg
-                            class="w-8 h-8 text-emerald-600 dark:text-emerald-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                            ></path>
-                        </svg>
-                    </div>
-                    <h2
-                        class="text-3xl font-bold text-gray-900 dark:text-white"
-                    >
-                        Portal del Agente
-                    </h2>
-                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                        Ingresa a tu panel de gestión
-                    </p>
-                </div>
-
-                <div id="login-form-container"></div>
-
-                <div class="mt-6 text-center">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                        ¿No tienes cuenta? Contacta al administrador
-                    </p>
-                </div>
-            </div>
-        </div>
+        <AgentLoginForm client:load />
     </div>
 </AdminLayout>
-
-<script>
-    import { createRoot } from "react-dom/client";
-    import { createElement } from "react";
-    import AgentLoginForm from "../../components/agent/AgentLoginForm";
-
-    const container = document.getElementById("login-form-container");
-    if (container) {
-        const root = createRoot(container);
-        root.render(createElement(AgentLoginForm));
-    }
-</script>

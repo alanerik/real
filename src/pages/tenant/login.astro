@@ -1,42 +1,12 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
+import TenantLoginForm from "../../components/tenant/TenantLoginForm";
 ---
 
 <AdminLayout title="Portal del Inquilino - Login">
     <div
-        class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+        class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800"
     >
-        <div class="max-w-md w-full">
-            <div class="bg-white rounded-2xl shadow-xl p-8">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-gray-900">
-                        Portal del Inquilino
-                    </h2>
-                    <p class="mt-2 text-sm text-gray-600">
-                        Accede a tu información de alquiler
-                    </p>
-                </div>
-
-                <div id="login-form-container"></div>
-
-                <div class="mt-6 text-center">
-                    <p class="text-xs text-gray-500">
-                        ¿Problemas para acceder? Contacta a tu administrador
-                    </p>
-                </div>
-            </div>
-        </div>
+        <TenantLoginForm client:load />
     </div>
 </AdminLayout>
-
-<script>
-    import { createRoot } from "react-dom/client";
-    import { createElement } from "react";
-    import TenantLoginForm from "../../components/tenant/TenantLoginForm";
-
-    const container = document.getElementById("login-form-container");
-    if (container) {
-        const root = createRoot(container);
-        root.render(createElement(TenantLoginForm));
-    }
-</script>
