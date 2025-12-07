@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { createMaintenanceTicket } from '../../lib/maintenance';
 import { showToast } from '../ToastManager';
-import { Form, Input, Select, SelectItem, Textarea, Button, Card, CardBody } from "@heroui/react";
+import { Form, Input, Select, SelectItem, Textarea, Button, Card, CardBody, Alert } from "@heroui/react";
 
 export default function ReportIssue({ rental }) {
     const [loading, setLoading] = useState(false);
@@ -111,12 +111,13 @@ export default function ReportIssue({ rental }) {
                             <SelectItem key="high">Alta - Requiere atención inmediata</SelectItem>
                         </Select>
 
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-2">
-                            <p className="text-sm text-blue-800">
-                                <strong>Nota:</strong> Tu reporte será enviado al administrador.
-                                Te contactaremos lo antes posible para resolver el problema.
-                            </p>
-                        </div>
+                        <Alert
+                            color="primary"
+                            variant="flat"
+                            className="mt-2"
+                            title="Nota"
+                            description="Tu reporte será enviado al administrador. Te contactaremos lo antes posible para resolver el problema."
+                        />
 
                         <Button
                             type="submit"
