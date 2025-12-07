@@ -54,16 +54,25 @@ function AgentDashboardContent() {
         }
     };
 
-    useEffect(() => {
-        if (!isCheckingAuth && !currentAgent) {
-            window.location.href = '/agent/login';
-        }
-    }, [isCheckingAuth, currentAgent]);
-
-    if (isCheckingAuth || !currentAgent) {
+    if (isCheckingAuth) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
                 <Spinner size="lg" color="success" />
+            </div>
+        );
+    }
+
+    if (!currentAgent) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+                <Card className="max-w-md">
+                    <CardBody className="text-center p-8">
+                        <p className="text-danger mb-4">No se encontró información del agente</p>
+                        <a href="/agent/login" className="text-primary hover:underline">
+                            Volver al login
+                        </a>
+                    </CardBody>
+                </Card>
             </div>
         );
     }

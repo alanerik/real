@@ -62,12 +62,6 @@ function AgentLeadsManagerContent() {
     });
 
     useEffect(() => {
-        if (!isCheckingAuth && !currentAgent) {
-            window.location.href = '/agent/login';
-        }
-    }, [isCheckingAuth, currentAgent]);
-
-    useEffect(() => {
         if (currentAgent) {
             loadLeads();
         }
@@ -151,7 +145,7 @@ function AgentLeadsManagerContent() {
         });
     };
 
-    if (isCheckingAuth || !currentAgent) {
+    if (isCheckingAuth) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <Spinner size="lg" color="success" />
@@ -164,12 +158,12 @@ function AgentLeadsManagerContent() {
             {({ onOpenProfile, onOpenSettings }) => (
                 <>
                     <AgentDashboardHeader
-                        currentAgent={currentAgent}
-                        onOpenProfile={onOpenProfile}
-                        onOpenSettings={onOpenSettings}
-                        title="Mis Leads"
-                        subtitle="Gestiona tus contactos y oportunidades"
-                    />
+                        currentA g e nt={currentA gent}
+                    onOpenPro f i le={onOpenPro file}
+                    onOpenSett i n gs={onOpenSett ings}
+                    t i tle="Mis Leads"
+                    subt i tle="Gestiona tus contactos y oportunidades"
+            />
 
                     <Card>
                         <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -301,105 +295,106 @@ function AgentLeadsManagerContent() {
                         </CardBody>
                     </Card>
 
-                    {/* Lead Detail Modal */}
-                    <Modal isOpen={isOpen} onClose={onClose} size="lg">
-                        <ModalContent>
-                            <ModalHeader>Detalle del Lead</ModalHeader>
-                            <ModalBody>
-                                {selectedLead && (
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="text-sm text-default-500">Nombre</label>
-                                            <p className="font-medium">{selectedLead.name}</p>
-                                        </div>
-                                        {selectedLead.email && (
-                                            <div>
-                                                <label className="text-sm text-default-500">Email</label>
-                                                <p>{selectedLead.email}</p>
-                                            </div>
-                                        )}
-                                        {selectedLead.phone && (
-                                            <div>
-                                                <label className="text-sm text-default-500">Teléfono</label>
-                                                <p>{selectedLead.phone}</p>
-                                            </div>
-                                        )}
-                                        {selectedLead.message && (
-                                            <div>
-                                                <label className="text-sm text-default-500">Mensaje</label>
-                                                <p className="whitespace-pre-wrap">{selectedLead.message}</p>
-                                            </div>
-                                        )}
-                                        {selectedLead.notes && (
-                                            <div>
-                                                <label className="text-sm text-default-500">Notas</label>
-                                                <p className="whitespace-pre-wrap">{selectedLead.notes}</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button variant="light" onPress={onClose}>Cerrar</Button>
-                            </ModalFooter>
-                        </ModalContent>
-                    </Modal>
-
-                    {/* New Lead Modal */}
-                    <Modal isOpen={isNewOpen} onClose={onNewClose} size="lg">
-                        <ModalContent>
-                            <ModalHeader>Nuevo Lead</ModalHeader>
-                            <ModalBody>
+                    {/* Lead Detail Moda l */}
+                    <Modal is O p en={is Open} onC l o se={onC lose}  s ize= "lg">
+                    <ModalContent>
+                        <ModalHeader>Detalle del Lead</ModalHeader>
+                        <ModalBody>
+                            {selectedLead && (
                                 <div className="space-y-4">
-                                    <Input
-                                        label="Nombre"
-                                        value={newLead.name}
-                                        onChange={(e) => setNewLead({ ...newLead, name: e.target.value })}
-                                        isRequired
-                                    />
-                                    <Input
-                                        label="Email"
-                                        type="email"
-                                        value={newLead.email}
-                                        onChange={(e) => setNewLead({ ...newLead, email: e.target.value })}
-                                    />
-                                    <Input
-                                        label="Teléfono"
-                                        value={newLead.phone}
-                                        onChange={(e) => setNewLead({ ...newLead, phone: e.target.value })}
-                                    />
-                                    <Select
-                                        label="Fuente"
-                                        selectedKeys={[newLead.source]}
-                                        onChange={(e) => setNewLead({ ...newLead, source: e.target.value })}
-                                    >
-                                        {LEAD_SOURCE_OPTIONS.map(source => (
-                                            <SelectItem key={source.uid}>{source.name}</SelectItem>
-                                        ))}
-                                    </Select>
-                                    <Textarea
-                                        label="Mensaje / Notas"
-                                        value={newLead.message}
-                                        onChange={(e) => setNewLead({ ...newLead, message: e.target.value })}
-                                    />
+                                    <div>
+                                        <label className="text-sm text-default-500">Nombre</label>
+                                        <p className="font-medium">{selectedLead.name}</p>
+                                    </div>
+                                    {selectedLead.email && (
+                                        <div>
+                                            <label className="text-sm text-default-500">Email</label>
+                                            <p>{selectedLead.email}</p>
+                                        </div>
+                                    )}
+                                    {selectedLead.phone && (
+                                        <div>
+                                            <label className="text-sm text-default-500">Teléfono</label>
+                                            <p>{selectedLead.phone}</p>
+                                        </div>
+                                    )}
+                                    {selectedLead.message && (
+                                        <div>
+                                            <label className="text-sm text-default-500">Mensaje</label>
+                                            <p className="whitespace-pre-wrap">{selectedLead.message}</p>
+                                        </div>
+                                    )}
+                                    {selectedLead.notes && (
+                                        <div>
+                                            <label className="text-sm text-default-500">Notas</label>
+                                            <p className="whitespace-pre-wrap">{selectedLead.notes}</p>
+                                        </div>
+                                    )}
                                 </div>
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button variant="light" onPress={onNewClose}>Cancelar</Button>
-                                <Button
-                                    color="success"
-                                    className="bg-emerald-600"
-                                    onPress={handleCreateLead}
-                                    isDisabled={!newLead.name}
-                                >
-                                    Crear Lead
-                                </Button>
-                            </ModalFooter>
-                        </ModalContent>
-                    </Modal>
+                            )}
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button variant="light" onPress={onClose}>Cerrar</Button>
+                        </ModalFooter>
+                    </ModalContent>
+                </M odal>
+
+            {/* New Lead Moda l */}
+            <Modal is O p en={isNew Open} onC l o se={onNewC lose}  s ize= "lg">
+            <ModalContent>
+                <ModalHeader>Nuevo Lead</ModalHeader>
+                <ModalBody>
+                    <div className="space-y-4">
+                        <Input
+                            label="Nombre"
+                            value={newLead.name}
+                            onChange={(e) => setNewLead({ ...newLead, name: e.target.value })}
+                            isRequired
+                        />
+                        <Input
+                            label="Email"
+                            type="email"
+                            value={newLead.email}
+                            onChange={(e) => setNewLead({ ...newLead, email: e.target.value })}
+                        />
+                        <Input
+                            label="Teléfono"
+                            value={newLead.phone}
+                            onChange={(e) => setNewLead({ ...newLead, phone: e.target.value })}
+                        />
+                        <Select
+                            label="Fuente"
+                            selectedKeys={[newLead.source]}
+                            onChange={(e) => setNewLead({ ...newLead, source: e.target.value })}
+                        >
+                            {LEAD_SOURCE_OPTIONS.map(source => (
+                                <SelectItem key={source.uid}>{source.name}</SelectItem>
+                            ))}
+                        </Select>
+                        <Textarea
+                            label="Mensaje / Notas"
+                            value={newLead.message}
+                            onChange={(e) => setNewLead({ ...newLead, message: e.target.value })}
+                        />
+                    </div>
+                </ModalBody>
+                <ModalFooter>
+                    <Button variant="light" onPress={onNewClose}>Cancelar</Button>
+                    <Button
+                        color="success"
+                        className="bg-emerald-600"
+                        onPress={handleCreateLead}
+                        isDisabled={!newLead.name}
+                    >
+                        Crear Lead
+                    </Button>
+                </ModalFooter>
+            </ModalContent>
+        </M odal >
                 </>
-            )}
-        </AgentLayout>
+            )
+}
+        </AgentLa yout >
     );
 }
 
@@ -407,7 +402,7 @@ function AgentLeadsManagerContent() {
 const PlusIcon = (props: any) => (
     <svg fill="none" viewBox="0 0 24 24" {...props}>
         <path d="M12 5v14M5 12h14" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-    </svg>
+    </svg >
 );
 
 const SearchIcon = (props: any) => (

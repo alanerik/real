@@ -15,8 +15,7 @@ import ReportIssue from './ReportIssue';
 import TenantDocuments from './TenantDocuments';
 import ActivityTimeline from './ActivityTimeline';
 import RenewalRequestModal from './RenewalRequestModal';
-import { TenantLayout } from './TenantLayout';
-import { TenantDashboardHeader } from './TenantDashboardHeader';
+import UnifiedLayout from '../shared/UnifiedLayout';
 
 import {
     NextPaymentWidget,
@@ -174,6 +173,17 @@ export default function TenantDashboard() {
 
     const renderDashboardOverview = () => (
         <div className="space-y-6">
+            <Card className="bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/40 dark:to-primary-800/20 border-none">
+                <CardBody className="p-6">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        ¡Hola, {rental.tenant_name}!
+                    </h2>
+                    <p className="text-gray-600 dark:text-gray-300 mt-1">
+                        Bienvenido a tu portal de inquilino. Aquí puedes ver el estado de tu alquiler.
+                    </p>
+                </CardBody>
+            </Card>
+
             {/* Renewal Widget */}
             {(canRenew || renewalRequest) && (
                 <Card className={`border-2 ${renewalStatus?.color === 'warning' ? 'border-warning bg-warning-50' :
@@ -236,66 +246,56 @@ export default function TenantDashboard() {
     );
 
     return (
-        <TenantLayout
+        <UnifiedLayout
+            roleTitle="Inquilino"
             sidebarItems={sidebarItems}
             handleLogout={handleLogout}
         >
-            {({ onOpenProfile, onOpenSettings }) => (
-                <>
-                    <TenantDashboardHeader
-                        tenantName={rental.tenant_name}
-                        tenantEmail={rental.tenant_email}
-                        onOpenProfile={onOpenProfile}
-                        onOpenSettings={onOpenSettings}
-                    />
+            <div className="space-y-6">
+                {selectedTab === 'dashboard' && renderDashboardOverview()}
 
-                    <div className="space-y-6">
-                        {selectedTab === 'dashboard' && renderDashboardOverview()}
-
-                        {selectedTab === 'contract' && (
-                            <div className="mt-4">
-                                <h2 className="text-2xl font-bold mb-4">Mi Contrato</h2>
-                                <MyContract rental={rental} />
-                            </div>
-                        )}
-
-                        {selectedTab === 'payments' && (
-                            <div className="mt-4">
-                                <h2 className="text-2xl font-bold mb-4">Historial de Pagos</h2>
-                                <PaymentHistory rentalId={rental.id} />
-                            </div>
-                        )}
-
-                        {selectedTab === 'documents' && (
-                            <div className="mt-4">
-                                <h2 className="text-2xl font-bold mb-4">Documentos</h2>
-                                <TenantDocuments rental={rental} />
-                            </div>
-                        )}
-
-                        {selectedTab === 'activity' && (
-                            <div className="mt-4">
-                                <h2 className="text-2xl font-bold mb-4">Actividad Reciente</h2>
-                                <ActivityTimeline rentalId={rental.id} />
-                            </div>
-                        )}
-
-                        {selectedTab === 'report' && (
-                            <div className="mt-4">
-                                <h2 className="text-2xl font-bold mb-4">Reportar Problema</h2>
-                                <ReportIssue rental={rental} />
-                            </div>
-                        )}
+                {selectedTab === 'contract' && (
+                    <div className="mt-4">
+                        <h2 className="text-2xl font-bold mb-4">Mi Contrato</h2>
+                        <MyContract rental={rental} />
                     </div>
+                )}
 
-                    {/* Modal for Renewals */}
-                    <RenewalRequestModal
-                        isOpen={isRenewalOpen}
-                        onClose={onRenewalClose}
-                        rental={rental}
-                    />
-                </>
-            )}
-        </TenantLayout>
+                {selectedTab === 'payments' && (
+                    <div className="mt-4">
+                        <h2 className="text-2xl font-bold mb-4">Historial de Pagos</h2>
+                        <PaymentHistory rentalId={rental.id} />
+                    </div>
+                )}
+
+                {selectedTab === 'documents' && (
+                    <div className="mt-4">
+                        <h2 className="text-2xl font-bold mb-4">Documentos</h2>
+                        <TenantDocuments rental={rental} />
+                    </div>
+                )}
+
+                {selectedTab === 'activity' && (
+                    <div className="mt-4">
+                        <h2 className="text-2xl font-bold mb-4">Actividad Reciente</h2>
+                        <ActivityTimeline rentalId={rental.id} />
+                    </div>
+                )}
+
+                {selectedTab === 'report' && (
+                    <div className="mt-4">
+                        <h2 className="text-2xl font-bold mb-4">Reportar Problema</h2>
+                        <ReportIssue rental={rental} />
+                    </div>
+                )}
+            </div>
+
+            {/* Modal for Renewals */}
+            <RenewalRequestModal
+                isOpen={isRenewalOpen}
+                onClose={onRenewalClose}
+                rental={rental}
+            />
+        </UnifiedLayout>
     );
 }

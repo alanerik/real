@@ -1,13 +1,5 @@
 import { Card, CardBody, CardHeader, Divider, Button, Chip, Progress } from "@heroui/react";
 import { getRemainingDays, getRentalProgress } from '../../lib/rental-utils';
-import {
-    CreditCardIcon,
-    ToolIcon,
-    FileTextIcon,
-    ZapIcon,
-    FolderIcon,
-    AlertCircleIcon
-} from './icons/TenantIcons';
 
 // Next Payment Widget
 export function NextPaymentWidget({ payment, hasReceipt, onUploadReceipt }) {
@@ -45,14 +37,14 @@ export function NextPaymentWidget({ payment, hasReceipt, onUploadReceipt }) {
         <Card className={`h-full ${isOverdue ? 'border-2 border-danger' : ''}`}>
             <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
-                    <CreditCardIcon className="w-6 h-6 text-default-600" />
-                    <p className="text-sm font-semibold text-default-600">Próximo Pago</p>
+                    <span className="text-2xl">💳</span>
+                    <p className="text-sm font-semibold text-gray-600">Próximo Pago</p>
                 </div>
             </CardHeader>
             <Divider />
             <CardBody className="gap-2">
                 <div className="flex justify-between items-center">
-                    <p className="text-3xl font-bold text-default-900">
+                    <p className="text-3xl font-bold text-gray-900">
                         ${payment.amount?.toLocaleString()}
                     </p>
                 </div>
@@ -64,7 +56,7 @@ export function NextPaymentWidget({ payment, hasReceipt, onUploadReceipt }) {
                 >
                     {getStatusText()}
                 </Chip>
-                <p className="text-xs text-default-500 mt-2">
+                <p className="text-xs text-gray-500 mt-2">
                     Vencimiento: {dueDate.toLocaleDateString('es-AR', {
                         day: 'numeric',
                         month: 'long'
@@ -103,8 +95,8 @@ export function MaintenanceStatusWidget({ tickets, onReportClick }) {
         <Card className="h-full">
             <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
-                    <ToolIcon className="w-6 h-6 text-default-600" />
-                    <p className="text-sm font-semibold text-default-600">Mantenimiento</p>
+                    <span className="text-2xl">🔧</span>
+                    <p className="text-sm font-semibold text-gray-600">Mantenimiento</p>
                 </div>
             </CardHeader>
             <Divider />
@@ -113,7 +105,7 @@ export function MaintenanceStatusWidget({ tickets, onReportClick }) {
                     <p className="text-3xl font-bold text-secondary-600">
                         {openTickets.length}
                     </p>
-                    <p className="text-sm text-default-500">ticket{openTickets.length !== 1 ? 's' : ''} abierto{openTickets.length !== 1 ? 's' : ''}</p>
+                    <p className="text-sm text-gray-500">ticket{openTickets.length !== 1 ? 's' : ''} abierto{openTickets.length !== 1 ? 's' : ''}</p>
                 </div>
 
                 {urgentTickets.length > 0 && (
@@ -148,8 +140,8 @@ export function ContractProgressWidget({ rental }) {
         <Card className={`h-full ${isNearExpiration ? 'border-2 border-warning' : ''}`}>
             <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
-                    <FileTextIcon className="w-6 h-6 text-default-600" />
-                    <p className="text-sm font-semibold text-default-600">Contrato</p>
+                    <span className="text-2xl">📅</span>
+                    <p className="text-sm font-semibold text-gray-600">Contrato</p>
                 </div>
             </CardHeader>
             <Divider />
@@ -158,7 +150,7 @@ export function ContractProgressWidget({ rental }) {
                     <p className="text-3xl font-bold text-primary">
                         {remainingDays}
                     </p>
-                    <p className="text-sm text-default-500">días restantes</p>
+                    <p className="text-sm text-gray-500">días restantes</p>
                 </div>
 
                 <Progress
@@ -174,7 +166,7 @@ export function ContractProgressWidget({ rental }) {
                     </Chip>
                 )}
 
-                <p className="text-xs text-default-500">
+                <p className="text-xs text-gray-500">
                     {progress.toFixed(0)}% completado
                 </p>
             </CardBody>
@@ -188,25 +180,25 @@ export function QuickActionsWidget({ onAction }) {
         {
             key: 'payments',
             label: 'Pagos',
-            Icon: CreditCardIcon,
+            icon: '💳',
             color: 'primary'
         },
         {
             key: 'documents',
             label: 'Documentos',
-            Icon: FolderIcon,
+            icon: '📄',
             color: 'secondary'
         },
         {
             key: 'report',
             label: 'Reportar',
-            Icon: AlertCircleIcon,
+            icon: '🔧',
             color: 'warning'
         },
         {
             key: 'contract',
             label: 'Contrato',
-            Icon: FileTextIcon,
+            icon: '📋',
             color: 'success'
         }
     ];
@@ -215,8 +207,8 @@ export function QuickActionsWidget({ onAction }) {
         <Card className="h-full">
             <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
-                    <ZapIcon className="w-6 h-6 text-default-600" />
-                    <p className="text-sm font-semibold text-default-600">Accesos Rápidos</p>
+                    <span className="text-2xl">⚡</span>
+                    <p className="text-sm font-semibold text-gray-600">Accesos Rápidos</p>
                 </div>
             </CardHeader>
             <Divider />
@@ -229,9 +221,9 @@ export function QuickActionsWidget({ onAction }) {
                             color={action.color}
                             variant="flat"
                             onPress={() => onAction(action.key)}
-                            className="h-14 flex flex-col items-center justify-center gap-1"
+                            className="h-14 flex flex-col items-center justify-center"
                         >
-                            <action.Icon className="w-5 h-5 mb-0.5" />
+                            <span className="text-xl mb-1">{action.icon}</span>
                             <span className="text-xs">{action.label}</span>
                         </Button>
                     ))}

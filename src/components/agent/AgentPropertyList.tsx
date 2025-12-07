@@ -63,12 +63,6 @@ function AgentPropertyListContent() {
     const rowsPerPage = 10;
 
     useEffect(() => {
-        if (!isCheckingAuth && !currentAgent) {
-            window.location.href = '/agent/login';
-        }
-    }, [isCheckingAuth, currentAgent]);
-
-    useEffect(() => {
         if (currentAgent) {
             loadProperties();
         }
@@ -123,7 +117,7 @@ function AgentPropertyListContent() {
         }).format(price);
     };
 
-    if (isCheckingAuth || !currentAgent) {
+    if (isCheckingAuth) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <Spinner size="lg" color="success" />

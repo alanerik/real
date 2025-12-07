@@ -10,7 +10,8 @@ import {
     TableRow,
     TableCell,
     Chip,
-    Spinner
+    Spinner,
+    Button
 } from "@heroui/react";
 import { HeroUIProvider } from "@heroui/react";
 import { ThemeProvider } from '../../contexts/ThemeContext';
@@ -30,12 +31,6 @@ function AgentCommissionsContent() {
     const [commissions, setCommissions] = useState<Commission[]>([]);
     const [summary, setSummary] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        if (!isCheckingAuth && !currentAgent) {
-            window.location.href = '/agent/login';
-        }
-    }, [isCheckingAuth, currentAgent]);
 
     useEffect(() => {
         if (currentAgent) {
@@ -88,7 +83,7 @@ function AgentCommissionsContent() {
         return 'Venta';
     };
 
-    if (isCheckingAuth || !currentAgent) {
+    if (isCheckingAuth) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <Spinner size="lg" color="success" />
@@ -101,12 +96,12 @@ function AgentCommissionsContent() {
             {({ onOpenProfile, onOpenSettings }) => (
                 <>
                     <AgentDashboardHeader
-                        currentAgent={currentAgent}
-                        onOpenProfile={onOpenProfile}
-                        onOpenSettings={onOpenSettings}
-                        title="Comisiones"
-                        subtitle="Gestiona y visualiza tus comisiones"
-                    />
+                        currentA g e nt={currentA gent}
+                    onOpenPro f i le={onOpenPro file}
+                    onOpenSett i n gs={onOpenSett ings}
+                    t i tle="Comisiones"
+                    subt i tle="Gestiona y visualiza tus comisiones"
+            />
 
                     <div className="space-y-6">
                         {/* Summary Cards */}
@@ -255,7 +250,7 @@ function AgentCommissionsContent() {
                     </div>
                 </>
             )}
-        </AgentLayout>
+        </AgentLa yout >
     );
 }
 
