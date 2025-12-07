@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
-import { Tabs, Tab, Card, CardBody, Button, useDisclosure } from "@heroui/react";
+import { Card, CardBody, Button, useDisclosure } from "@heroui/react";
 import { getTenantRental } from '../../lib/auth-tenant';
 import { getPaymentsByRental } from '../../lib/payments';
 import { getTicketsByProperty } from '../../lib/maintenance';
 import { getAttachments } from '../../lib/rentals';
 import { canRequestRenewal, getPendingRenewalRequest, getDaysUntilExpiration } from '../../lib/renewals';
 import { showToast } from '../ToastManager';
+import { supabase } from '../../lib/supabase';
+
+// Components
 import MyContract from './MyContract';
 import PaymentHistory from './PaymentHistory';
 import ReportIssue from './ReportIssue';
 import TenantDocuments from './TenantDocuments';
 import ActivityTimeline from './ActivityTimeline';
 import RenewalRequestModal from './RenewalRequestModal';
+import { TenantLayout } from './TenantLayout';
+import { TenantDashboardHeader } from './TenantDashboardHeader';
+
 import {
     NextPaymentWidget,
     MaintenanceStatusWidget,
@@ -19,10 +25,19 @@ import {
     QuickActionsWidget
 } from './DashboardWidgets';
 
+import {
+    HomeIcon,
+    FileTextIcon,
+    CreditCardIcon,
+    FolderIcon,
+    ClockIcon,
+    AlertCircleIcon
+} from './icons/TenantIcons';
+
 export default function TenantDashboard() {
     const [rental, setRental] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [selectedTab, setSelectedTab] = useState("contract");
+    const [selectedTab, setSelectedTab] = useState("dashboard"); // Default to dashboard view
 
     // Widget data
     const [nextPayment, setNextPayment] = useState(null);
@@ -103,9 +118,14 @@ export default function TenantDashboard() {
         });
     };
 
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        window.location.href = '/tenant/login';
+    }
+
     if (loading) {
         return (
-            <div className="flex justify-center items-center py-12">
+            <div className="flex justify-center items-center py-12 min-h-screen">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
                     <p className="mt-4 text-gray-600">Cargando...</p>
@@ -116,13 +136,26 @@ export default function TenantDashboard() {
 
     if (!rental) {
         return (
-            <Card>
-                <CardBody>
-                    <p className="text-center text-gray-600">No se encontró información de alquiler.</p>
-                </CardBody>
-            </Card>
+            <div className="min-h-screen flex items-center justify-center p-4">
+                <Card>
+                    <CardBody>
+                        <p className="text-center text-gray-600">No se encontró información de alquiler.</p>
+                        <Button color="primary" className="mt-4" onPress={handleLogout}>Cerrar Sesión</Button>
+                    </CardBody>
+                </Card>
+            </div>
         );
     }
+
+    // Sidebar items mapping
+    const sidebarItems = [
+        { key: 'dashboard', label: 'Inicio', icon: HomeIcon, onClick: () => setSelectedTab('dashboard'), isActive: selectedTab === 'dashboard', color: 'primary' },
+        { key: 'contract', label: 'Mi Contrato', icon: FileTextIcon, onClick: () => setSelectedTab('contract'), isActive: selectedTab === 'contract', color: 'secondary' },
+        { key: 'payments', label: 'Pagos', icon: CreditCardIcon, onClick: () => setSelectedTab('payments'), isActive: selectedTab === 'payments', color: 'success' },
+        { key: 'documents', label: 'Documentos', icon: FolderIcon, onClick: () => setSelectedTab('documents'), isActive: selectedTab === 'documents', color: 'warning' },
+        { key: 'activity', label: 'Actividad', icon: ClockIcon, onClick: () => setSelectedTab('activity'), isActive: selectedTab === 'activity' },
+        { key: 'report', label: 'Reportar', icon: AlertCircleIcon, onClick: () => setSelectedTab('report'), isActive: selectedTab === 'report', color: 'danger' },
+    ];
 
     const getRenewalStatusInfo = () => {
         if (renewalRequest) {
@@ -139,33 +172,22 @@ export default function TenantDashboard() {
 
     const renewalStatus = getRenewalStatusInfo();
 
-    return (
+    const renderDashboardOverview = () => (
         <div className="space-y-6">
-            <Card className="bg-gradient-to-r from-primary-50 to-primary-100">
-                <CardBody className="p-6">
-                    <h2 className="text-2xl font-bold text-gray-900">
-                        ¡Hola, {rental.tenant_name}!
-                    </h2>
-                    <p className="text-gray-600 mt-1">
-                        Bienvenido a tu portal de inquilino
-                    </p>
-                </CardBody>
-            </Card>
-
             {/* Renewal Widget */}
             {(canRenew || renewalRequest) && (
                 <Card className={`border-2 ${renewalStatus?.color === 'warning' ? 'border-warning bg-warning-50' :
-                        renewalStatus?.color === 'success' ? 'border-success bg-success-50' :
-                            renewalStatus?.color === 'danger' ? 'border-danger bg-danger-50' :
-                                'border-primary bg-primary-50'
+                    renewalStatus?.color === 'success' ? 'border-success bg-success-50' :
+                        renewalStatus?.color === 'danger' ? 'border-danger bg-danger-50' :
+                            'border-primary bg-primary-50'
                     }`}>
                     <CardBody className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h3 className="text-lg font-bold">
+                                <h3 className="text-lg font-bold text-default-700">
                                     {renewalStatus ? renewalStatus.text : '🔄 Renovación de Contrato'}
                                 </h3>
-                                <p className="text-sm mt-1">
+                                <p className="text-sm mt-1 text-default-600">
                                     {renewalRequest ?
                                         `Duración: ${renewalRequest.requested_duration_months} meses | $${renewalRequest.proposed_amount.toLocaleString()}/mes` :
                                         `Tu contrato vence en ${daysUntilExpiration} días`
@@ -207,55 +229,73 @@ export default function TenantDashboard() {
                         onReportClick={() => setSelectedTab('report')}
                     />
                     <ContractProgressWidget rental={rental} />
-                    <QuickActionsWidget onAction={setSelectedTab} />
+                    <QuickActionsWidget onAction={(key) => setSelectedTab(key)} />
                 </div>
             )}
-
-            <Tabs
-                aria-label="Opciones del Portal"
-                selectedKey={selectedTab}
-                onSelectionChange={setSelectedTab}
-                color="primary"
-                variant="underlined"
-                size="lg"
-            >
-                <Tab key="contract" title="Mi Contrato">
-                    <div className="mt-4">
-                        <MyContract rental={rental} />
-                    </div>
-                </Tab>
-
-                <Tab key="payments" title="Pagos">
-                    <div className="mt-4">
-                        <PaymentHistory rentalId={rental.id} />
-                    </div>
-                </Tab>
-
-                <Tab key="documents" title="Documentos">
-                    <div className="mt-4">
-                        <TenantDocuments rental={rental} />
-                    </div>
-                </Tab>
-
-                <Tab key="activity" title="Actividad">
-                    <div className="mt-4">
-                        <ActivityTimeline rentalId={rental.id} />
-                    </div>
-                </Tab>
-
-                <Tab key="report" title="Reportar Problema">
-                    <div className="mt-4">
-                        <ReportIssue rental={rental} />
-                    </div>
-                </Tab>
-            </Tabs>
-
-            {/* Renewal Request Modal */}
-            <RenewalRequestModal
-                isOpen={isRenewalOpen}
-                onClose={onRenewalClose}
-                rental={rental}
-            />
         </div>
+    );
+
+    return (
+        <TenantLayout
+            sidebarItems={sidebarItems}
+            handleLogout={handleLogout}
+        >
+            {({ onOpenProfile, onOpenSettings }) => (
+                <>
+                    <TenantDashboardHeader
+                        tenantName={rental.tenant_name}
+                        tenantEmail={rental.tenant_email}
+                        onOpenProfile={onOpenProfile}
+                        onOpenSettings={onOpenSettings}
+                    />
+
+                    <div className="space-y-6">
+                        {selectedTab === 'dashboard' && renderDashboardOverview()}
+
+                        {selectedTab === 'contract' && (
+                            <div className="mt-4">
+                                <h2 className="text-2xl font-bold mb-4">Mi Contrato</h2>
+                                <MyContract rental={rental} />
+                            </div>
+                        )}
+
+                        {selectedTab === 'payments' && (
+                            <div className="mt-4">
+                                <h2 className="text-2xl font-bold mb-4">Historial de Pagos</h2>
+                                <PaymentHistory rentalId={rental.id} />
+                            </div>
+                        )}
+
+                        {selectedTab === 'documents' && (
+                            <div className="mt-4">
+                                <h2 className="text-2xl font-bold mb-4">Documentos</h2>
+                                <TenantDocuments rental={rental} />
+                            </div>
+                        )}
+
+                        {selectedTab === 'activity' && (
+                            <div className="mt-4">
+                                <h2 className="text-2xl font-bold mb-4">Actividad Reciente</h2>
+                                <ActivityTimeline rentalId={rental.id} />
+                            </div>
+                        )}
+
+                        {selectedTab === 'report' && (
+                            <div className="mt-4">
+                                <h2 className="text-2xl font-bold mb-4">Reportar Problema</h2>
+                                <ReportIssue rental={rental} />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Modal for Renewals */}
+                    <RenewalRequestModal
+                        isOpen={isRenewalOpen}
+                        onClose={onRenewalClose}
+                        rental={rental}
+                    />
+                </>
+            )}
+        </TenantLayout>
     );
 }

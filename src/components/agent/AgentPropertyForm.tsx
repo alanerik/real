@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
     Card,
     CardBody,
-    CardHeader,
     Input,
     Button,
     Form,
@@ -11,7 +10,6 @@ import {
     Textarea,
     Checkbox,
     Divider,
-    Chip,
     Alert,
 } from "@heroui/react";
 import { HeroUIProvider } from "@heroui/react";
@@ -20,7 +18,8 @@ import { ThemeProvider } from "../../contexts/ThemeContext";
 import { useAgentAuth } from "../../hooks/useAgentAuth";
 import { showToast } from "../ToastManager";
 import { logger } from "../../lib/logger";
-import AgentSidebar from "./AgentSidebar";
+import { AgentLayout } from './AgentLayout';
+import { AgentDashboardHeader } from './AgentDashboardHeader';
 
 interface AgentPropertyFormProps {
     propertyId?: string;
@@ -30,7 +29,6 @@ function AgentPropertyFormContent({ propertyId }: AgentPropertyFormProps) {
     const { currentAgent, isCheckingAuth, handleLogout } = useAgentAuth();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -275,336 +273,333 @@ function AgentPropertyFormContent({ propertyId }: AgentPropertyFormProps) {
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 p-4 gap-4">
-            <AgentSidebar
-                isExpanded={isSidebarExpanded}
-                onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
-                handleLogout={handleLogout}
-            />
-
-            <div className="flex-1 max-w-4xl mx-auto">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-                            {propertyId ? "Editar Propiedad" : "Nueva Propiedad"}
-                        </h1>
-                        {!propertyId && (
-                            <p className="text-default-500 text-sm mt-1">
-                                La propiedad será enviada para aprobación del administrador
-                            </p>
-                        )}
-                    </div>
-                    <Button
-                        as="a"
-                        href="/agent/properties"
-                        color="default"
-                        variant="light"
-                    >
-                        Volver
-                    </Button>
-                </div>
-
-                {!propertyId && (
-                    <Alert
-                        color="warning"
-                        variant="faded"
-                        className="mb-6"
-                        title="Proceso de Aprobación"
-                        description="Una vez que envíes la propiedad, el administrador la revisará. Recibirás una notificación cuando sea aprobada y aparecerá en el sitio público."
+        <AgentLayout currentAgent={currentAgent} handleLogout={handleLogout}>
+            {({ onOpenProfile, onOpenSettings }) => (
+                <>
+                    <AgentDashboardHeader
+                        currentAgent={currentAgent}
+                        onOpenProfile={onOpenProfile}
+                        onOpenSettings={onOpenSettings}
+                        title={propertyId ? "Editar Propiedad" : "Nueva Propiedad"}
+                        subtitle={!propertyId ? "La propiedad será enviada para aprobación del administrador" : undefined}
                     />
-                )}
 
-                <Card>
-                    <CardBody>
-                        <Form
-                            className="flex flex-col gap-6"
-                            validationBehavior="native"
-                            onSubmit={handleSubmit}
-                        >
-                            {/* Información Básica */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                                <Input
-                                    isRequired
-                                    label="Título"
-                                    name="title"
-                                    placeholder="Ej: Casa moderna en el centro"
-                                    value={formData.title}
-                                    onChange={handleChange}
-                                    className="md:col-span-2"
-                                />
+                    <div className="flex-1 max-w-4xl mx-auto">
+                        <div className="flex justify-end mb-4">
+                            <Button
+                                as="a"
+                                href="/agent/properties"
+                                color="default"
+                                variant="light"
+                                startContent={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>}
+                            >
+                                Volver a la lista
+                            </Button>
+                        </div>
 
-                                <Input
-                                    isRequired
-                                    label="Slug (URL)"
-                                    name="slug"
-                                    placeholder="casa-moderna-centro"
-                                    value={formData.slug}
-                                    onChange={handleChange}
-                                    className="md:col-span-2"
-                                    description="Se genera automáticamente del título"
-                                />
-
-                                <Textarea
-                                    label="Descripción"
-                                    name="description"
-                                    placeholder="Descripción detallada de la propiedad..."
-                                    value={formData.description}
-                                    onChange={handleChange}
-                                    className="md:col-span-2"
-                                    minRows={3}
-                                />
-                            </div>
-
-                            <Divider />
-                            <h3 className="text-lg font-semibold">Precio y Ubicación</h3>
-
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                                <Select
-                                    label="Moneda"
-                                    selectedKeys={[formData.currency]}
-                                    onChange={(e) => handleSelectChange("currency", e.target.value)}
-                                >
-                                    <SelectItem key="USD">Dólares (USD)</SelectItem>
-                                    <SelectItem key="ARS">Pesos (ARS)</SelectItem>
-                                </Select>
-
-                                <Input
-                                    isRequired
-                                    type="number"
-                                    label="Precio"
-                                    name="price"
-                                    value={formData.price}
-                                    onChange={handleChange}
-                                />
-
-                                <Input
-                                    type="number"
-                                    label="Expensas"
-                                    name="expenses"
-                                    placeholder="0"
-                                    value={formData.expenses}
-                                    onChange={handleChange}
-                                />
-
-                                <Input
-                                    isRequired
-                                    label="Ciudad / Barrio"
-                                    name="city"
-                                    value={formData.city}
-                                    onChange={handleChange}
-                                    className="md:col-span-3"
-                                />
-                            </div>
-
-                            <Divider />
-                            <h3 className="text-lg font-semibold">Características</h3>
-
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                                <Select
-                                    label="Operación"
-                                    selectedKeys={[formData.operation]}
-                                    onChange={(e) => handleSelectChange("operation", e.target.value)}
-                                >
-                                    <SelectItem key="venta">Venta</SelectItem>
-                                    <SelectItem key="alquiler">Alquiler</SelectItem>
-                                    <SelectItem key="alquiler_temporal">Alquiler Temporal</SelectItem>
-                                </Select>
-
-                                <Select
-                                    label="Tipo de Propiedad"
-                                    selectedKeys={[formData.property_type]}
-                                    onChange={(e) => handleSelectChange("property_type", e.target.value)}
-                                >
-                                    <SelectItem key="casa">Casa</SelectItem>
-                                    <SelectItem key="departamento">Departamento</SelectItem>
-                                    <SelectItem key="ph">PH</SelectItem>
-                                    <SelectItem key="terreno">Terreno</SelectItem>
-                                    <SelectItem key="local">Local</SelectItem>
-                                    <SelectItem key="oficina">Oficina</SelectItem>
-                                    <SelectItem key="otro">Otro</SelectItem>
-                                </Select>
-
-                                <Select
-                                    label="Estado"
-                                    selectedKeys={[formData.status]}
-                                    onChange={(e) => handleSelectChange("status", e.target.value)}
-                                >
-                                    <SelectItem key="available">Disponible</SelectItem>
-                                    <SelectItem key="reserved">Reservado</SelectItem>
-                                </Select>
-                            </div>
-
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-                                <Input
-                                    type="number"
-                                    label="Ambientes"
-                                    name="ambientes"
-                                    value={formData.ambientes}
-                                    onChange={handleChange}
-                                />
-                                <Input
-                                    type="number"
-                                    label="Dormitorios"
-                                    name="bedrooms"
-                                    value={formData.bedrooms}
-                                    onChange={handleChange}
-                                />
-                                <Input
-                                    type="number"
-                                    label="Baños"
-                                    name="bathrooms"
-                                    value={formData.bathrooms}
-                                    onChange={handleChange}
-                                />
-                                <Input
-                                    type="number"
-                                    label="Antigüedad (años)"
-                                    name="antiquity"
-                                    value={formData.antiquity}
-                                    onChange={handleChange}
-                                    isDisabled={formData.is_brand_new}
-                                />
-                            </div>
-
-                            <div className="flex gap-4 items-center flex-wrap">
-                                <Checkbox
-                                    isSelected={formData.garage}
-                                    onValueChange={(isSelected) => handleCheckboxChange("garage", isSelected)}
-                                >
-                                    Tiene Cochera
-                                </Checkbox>
-                                <Checkbox
-                                    isSelected={formData.is_brand_new}
-                                    onValueChange={(isSelected) => handleCheckboxChange("is_brand_new", isSelected)}
-                                >
-                                    A Estrenar
-                                </Checkbox>
-                            </div>
-
-                            <Divider />
-                            <h3 className="text-lg font-semibold">Superficies (m²)</h3>
-
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-                                <Input
-                                    type="number"
-                                    label="Total"
-                                    name="total_area"
-                                    value={formData.total_area}
-                                    onChange={handleChange}
-                                />
-                                <Input
-                                    type="number"
-                                    label="Cubierta"
-                                    name="covered_area"
-                                    value={formData.covered_area}
-                                    onChange={handleChange}
-                                />
-                                <Input
-                                    type="number"
-                                    label="Semicubierta"
-                                    name="semi_covered_area"
-                                    value={formData.semi_covered_area}
-                                    onChange={handleChange}
-                                />
-                                <Input
-                                    type="number"
-                                    label="Terreno"
-                                    name="land_area"
-                                    value={formData.land_area}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            <Divider />
-                            <h3 className="text-lg font-semibold">Multimedia y Extras</h3>
-
-                            <Input
-                                label="Características (separadas por coma)"
-                                name="features"
-                                placeholder="Piscina, Quincho, Seguridad..."
-                                value={formData.features}
-                                onChange={handleChange}
+                        {!propertyId && (
+                            <Alert
+                                color="warning"
+                                variant="faded"
+                                className="mb-6"
+                                title="Proceso de Aprobación"
+                                description="Una vez que envíes la propiedad, el administrador la revisará. Recibirás una notificación cuando sea aprobada y aparecerá en el sitio público."
                             />
+                        )}
 
-                            <div className="flex flex-col gap-4">
-                                {/* Imagen Principal */}
-                                <div className="flex flex-col gap-2">
-                                    <span className="text-small text-default-500">Imagen Principal</span>
-                                    <div className="flex items-center gap-4">
-                                        {formData.image_url && (
-                                            <div className="relative">
-                                                <img src={formData.image_url} alt="Preview" className="h-20 w-20 object-cover rounded-md border" />
-                                                <button
-                                                    type="button"
-                                                    onClick={removeMainImage}
-                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                                                >
-                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        )}
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => handleImageUpload(e, false)}
-                                            disabled={uploading}
-                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                        <Card>
+                            <CardBody>
+                                <Form
+                                    className="flex flex-col gap-6"
+                                    validationBehavior="native"
+                                    onSubmit={handleSubmit}
+                                >
+                                    {/* Información Básica */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                                        <Input
+                                            isRequired
+                                            label="Título"
+                                            name="title"
+                                            placeholder="Ej: Casa moderna en el centro"
+                                            value={formData.title}
+                                            onChange={handleChange}
+                                            className="md:col-span-2"
+                                        />
+
+                                        <Input
+                                            isRequired
+                                            label="Slug (URL)"
+                                            name="slug"
+                                            placeholder="casa-moderna-centro"
+                                            value={formData.slug}
+                                            onChange={handleChange}
+                                            className="md:col-span-2"
+                                            description="Se genera automáticamente del título"
+                                        />
+
+                                        <Textarea
+                                            label="Descripción"
+                                            name="description"
+                                            placeholder="Descripción detallada de la propiedad..."
+                                            value={formData.description}
+                                            onChange={handleChange}
+                                            className="md:col-span-2"
+                                            minRows={3}
                                         />
                                     </div>
-                                </div>
 
-                                {/* Galería */}
-                                <div className="flex flex-col gap-2">
-                                    <span className="text-small text-default-500">Galería de Imágenes</span>
-                                    <div className="flex flex-wrap gap-4 mb-2">
-                                        {formData.gallery_images.map((img, index) => (
-                                            <div key={index} className="relative">
-                                                <img src={img} alt={`Gallery ${index}`} className="h-20 w-20 object-cover rounded-md border" />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeGalleryImage(index)}
-                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                                                >
-                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        ))}
+                                    <Divider />
+                                    <h3 className="text-lg font-semibold">Precio y Ubicación</h3>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                                        <Select
+                                            label="Moneda"
+                                            selectedKeys={[formData.currency]}
+                                            onChange={(e) => handleSelectChange("currency", e.target.value)}
+                                        >
+                                            <SelectItem key="USD">Dólares (USD)</SelectItem>
+                                            <SelectItem key="ARS">Pesos (ARS)</SelectItem>
+                                        </Select>
+
+                                        <Input
+                                            isRequired
+                                            type="number"
+                                            label="Precio"
+                                            name="price"
+                                            value={formData.price}
+                                            onChange={handleChange}
+                                        />
+
+                                        <Input
+                                            type="number"
+                                            label="Expensas"
+                                            name="expenses"
+                                            placeholder="0"
+                                            value={formData.expenses}
+                                            onChange={handleChange}
+                                        />
+
+                                        <Input
+                                            isRequired
+                                            label="Ciudad / Barrio"
+                                            name="city"
+                                            value={formData.city}
+                                            onChange={handleChange}
+                                            className="md:col-span-3"
+                                        />
                                     </div>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        multiple
-                                        onChange={(e) => handleImageUpload(e, true)}
-                                        disabled={uploading}
-                                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+
+                                    <Divider />
+                                    <h3 className="text-lg font-semibold">Características</h3>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                                        <Select
+                                            label="Operación"
+                                            selectedKeys={[formData.operation]}
+                                            onChange={(e) => handleSelectChange("operation", e.target.value)}
+                                        >
+                                            <SelectItem key="venta">Venta</SelectItem>
+                                            <SelectItem key="alquiler">Alquiler</SelectItem>
+                                            <SelectItem key="alquiler_temporal">Alquiler Temporal</SelectItem>
+                                        </Select>
+
+                                        <Select
+                                            label="Tipo de Propiedad"
+                                            selectedKeys={[formData.property_type]}
+                                            onChange={(e) => handleSelectChange("property_type", e.target.value)}
+                                        >
+                                            <SelectItem key="casa">Casa</SelectItem>
+                                            <SelectItem key="departamento">Departamento</SelectItem>
+                                            <SelectItem key="ph">PH</SelectItem>
+                                            <SelectItem key="terreno">Terreno</SelectItem>
+                                            <SelectItem key="local">Local</SelectItem>
+                                            <SelectItem key="oficina">Oficina</SelectItem>
+                                            <SelectItem key="otro">Otro</SelectItem>
+                                        </Select>
+
+                                        <Select
+                                            label="Estado"
+                                            selectedKeys={[formData.status]}
+                                            onChange={(e) => handleSelectChange("status", e.target.value)}
+                                        >
+                                            <SelectItem key="available">Disponible</SelectItem>
+                                            <SelectItem key="reserved">Reservado</SelectItem>
+                                        </Select>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+                                        <Input
+                                            type="number"
+                                            label="Ambientes"
+                                            name="ambientes"
+                                            value={formData.ambientes}
+                                            onChange={handleChange}
+                                        />
+                                        <Input
+                                            type="number"
+                                            label="Dormitorios"
+                                            name="bedrooms"
+                                            value={formData.bedrooms}
+                                            onChange={handleChange}
+                                        />
+                                        <Input
+                                            type="number"
+                                            label="Baños"
+                                            name="bathrooms"
+                                            value={formData.bathrooms}
+                                            onChange={handleChange}
+                                        />
+                                        <Input
+                                            type="number"
+                                            label="Antigüedad (años)"
+                                            name="antiquity"
+                                            value={formData.antiquity}
+                                            onChange={handleChange}
+                                            isDisabled={formData.is_brand_new}
+                                        />
+                                    </div>
+
+                                    <div className="flex gap-4 items-center flex-wrap">
+                                        <Checkbox
+                                            isSelected={formData.garage}
+                                            onValueChange={(isSelected) => handleCheckboxChange("garage", isSelected)}
+                                        >
+                                            Tiene Cochera
+                                        </Checkbox>
+                                        <Checkbox
+                                            isSelected={formData.is_brand_new}
+                                            onValueChange={(isSelected) => handleCheckboxChange("is_brand_new", isSelected)}
+                                        >
+                                            A Estrenar
+                                        </Checkbox>
+                                    </div>
+
+                                    <Divider />
+                                    <h3 className="text-lg font-semibold">Superficies (m²)</h3>
+
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+                                        <Input
+                                            type="number"
+                                            label="Total"
+                                            name="total_area"
+                                            value={formData.total_area}
+                                            onChange={handleChange}
+                                        />
+                                        <Input
+                                            type="number"
+                                            label="Cubierta"
+                                            name="covered_area"
+                                            value={formData.covered_area}
+                                            onChange={handleChange}
+                                        />
+                                        <Input
+                                            type="number"
+                                            label="Semicubierta"
+                                            name="semi_covered_area"
+                                            value={formData.semi_covered_area}
+                                            onChange={handleChange}
+                                        />
+                                        <Input
+                                            type="number"
+                                            label="Terreno"
+                                            name="land_area"
+                                            value={formData.land_area}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+
+                                    <Divider />
+                                    <h3 className="text-lg font-semibold">Multimedia y Extras</h3>
+
+                                    <Input
+                                        label="Características (separadas por coma)"
+                                        name="features"
+                                        placeholder="Piscina, Quincho, Seguridad..."
+                                        value={formData.features}
+                                        onChange={handleChange}
                                     />
-                                </div>
 
-                                {uploading && <p className="text-xs text-emerald-600">Subiendo imágenes...</p>}
-                            </div>
+                                    <div className="flex flex-col gap-4">
+                                        {/* Imagen Principal */}
+                                        <div className="flex flex-col gap-2">
+                                            <span className="text-small text-default-500">Imagen Principal</span>
+                                            <div className="flex items-center gap-4">
+                                                {formData.image_url && (
+                                                    <div className="relative">
+                                                        <img src={formData.image_url} alt="Preview" className="h-20 w-20 object-cover rounded-md border" />
+                                                        <button
+                                                            type="button"
+                                                            onClick={removeMainImage}
+                                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                                        >
+                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                )}
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleImageUpload(e, false)}
+                                                    disabled={uploading}
+                                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                                                />
+                                            </div>
+                                        </div>
 
-                            <div className="flex justify-end gap-2 mt-4">
-                                <Button as="a" href="/agent/properties" variant="flat" color="danger">
-                                    Cancelar
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    color="success"
-                                    className="bg-emerald-600"
-                                    isLoading={loading}
-                                >
-                                    {loading ? "Guardando..." : (propertyId ? "Actualizar" : "Enviar para Aprobación")}
-                                </Button>
-                            </div>
-                        </Form>
-                    </CardBody>
-                </Card>
-            </div>
-        </div>
+                                        {/* Galería */}
+                                        <div className="flex flex-col gap-2">
+                                            <span className="text-small text-default-500">Galería de Imágenes</span>
+                                            <div className="flex flex-wrap gap-4 mb-2">
+                                                {formData.gallery_images.map((img, index) => (
+                                                    <div key={index} className="relative">
+                                                        <img src={img} alt={`Gallery ${index}`} className="h-20 w-20 object-cover rounded-md border" />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeGalleryImage(index)}
+                                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                                        >
+                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                multiple
+                                                onChange={(e) => handleImageUpload(e, true)}
+                                                disabled={uploading}
+                                                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                                            />
+                                        </div>
+
+                                        {uploading && <p className="text-xs text-emerald-600">Subiendo imágenes...</p>}
+                                    </div>
+
+                                    <div className="flex justify-end gap-2 mt-4">
+                                        <Button as="a" href="/agent/properties" variant="flat" color="danger">
+                                            Cancelar
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            color="success"
+                                            className="bg-emerald-600"
+                                            isLoading={loading}
+                                        >
+                                            {loading ? "Guardando..." : (propertyId ? "Actualizar" : "Enviar para Aprobación")}
+                                        </Button>
+                                    </div>
+                                </Form>
+                            </CardBody>
+                        </Card>
+                    </div>
+                </>
+            )}
+        </AgentLayout>
     );
 }
 

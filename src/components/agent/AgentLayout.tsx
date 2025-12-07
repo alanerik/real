@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
-import { useDisclosure, Button } from "@heroui/react";
-import AgentSidebar from './AgentSidebar';
-import MobileAgentSidebar from './MobileAgentSidebar';
-import AgentNavigationItems from './AgentNavigationItems';
+import React from 'react';
+import { useDisclosure } from "@heroui/react";
+import UnifiedLayout from '../shared/UnifiedLayout';
 import AgentProfileModal from './AgentProfileModal';
 import SettingsModal from '../admin/SettingsModal';
 import type { Agent } from '../../lib/agents';
+import {
+    DashboardIcon,
+    PropertiesIcon,
+    LeadsIcon,
+    CommissionsIcon
+} from './icons/AgentIcons';
 
 interface AgentLayoutProps {
     children: React.ReactNode | ((props: {
-        onOpenMobileSidebar: () => void;
         onOpenProfile: () => void;
         onOpenSettings: () => void;
     }) => React.ReactNode);
@@ -18,16 +21,19 @@ interface AgentLayoutProps {
 }
 
 export const AgentLayout: React.FC<AgentLayoutProps> = ({ children, currentAgent, handleLogout }) => {
-    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-
     const { isOpen: isProfileOpen, onOpen: onOpenProfile, onClose: onCloseProfile } = useDisclosure();
     const { isOpen: isSettingsOpen, onOpen: onOpenSettings, onClose: onCloseSettings } = useDisclosure();
 
-    const handleOpenMobileSidebar = () => setIsMobileSidebarOpen(true);
+    // Define Navigation Items
+    const sidebarItems = [
+        { key: 'dashboard', href: '/agent/dashboard', label: 'Dashboard', icon: DashboardIcon, color: 'primary' as const },
+        { key: 'properties', href: '/agent/properties', label: 'Propiedades', icon: PropertiesIcon, color: 'success' as const },
+        { key: 'leads', href: '/agent/leads', label: 'Leads', icon: LeadsIcon, color: 'secondary' as const },
+        { key: 'commissions', href: '/agent/commissions', label: 'Comisiones', icon: CommissionsIcon, color: 'warning' as const },
+    ];
 
     return (
-        <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 p-4 pb-20 sm:pb-4 gap-4">
+        <>
             {/* Modals */}
             <AgentProfileModal
                 isOpen={isProfileOpen}
@@ -39,41 +45,19 @@ export const AgentLayout: React.FC<AgentLayoutProps> = ({ children, currentAgent
                 onClose={onCloseSettings}
             />
 
-            {/* Mobile Sidebar */}
-            <MobileAgentSidebar
-                isOpen={isMobileSidebarOpen}
-                onClose={() => setIsMobileSidebarOpen(false)}
-                currentAgent={currentAgent}
+            <UnifiedLayout
+                roleTitle="Agente"
+                sidebarItems={sidebarItems}
                 handleLogout={handleLogout}
-                onOpenProfile={onOpenProfile}
-                onOpenSettings={onOpenSettings}
-            />
-
-            {/* Desktop Sidebar */}
-            <div className="hidden sm:block">
-                <AgentSidebar
-                    isExpanded={isSidebarExpanded}
-                    onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
-                    handleLogout={handleLogout}
-                />
-            </div>
-
-            {/* Main Content */}
-            <div className="flex-1 max-w-6xl mx-auto w-full">
+            >
                 {typeof children === 'function'
                     ? children({
-                        onOpenMobileSidebar: handleOpenMobileSidebar,
                         onOpenProfile,
                         onOpenSettings
                     })
                     : children
                 }
-            </div>
-
-            {/* Mobile Bottom Navigation */}
-            <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-black/90 backdrop-blur-lg border-t border-default-200 z-50 px-6 py-3 flex justify-between items-center rounded-t-2xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-                <AgentNavigationItems isMobile={true} handleLogout={handleLogout} />
-            </div>
-        </div>
+            </UnifiedLayout>
+        </>
     );
 };

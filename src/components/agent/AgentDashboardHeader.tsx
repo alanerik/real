@@ -3,11 +3,15 @@ import { Input, Button } from "@heroui/react";
 import AgentUserMenu from "./AgentUserMenu";
 import type { Agent } from "../../lib/agents";
 
-interface AgentDashboardHeaderProps {
+// interface AgentDashboardHeaderProps {
+// ...
+//     onOpenMobileSidebar: () => void; // Remove this line
+// }
+
+export interface AgentDashboardHeaderProps {
     currentAgent: Agent | null;
     onOpenProfile: () => void;
     onOpenSettings: () => void;
-    onOpenMobileSidebar: () => void;
     title?: string;
     subtitle?: string;
 }
@@ -16,7 +20,6 @@ export const AgentDashboardHeader: React.FC<AgentDashboardHeaderProps> = ({
     currentAgent,
     onOpenProfile,
     onOpenSettings,
-    onOpenMobileSidebar,
     title,
     subtitle,
 }) => {
@@ -27,21 +30,8 @@ export const AgentDashboardHeader: React.FC<AgentDashboardHeaderProps> = ({
 
             {/* Desktop + Mobile Header */}
             <div className="flex flex-row justify-between items-center w-full mb-6">
-                {/* Mobile Left: Hamburger Button */}
-                <div className="sm:hidden">
-                    <Button
-                        isIconOnly
-                        variant="light"
-                        onPress={onOpenMobileSidebar}
-                        className="text-default-500"
-                        aria-label="Abrir menú"
-                    >
-                        <MenuIcon className="w-6 h-6" />
-                    </Button>
-                </div>
-
-                {/* Desktop Left: Title or Welcome Message */}
-                <div className="hidden sm:block text-left">
+                {/* Desktop Left: Title or Welcome Message - Always visible now */}
+                <div className="text-left">
                     {title ? (
                         <div>
                             <h1 className="text-xl font-bold text-default-900 dark:text-default-100">{title}</h1>
@@ -53,6 +43,7 @@ export const AgentDashboardHeader: React.FC<AgentDashboardHeaderProps> = ({
                         </h1>
                     )}
                 </div>
+
 
                 {/* Desktop Right: Search + User Menu */}
                 <div className="hidden sm:flex items-center justify-end gap-4 flex-1 max-w-xl">

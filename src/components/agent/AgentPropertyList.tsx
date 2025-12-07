@@ -127,13 +127,12 @@ function AgentPropertyListContent() {
 
     return (
         <AgentLayout currentAgent={currentAgent} handleLogout={handleLogout}>
-            {({ onOpenMobileSidebar, onOpenProfile, onOpenSettings }) => (
+            {({ onOpenProfile, onOpenSettings }) => (
                 <>
                     <AgentDashboardHeader
                         currentAgent={currentAgent}
                         onOpenProfile={onOpenProfile}
                         onOpenSettings={onOpenSettings}
-                        onOpenMobileSidebar={onOpenMobileSidebar}
                         title="Propiedades"
                         subtitle={showOnlyMine ? 'Mostrando solo tus propiedades' : 'Mostrando todas las propiedades'}
                     />

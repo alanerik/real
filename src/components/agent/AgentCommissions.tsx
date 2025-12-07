@@ -93,13 +93,12 @@ function AgentCommissionsContent() {
 
     return (
         <AgentLayout currentAgent={currentAgent} handleLogout={handleLogout}>
-            {({ onOpenMobileSidebar, onOpenProfile, onOpenSettings }) => (
+            {({ onOpenProfile, onOpenSettings }) => (
                 <>
                     <AgentDashboardHeader
                         currentAgent={currentAgent}
                         onOpenProfile={onOpenProfile}
                         onOpenSettings={onOpenSettings}
-                        onOpenMobileSidebar={onOpenMobileSidebar}
                         title="Comisiones"
                         subtitle="Gestiona y visualiza tus comisiones"
                     />

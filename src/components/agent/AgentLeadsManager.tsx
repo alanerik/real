@@ -155,13 +155,12 @@ function AgentLeadsManagerContent() {
 
     return (
         <AgentLayout currentAgent={currentAgent} handleLogout={handleLogout}>
-            {({ onOpenMobileSidebar, onOpenProfile, onOpenSettings }) => (
+            {({ onOpenProfile, onOpenSettings }) => (
                 <>
                     <AgentDashboardHeader
                         currentAgent={currentAgent}
                         onOpenProfile={onOpenProfile}
                         onOpenSettings={onOpenSettings}
-                        onOpenMobileSidebar={onOpenMobileSidebar}
                         title="Mis Leads"
                         subtitle="Gestiona tus contactos y oportunidades"
                     />
