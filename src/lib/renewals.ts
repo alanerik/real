@@ -71,9 +71,9 @@ export async function getPendingRenewalRequest(rentalId: string) {
         .eq('status', 'pending')
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+    if (error) {
         throw createSupabaseError(error, 'getPendingRenewalRequest', 'renewal_requests');
     }
 
