@@ -178,9 +178,23 @@ function AgentManagerContent() {
     };
 
     return (
-        <AdminLayout title="Gestión de Agentes">
+        <AdminLayout
+            title="Gestión de Agentes"
+            hideSidebar={true}
+            hideUserMenu={true}
+            hideMobileNav={true}
+        >
             <div className="space-y-6">
-                <div className="flex justify-end">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <Button
+                        color="default"
+                        variant="light"
+                        onPress={() => window.location.href = '/admin/dashboard'}
+                        startContent={<ArrowLeftIcon className="w-4 h-4" />}
+                        className="w-full sm:w-auto"
+                    >
+                        Volver al Dashboard
+                    </Button>
                     <Button
                         color="primary"
                         onPress={onOpen}
@@ -320,6 +334,12 @@ function AgentManagerContent() {
 }
 
 // Icons
+const ArrowLeftIcon = (props: any) => (
+    <svg fill="none" viewBox="0 0 24 24" {...props}>
+        <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+    </svg>
+);
+
 const PlusIcon = (props: any) => (
     <svg fill="none" viewBox="0 0 24 24" {...props}>
         <path d="M12 5v14M5 12h14" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />

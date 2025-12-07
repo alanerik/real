@@ -10,20 +10,32 @@ interface AdminLayoutContentProps {
     children: React.ReactNode;
     headerContent?: React.ReactNode;
     title?: string;
+    hideSidebar?: boolean;
+    hideUserMenu?: boolean;
+    hideMobileNav?: boolean;
 }
 
-export const AdminLayoutContent: React.FC<AdminLayoutContentProps> = ({ children, headerContent, title }) => {
+export const AdminLayoutContent: React.FC<AdminLayoutContentProps> = ({
+    children,
+    headerContent,
+    title,
+    hideSidebar = false,
+    hideUserMenu = false,
+    hideMobileNav = false
+}) => {
     const { currentUser, handleLogout } = useAuth();
     const { openModal } = useModal();
 
     const defaultHeader = (
         <div className="flex justify-between items-center w-full mb-6">
             <h1 className="text-xl font-bold text-default-900 dark:text-default-100">{title || ''}</h1>
-            <UserMenu
-                currentUser={currentUser}
-                onOpenProfile={() => openModal('profile', { currentUser })}
-                onOpenSettings={() => openModal('settings')}
-            />
+            {!hideUserMenu && (
+                <UserMenu
+                    currentUser={currentUser}
+                    onOpenProfile={() => openModal('profile', { currentUser })}
+                    onOpenSettings={() => openModal('settings')}
+                />
+            )}
         </div>
     );
 
@@ -33,6 +45,8 @@ export const AdminLayoutContent: React.FC<AdminLayoutContentProps> = ({ children
             sidebarItems={adminSidebarItems}
             handleLogout={handleLogout}
             headerContent={headerContent || defaultHeader}
+            hideSidebar={hideSidebar}
+            hideMobileNav={hideMobileNav}
         >
             {children}
             <ModalRenderer />

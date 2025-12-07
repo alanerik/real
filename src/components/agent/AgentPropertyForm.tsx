@@ -59,6 +59,12 @@ function AgentPropertyFormContent({ propertyId }: AgentPropertyFormProps) {
     });
 
     useEffect(() => {
+        if (!isCheckingAuth && !currentAgent) {
+            window.location.href = '/agent/login';
+        }
+    }, [isCheckingAuth, currentAgent]);
+
+    useEffect(() => {
         if (propertyId && currentAgent) {
             loadProperty();
         }
@@ -91,31 +97,10 @@ function AgentPropertyFormContent({ propertyId }: AgentPropertyFormProps) {
                 covered_area: data.covered_area?.toString() || "",
                 semi_covered_area: data.semi_covered_area?.toString() || "",
                 land_area: data.land_area?.toString() || "",
-                antiquity: data.antiquity?.toString() || "",
-                expenses: data.expenses?.toString() || "",
-                gallery_images: data.gallery_images || [],
-                is_brand_new: data.is_brand_new || false,
-                is_featured: data.is_featured || false,
-                latitud: data.latitud?.toString() || "",
-                longitud: data.longitud?.toString() || "",
             });
         }
         setLoading(false);
     }
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => {
-            const newData = { ...prev, [name]: value };
-            if (name === "title" && !propertyId) {
-                newData.slug = value
-                    .toLowerCase()
-                    .replace(/[^a-z0-9]+/g, "-")
-                    .replace(/(^-|-$)+/g, "");
-            }
-            return newData;
-        });
-    };
 
     const handleSelectChange = (name: string, value: string) => {
         setFormData((prev) => ({ ...prev, [name]: value }));
@@ -126,6 +111,20 @@ function AgentPropertyFormContent({ propertyId }: AgentPropertyFormProps) {
             const newData = { ...prev, [name]: isSelected };
             if (name === "is_brand_new" && isSelected) {
                 newData.antiquity = "0";
+            }
+            return newData;
+        });
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => {
+            const newData = { ...prev, [name]: value };
+            if (name === "title" && !propertyId) {
+                newData.slug = value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/(^-|-$)+/g, "");
             }
             return newData;
         });
@@ -264,7 +263,7 @@ function AgentPropertyFormContent({ propertyId }: AgentPropertyFormProps) {
         setLoading(false);
     };
 
-    if (isCheckingAuth) {
+    if (isCheckingAuth || !currentAgent) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>

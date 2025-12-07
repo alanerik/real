@@ -10,8 +10,7 @@ import {
     TableRow,
     TableCell,
     Chip,
-    Spinner,
-    Button
+    Spinner
 } from "@heroui/react";
 import { HeroUIProvider } from "@heroui/react";
 import { ThemeProvider } from '../../contexts/ThemeContext';
@@ -31,6 +30,12 @@ function AgentCommissionsContent() {
     const [commissions, setCommissions] = useState<Commission[]>([]);
     const [summary, setSummary] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!isCheckingAuth && !currentAgent) {
+            window.location.href = '/agent/login';
+        }
+    }, [isCheckingAuth, currentAgent]);
 
     useEffect(() => {
         if (currentAgent) {
@@ -83,7 +88,7 @@ function AgentCommissionsContent() {
         return 'Venta';
     };
 
-    if (isCheckingAuth) {
+    if (isCheckingAuth || !currentAgent) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <Spinner size="lg" color="success" />

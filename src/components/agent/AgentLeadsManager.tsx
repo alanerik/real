@@ -62,6 +62,12 @@ function AgentLeadsManagerContent() {
     });
 
     useEffect(() => {
+        if (!isCheckingAuth && !currentAgent) {
+            window.location.href = '/agent/login';
+        }
+    }, [isCheckingAuth, currentAgent]);
+
+    useEffect(() => {
         if (currentAgent) {
             loadLeads();
         }
@@ -145,7 +151,7 @@ function AgentLeadsManagerContent() {
         });
     };
 
-    if (isCheckingAuth) {
+    if (isCheckingAuth || !currentAgent) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <Spinner size="lg" color="success" />

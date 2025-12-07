@@ -9,6 +9,8 @@ interface UnifiedLayoutProps {
     handleLogout: () => Promise<void>;
     isMobile?: boolean; // Can be detected but prop override is nice
     headerContent?: React.ReactNode; // For user menu, page title, filters
+    hideSidebar?: boolean;
+    hideMobileNav?: boolean;
 }
 
 export default function UnifiedLayout({
@@ -16,7 +18,9 @@ export default function UnifiedLayout({
     sidebarItems,
     roleTitle,
     handleLogout,
-    headerContent
+    headerContent,
+    hideSidebar = false,
+    hideMobileNav = false
 }: UnifiedLayoutProps) {
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -60,13 +64,15 @@ export default function UnifiedLayout({
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20 sm:pb-0 flex transition-colors duration-200">
             {/* Desktop Sidebar */}
-            <UnifiedSidebar
-                items={sidebarItems}
-                roleTitle={roleTitle}
-                isExpanded={isSidebarExpanded}
-                onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
-                handleLogout={handleLogout}
-            />
+            {!hideSidebar && (
+                <UnifiedSidebar
+                    items={sidebarItems}
+                    roleTitle={roleTitle}
+                    isExpanded={isSidebarExpanded}
+                    onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
+                    handleLogout={handleLogout}
+                />
+            )}
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0">
@@ -86,7 +92,7 @@ export default function UnifiedLayout({
             </div>
 
             {/* Mobile Nav */}
-            {renderMobileNav()}
+            {!hideMobileNav && renderMobileNav()}
         </div>
     );
 }
